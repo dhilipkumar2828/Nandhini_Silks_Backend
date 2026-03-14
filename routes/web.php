@@ -4,6 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\SubCategoryController;
+use App\Http\Controllers\Admin\ChildCategoryController;
+use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\FrontendController;
 
 Route::get('/', [FrontendController::class, 'index'])->name('home');
@@ -57,7 +60,16 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
         
-        // Categories
+        // Category Management
         Route::resource('categories', CategoryController::class)->names('admin.categories');
+        Route::resource('sub-categories', SubCategoryController::class)->names('admin.sub-categories');
+        Route::resource('child-categories', ChildCategoryController::class)->names('admin.child-categories');
+        
+        // Products
+        Route::resource('products', ProductController::class)->names('admin.products');
+        
+        // AJAX Helpers
+        Route::get('/get-sub-categories/{category_id}', [ChildCategoryController::class, 'getSubCategories']);
+        Route::get('/get-child-categories/{sub_category_id}', [ProductController::class, 'getChildCategories']);
     });
 });
