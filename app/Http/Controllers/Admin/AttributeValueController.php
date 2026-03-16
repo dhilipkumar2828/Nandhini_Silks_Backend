@@ -38,12 +38,18 @@ class AttributeValueController extends Controller
             'attribute_id' => 'required|exists:attributes,id',
             'name' => 'required|string|max:255',
             'swatch_value' => 'nullable|string|max:255',
+            'swatch_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'display_order' => 'required|integer',
             'status' => 'required|boolean',
         ]);
 
         $data = $request->all();
         $data['slug'] = Str::slug($request->name);
+        $data['swatch_value'] = $request->input('swatch_value');
+
+        if ($request->hasFile('swatch_image')) {
+            $data['swatch_value'] = $this->storeSwatchImage($request->file('swatch_image'));
+        }
 
         AttributeValue::create($data);
 
@@ -63,12 +69,24 @@ class AttributeValueController extends Controller
             'attribute_id' => 'required|exists:attributes,id',
             'name' => 'required|string|max:255',
             'swatch_value' => 'nullable|string|max:255',
+            'swatch_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'display_order' => 'required|integer',
             'status' => 'required|boolean',
         ]);
 
         $data = $request->all();
         $data['slug'] = Str::slug($request->name);
+        $data['swatch_value'] = $request->input('swatch_value');
+
+        if ($request->hasFile('swatch_image')) {
+            if ($attributeValue->swatch_value && !$this->isHexColor($attributeValue->swatch_value)) {
+                $oldPath = public_path('uploads/' . $attributeValue->swatch_value);
+                if (file_exists($oldPath)) {
+                    unlink($oldPath);
+                }
+            }
+            $data['swatch_value'] = $this->storeSwatchImage($request->file('swatch_image'));
+        }
 
         $attributeValue->update($data);
 
@@ -79,8 +97,35 @@ class AttributeValueController extends Controller
     public function destroy(AttributeValue $attributeValue)
     {
         $attributeId = $attributeValue->attribute_id;
+        if ($attributeValue->swatch_value && !$this->isHexColor($attributeValue->swatch_value)) {
+            $oldPath = public_path('uploads/' . $attributeValue->swatch_value);
+            if (file_exists($oldPath)) {
+                unlink($oldPath);
+            }
+        }
         $attributeValue->delete();
         return redirect()->route('admin.attribute-values.index', ['attribute_id' => $attributeId])
             ->with('success', 'Attribute value deleted successfully.');
+    }
+
+    private function storeSwatchImage($image): string
+    {
+        $imageName = time() . '_' . Str::random(8) . '.' . $image->extension();
+        $uploadPath = public_path('uploads/attribute-values');
+        if (!file_exists($uploadPath)) {
+            mkdir($uploadPath, 0755, true);
+        }
+        $image->move($uploadPath, $imageName);
+
+        return 'attribute-values/' . $imageName;
+    }
+
+    private function isHexColor(?string $value): bool
+    {
+        if (!$value) {
+            return false;
+        }
+
+        return (bool) preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $value);
     }
 }

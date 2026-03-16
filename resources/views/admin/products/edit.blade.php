@@ -197,6 +197,49 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Attributes -->
+                <div class="card-glass p-6 rounded-2xl">
+                    <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center">
+                        <i class="fas fa-tags mr-2 text-[#a91b43]"></i> Attributes
+                    </h3>
+                    @php
+                        $selectedAttributes = old('attributes', $product->attributes ?? []);
+                    @endphp
+                    @if(isset($attributes) && $attributes->count())
+                        <div class="space-y-4">
+                            @foreach($attributes as $attribute)
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-2">{{ $attribute->group }} - {{ $attribute->name }}</label>
+                                    <div class="flex flex-wrap gap-2">
+                                        @forelse($attribute->values as $value)
+                                            @php
+                                                $checked = in_array($value->id, $selectedAttributes[$attribute->id] ?? []);
+                                                $swatch = $value->swatch_value;
+                                                $isColor = $swatch && preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $swatch);
+                                            @endphp
+                                            <label class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs cursor-pointer">
+                                                <input type="checkbox" name="attributes[{{ $attribute->id }}][]" value="{{ $value->id }}" class="accent-[#a91b43]" {{ $checked ? 'checked' : '' }}>
+                                                @if($swatch)
+                                                    @if($isColor)
+                                                        <span class="w-4 h-4 rounded-full border border-slate-200" style="background: {{ $swatch }}"></span>
+                                                    @else
+                                                        <img src="{{ asset('uploads/' . $swatch) }}" alt="{{ $value->name }}" class="w-4 h-4 rounded-full border border-slate-200 object-cover">
+                                                    @endif
+                                                @endif
+                                                <span>{{ $value->name }}</span>
+                                            </label>
+                                        @empty
+                                            <span class="text-[10px] text-slate-400">No values created for this attribute.</span>
+                                        @endforelse
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-xs text-slate-400">No attributes created yet. Add attributes first.</p>
+                    @endif
+                </div>
             </div>
 
             <div class="mt-6 flex justify-end space-x-3">

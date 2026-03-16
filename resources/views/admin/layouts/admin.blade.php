@@ -104,11 +104,16 @@
             </a>
 
             <!-- Catalog Dropdown -->
+<<<<<<< HEAD
             <div
                 x-data="{ open: {{ request()->routeIs('admin.categories.*', 'admin.sub-categories.*', 'admin.child-categories.*', 'admin.attributes.*', 'admin.attribute-values.*') ? 'true' : 'false' }} }">
                 <button @click="open = !open"
                     class="w-full nav-link flex items-center px-4 py-2.5 rounded-xl transition-all"
                     :class="open ? 'bg-slate-50 text-[#a91b43]' : ''">
+=======
+            <div x-data="{ open: {{ request()->routeIs('admin.categories.*', 'admin.sub-categories.*', 'admin.child-categories.*', 'admin.attributes.*', 'admin.attribute-values.*', 'admin.products.*') ? 'true' : 'false' }} }">
+                <button @click="open = !open" class="w-full nav-link flex items-center px-4 py-2.5 rounded-xl transition-all" :class="open ? 'bg-slate-50 text-[#a91b43]' : ''">
+>>>>>>> origin/Mathan
                     <div class="w-6 flex justify-center"><i class="fas fa-book-open text-base"></i></div>
                     <span class="font-bold ml-2 text-xs text-left flex-1">Catalog</span>
                     <i class="fas fa-chevron-down text-[10px] transition-transform duration-300"
@@ -141,11 +146,30 @@
                         <div class="w-4 flex justify-center"><i class="fas fa-box text-[10px]"></i></div>
                         <span class="font-bold ml-2 text-[10px]">Products</span>
                     </a>
+
+                    <a href="{{ route('admin.attributes.index') }}" class="nav-link {{ request()->routeIs('admin.attributes.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
+                        <div class="w-4 flex justify-center"><i class="fas fa-tags text-[10px]"></i></div>
+                        <span class="font-bold ml-2 text-[10px]">Attributes</span>
+                    </a>
+
+                    <a href="{{ route('admin.attribute-values.index') }}" class="nav-link {{ request()->routeIs('admin.attribute-values.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
+                        <div class="w-4 flex justify-center"><i class="fas fa-palette text-[10px]"></i></div>
+                        <span class="font-bold ml-2 text-[10px]">Attribute Values</span>
+                    </a>
                 </div>
             </div>
 
 
 
+<<<<<<< HEAD
+=======
+            <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
+                <div class="w-6 flex justify-center"><i class="fas fa-users text-base"></i></div>
+                <span class="font-bold ml-2 text-xs">Users</span>
+            </a>
+
+           
+>>>>>>> origin/Mathan
 
 
             <div class="px-4 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-2">Customer Insight
@@ -205,6 +229,11 @@
                     </a>
                 </div>
             </div>
+
+            <a href="{{ route('admin.coupons.index') }}" class="nav-link {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
+                <div class="w-6 flex justify-center"><i class="fas fa-ticket text-base"></i></div>
+                <span class="font-bold ml-2 text-xs">Coupons</span>
+            </a>
 
             <a href="#" class="nav-link flex items-center px-4 py-2.5 rounded-xl">
                 <div class="w-6 flex justify-center"><i class="fas fa-sliders text-base"></i></div>

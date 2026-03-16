@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'Sarees - Nandhini Silks')
+@section('title', ($category->name ?? 'Shop') . ' - Nandhini Silks')
 
 @section('content')
     <main class="category-page">

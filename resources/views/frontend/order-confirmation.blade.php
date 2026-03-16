@@ -140,7 +140,7 @@
             <div class="confirmation-details-grid">
                 <div class="detail-box">
                     <div class="detail-label">Order Number</div>
-                    <div class="detail-value">#NS-{{ date('Y') }}-{{ rand(10000, 99999) }}</div>
+                    <div class="detail-value">#NS-{{ date('Y') }}-{{ $order ? $order->id : rand(10000, 99999) }}</div>
                 </div>
                 <div class="detail-box">
                     <div class="detail-label">Estimated Delivery</div>
@@ -149,17 +149,26 @@
                 </div>
                 <div class="detail-box">
                     <div class="detail-label">Delivery Address</div>
-                    <div class="detail-value" style="font-weight: 400; line-height: 1.5;">
-                        <strong>Raswanth Sabarish</strong><br>
-                        416/9 Aranmanai Street, S.V. Nagaram<br>
-                        Arni, Tamil Nadu - 632317
-                    </div>
+<div class="detail-value" style="font-weight: 400; line-height: 1.5;">
+    @if($order)
+        <strong>{{ $order->customer_name }}</strong><br>
+        {!! nl2br(e($order->delivery_address)) !!}
+    @else
+        <strong>Raswanth Sabarish</strong><br>
+        416/9 Aranmanai Street, S.V. Nagaram<br>
+        Arni, Tamil Nadu - 632317
+    @endif
+</div>
                 </div>
                 <div class="detail-box">
                     <div class="detail-label">Payment Method</div>
-                    <div class="detail-value" style="display: flex; align-items: center; gap: 8px;">
-                        <img src="https://razorpay.com/favicon.png" width="16" alt=""> Razorpay (Secured)
-                    </div>
+<div class="detail-value" style="display: flex; align-items: center; gap: 8px;">
+    @if($order)
+        {{ strtoupper($order->payment_method) }}
+    @else
+        <img src="https://razorpay.com/favicon.png" width="16" alt=""> Razorpay (Secured)
+    @endif
+</div>
                 </div>
             </div>
 
@@ -173,37 +182,87 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 15px;">
-                                <img src="{{ asset('images/product_detail.png') }}" width="40" height="50"
-                                    style="object-fit: cover; border-radius: 4px;">
-                                <div>
-                                    <div style="font-weight: 600;">Royal Gold Silk Saree</div>
-                                    <div style="font-size: 11px; color: #999;">Color: Gold</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>1</td>
-                        <td style="text-align: right;">&#8377;7,490</td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" style="text-align: right; border: none; padding-top: 25px;">Subtotal:</td>
-                        <td style="text-align: right; border: none; padding-top: 25px; font-weight: 600;">&#8377;7,490</td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" style="text-align: right; border: none;">Shipping:</td>
-                        <td style="text-align: right; border: none; color: #2e7d32; font-weight: 600;">FREE</td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" style="text-align: right; border: none;">GST (5%):</td>
-                        <td style="text-align: right; border: none; font-weight: 600;">&#8377;375</td>
-                    </tr>
-                    <tr class="total-row" style="font-size: 20px; font-weight: 700;">
-                        <td colspan="2" style="text-align: right; border: none; padding-top: 15px; color: #333;">Total Paid:</td>
-                        <td class="total-paid" style="text-align: right; border: none; padding-top: 15px; color: var(--pink);">&#8377;7,865</td>
-                    </tr>
-                </tbody>
+    @if($order)
+        @foreach($order->items as $item)
+            @php
+                $itemImage = $item->product && $item->product->image_path
+                    ? asset('images/' . $item->product->image_path)
+                    : asset('images/pro.png');
+            @endphp
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <img src="{{ $itemImage }}" width="40" height="50" style="object-fit: cover; border-radius: 4px;">
+                        <div>
+                            <div style="font-weight: 600;">{{ $item->product_name }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>{{ $item->quantity }}</td>
+                <td style="text-align: right;">&#8377;{{ number_format($item->total, 0) }}</td>
+            </tr>
+        @endforeach
+        <tr>
+            <td colspan="2" style="text-align: right; border: none; padding-top: 25px;">Subtotal:</td>
+            <td style="text-align: right; border: none; padding-top: 25px; font-weight: 600;">&#8377;{{ number_format($order->sub_total, 0) }}</td>
+        </tr>
+        @if($order->discount > 0)
+            <tr>
+                <td colspan="2" style="text-align: right; border: none;">Coupon {{ $order->coupon_code ? '(' . $order->coupon_code . ')' : '' }}:</td>
+                <td style="text-align: right; border: none; font-weight: 600; color: #2e7d32;">-&#8377;{{ number_format($order->discount, 0) }}</td>
+            </tr>
+        @endif
+        <tr>
+            <td colspan="2" style="text-align: right; border: none;">Shipping:</td>
+            <td style="text-align: right; border: none; color: #2e7d32; font-weight: 600;">
+                @if($order->shipping > 0)
+                    &#8377;{{ number_format($order->shipping, 0) }}
+                @else
+                    FREE
+                @endif
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align: right; border: none;">GST (5%):</td>
+            <td style="text-align: right; border: none; font-weight: 600;">&#8377;{{ number_format($order->tax, 0) }}</td>
+        </tr>
+        <tr class="total-row" style="font-size: 20px; font-weight: 700;">
+            <td colspan="2" style="text-align: right; border: none; padding-top: 15px; color: #333;">Total Paid:</td>
+            <td class="total-paid" style="text-align: right; border: none; padding-top: 15px; color: var(--pink);">&#8377;{{ number_format($order->grand_total, 0) }}</td>
+        </tr>
+    @else
+        <tr>
+            <td>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <img src="{{ asset('images/product_detail.png') }}" width="40" height="50"
+                        style="object-fit: cover; border-radius: 4px;">
+                    <div>
+                        <div style="font-weight: 600;">Royal Gold Silk Saree</div>
+                        <div style="font-size: 11px; color: #999;">Color: Gold</div>
+                    </div>
+                </div>
+            </td>
+            <td>1</td>
+            <td style="text-align: right;">&#8377;7,490</td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align: right; border: none; padding-top: 25px;">Subtotal:</td>
+            <td style="text-align: right; border: none; padding-top: 25px; font-weight: 600;">&#8377;7,490</td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align: right; border: none;">Shipping:</td>
+            <td style="text-align: right; border: none; color: #2e7d32; font-weight: 600;">FREE</td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align: right; border: none;">GST (5%):</td>
+            <td style="text-align: right; border: none; font-weight: 600;">&#8377;375</td>
+        </tr>
+        <tr class="total-row" style="font-size: 20px; font-weight: 700;">
+            <td colspan="2" style="text-align: right; border: none; padding-top: 15px; color: #333;">Total Paid:</td>
+            <td class="total-paid" style="text-align: right; border: none; padding-top: 15px; color: var(--pink);">&#8377;7,865</td>
+        </tr>
+    @endif
+</tbody>
             </table>
 
             <div class="conf-actions">
@@ -268,3 +327,7 @@
     }
 </script>
 @endpush
+
+
+
+

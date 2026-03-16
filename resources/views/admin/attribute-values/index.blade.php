@@ -41,11 +41,22 @@
                         <div class="text-[10px] text-slate-400 tracking-tight">{{ $value->slug }}</div>
                     </td>
                     <td class="py-2.5">
-                        @if($value->swatch_value)
-                            <div class="flex items-center">
-                                <span class="w-4 h-4 rounded-full border border-slate-100 mr-2" style="background-color: {{ $value->swatch_value }}"></span>
-                                <span class="text-[10px] text-slate-500">{{ $value->swatch_value }}</span>
-                            </div>
+                        @php
+                            $swatch = $value->swatch_value;
+                            $isColor = $swatch && preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $swatch);
+                        @endphp
+                        @if($swatch)
+                            @if($isColor)
+                                <div class="flex items-center">
+                                    <span class="w-4 h-4 rounded-full border border-slate-100 mr-2" style="background-color: {{ $swatch }}"></span>
+                                    <span class="text-[10px] text-slate-500">{{ $swatch }}</span>
+                                </div>
+                            @else
+                                <div class="flex items-center">
+                                    <img src="{{ asset('uploads/' . $swatch) }}" alt="Swatch" class="w-5 h-5 rounded-md border border-slate-100 mr-2 object-cover">
+                                    <span class="text-[10px] text-slate-500">Image</span>
+                                </div>
+                            @endif
                         @else
                             <span class="text-[10px] text-slate-300">None</span>
                         @endif

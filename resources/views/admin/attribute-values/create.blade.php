@@ -12,7 +12,7 @@
             <h2 class="text-lg font-bold text-slate-800">Add Attribute Value</h2>
         </div>
 
-        <form id="attributeValueForm" action="{{ route('admin.attribute-values.store') }}" method="POST" class="space-y-4">
+        <form id="attributeValueForm" action="{{ route('admin.attribute-values.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
             @csrf
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="space-y-1.5">
@@ -44,6 +44,13 @@
                             class="flex-1 bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800"
                             placeholder="#ffffff">
                     </div>
+                    <p class="text-[10px] text-slate-400">Use color OR upload an image below.</p>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">Swatch Image</label>
+                    <input type="file" name="swatch_image" accept="image/*"
+                        class="w-full bg-white border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-700">
                 </div>
 
                 <div class="space-y-1.5">

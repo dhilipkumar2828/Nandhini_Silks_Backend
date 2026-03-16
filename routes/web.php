@@ -7,10 +7,13 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\SubCategoryController;
 use App\Http\Controllers\Admin\ChildCategoryController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\Auth\UserAuthController;
+use App\Http\Controllers\CartController;
 
 Route::get('/', [FrontendController::class, 'index'])->name('home');
+Route::get('/shop', [FrontendController::class, 'shop'])->name('shop');
 
 // User Authentication
 Route::post('/login', [UserAuthController::class, 'login'])->name('login.submit');
@@ -20,8 +23,14 @@ Route::post('/logout', [UserAuthController::class, 'logout'])->name('logout');
 // Frontend Static Pages
 Route::get('/about', [FrontendController::class, 'about'])->name('about');
 Route::get('/contact', [FrontendController::class, 'contact'])->name('contact');
-Route::get('/cart', [FrontendController::class, 'cart'])->name('cart');
-Route::get('/checkout', [FrontendController::class, 'checkout'])->name('checkout');
+Route::get('/cart', [CartController::class, 'index'])->name('cart');
+Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
+Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
+Route::post('/cart/remove/{product}', [CartController::class, 'remove'])->name('cart.remove');
+Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->name('cart.coupon.apply');
+Route::post('/cart/coupon/remove', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
+Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
+Route::post('/checkout', [CartController::class, 'placeOrder'])->name('checkout.place');
 Route::get('/wishlist', [FrontendController::class, 'wishlist'])->name('wishlist');
 Route::get('/search', [FrontendController::class, 'search'])->name('search');
 
@@ -35,13 +44,12 @@ Route::get('/fabric-care', [FrontendController::class, 'fabricCare'])->name('fab
 
 // User Account Pages
 Route::get('/login', [FrontendController::class, 'userLogin'])->name('login');
-Route::post('/login', [FrontendController::class, 'postLogin'])->name('login.submit');
-Route::post('/register', [FrontendController::class, 'postRegister'])->name('register');
 Route::get('/my-account', [FrontendController::class, 'myAccount'])->name('my-account');
 Route::get('/my-addresses', [FrontendController::class, 'myAddresses'])->name('my-addresses');
 Route::get('/my-reviews', [FrontendController::class, 'myReviews'])->name('my-reviews');
 Route::get('/my-profile', [FrontendController::class, 'myProfile'])->name('my-profile');
 Route::get('/order-confirmation', [FrontendController::class, 'orderConfirmation'])->name('order-confirmation');
+Route::get('/order-confirmation/{order?}', [CartController::class, 'orderConfirmation'])->name('order-confirmation');
 Route::get('/order-detail', [FrontendController::class, 'orderDetail'])->name('order-detail');
 
 // Dynamic Products/Categories
@@ -94,7 +102,13 @@ Route::group(['prefix' => 'admin'], function () {
         Route::resource('tax-settings', \App\Http\Controllers\Admin\TaxSettingController::class)->names('admin.tax-settings');
         Route::resource('tax-classes', \App\Http\Controllers\Admin\TaxClassController::class)->names('admin.tax-classes');
         Route::resource('tax-rates', \App\Http\Controllers\Admin\TaxRateController::class)->names('admin.tax-rates');
+        Route::resource('coupons', \App\Http\Controllers\Admin\CouponController::class)->names('admin.coupons');
 
+        // Users
+        Route::resource('users', UserController::class)->only(['index', 'show', 'edit', 'update'])->names('admin.users');
+        Route::post('users/{user}/addresses', [UserController::class, 'storeAddress'])->name('admin.users.addresses.store');
+        Route::delete('users/{user}/addresses/{address}', [UserController::class, 'destroyAddress'])->name('admin.users.addresses.destroy');
+        
         // Stock Maintenance
         Route::get('/stock', [\App\Http\Controllers\Admin\StockController::class, 'index'])->name('admin.stock.index');
         Route::post('/stock/update-bulk', [\App\Http\Controllers\Admin\StockController::class, 'updateBulk'])->name('admin.stock.update-bulk');

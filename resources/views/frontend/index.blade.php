@@ -560,56 +560,56 @@
                 <div class="swiper-wrapper">
                     <div class="swiper-slide">
                         <article class="collection-card">
-                            <a href="{{ url('sarees') }}" class="card-link-wrapper">
+                            <a href="{{ route('shop') }}" class="card-link-wrapper">
                                 <div class="collection-image-wrap">
                                     <img src="{{ asset('images/Image.png') }}" alt="Pure Silk Saree" />
                                 </div>
                                 <h3 class="collection-name">Pure Silk Saree</h3>
                             </a>
                             <button class="collection-cta" type="button"
-                                onclick="window.location.href='{{ url('sarees') }}'">Shop
+                                onclick="window.location.href='{{ route('shop') }}'">Shop
                                 Now</button>
                         </article>
                     </div>
 
                     <div class="swiper-slide">
                         <article class="collection-card">
-                            <a href="{{ url('sarees') }}" class="card-link-wrapper">
+                            <a href="{{ route('shop') }}" class="card-link-wrapper">
                                 <div class="collection-image-wrap">
                                     <img src="{{ asset('images/Image (1).png') }}" alt="Tissue Silk Saree" />
                                 </div>
                                 <h3 class="collection-name">Tissue Silk Saree</h3>
                             </a>
                             <button class="collection-cta" type="button"
-                                onclick="window.location.href='{{ url('sarees') }}'">Shop
+                                onclick="window.location.href='{{ route('shop') }}'">Shop
                                 Now</button>
                         </article>
                     </div>
 
                     <div class="swiper-slide">
                         <article class="collection-card">
-                            <a href="{{ url('sarees') }}" class="card-link-wrapper">
+                            <a href="{{ route('shop') }}" class="card-link-wrapper">
                                 <div class="collection-image-wrap">
                                     <img src="{{ asset('images/Image (2).png') }}" alt="Cotton Sarees" />
                                 </div>
                                 <h3 class="collection-name">Cotton Sarees</h3>
                             </a>
                             <button class="collection-cta" type="button"
-                                onclick="window.location.href='{{ url('sarees') }}'">Shop
+                                onclick="window.location.href='{{ route('shop') }}'">Shop
                                 Now</button>
                         </article>
                     </div>
 
                     <div class="swiper-slide">
                         <article class="collection-card">
-                            <a href="{{ url('sarees') }}" class="card-link-wrapper">
+                            <a href="{{ route('shop') }}" class="card-link-wrapper">
                                 <div class="collection-image-wrap">
                                     <img src="{{ asset('images/Image (3).png') }}" alt="Soft Silk Saree" />
                                 </div>
                                 <h3 class="collection-name">Soft Silk Saree</h3>
                             </a>
                             <button class="collection-cta" type="button"
-                                onclick="window.location.href='{{ url('sarees') }}'">Shop
+                                onclick="window.location.href='{{ route('shop') }}'">Shop
                                 Now</button>
                         </article>
                     </div>
@@ -618,7 +618,7 @@
                         <article class="collection-card">
                             @php
                                 $firstProduct = \App\Models\Product::first();
-                                $productUrl = $firstProduct ? route('product.show', $firstProduct->slug) : url('sarees');
+                                $productUrl = $firstProduct ? route('product.show', $firstProduct->slug) : route('shop');
                                 $productName = $firstProduct ? $firstProduct->name : 'Exquisite Silk Saree';
                             @endphp
                             <a href="{{ $productUrl }}" class="card-link-wrapper">
@@ -763,7 +763,7 @@
             <div class="offer-content">
                 <h2 class="offer-title">Up to 20% off, only for this month</h2>
                 <p class="offer-text">Shop now and enjoy up to 10% off on selected items. Limited time only!</p>
-                <a class="offer-link" href="{{ url('sarees') }}">
+                <a class="offer-link" href="{{ route('shop') }}">
                     <span>Shop Now</span>
                     <span class="offer-link-arrow" aria-hidden="true">&#8594;</span>
                 </a>
@@ -798,7 +798,7 @@
                 </svg>
                 <p class="wedding-text">Flamboyantly charming, the Scarlet Satin Delight Saree embodies grandeur and
                     romance. Rendered in a vivacious shade of red.</p>
-                <button class="wedding-cta" type="button" onclick="window.location.href='{{ url('sarees') }}'">Shop
+                <button class="wedding-cta" type="button" onclick="window.location.href='{{ route('shop') }}'">Shop
                     Now</button>
             </div>
         </article>

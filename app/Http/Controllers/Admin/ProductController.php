@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\SubCategory;
 use App\Models\ChildCategory;
 use App\Models\Product;
+use App\Models\Attribute;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 
@@ -23,7 +24,11 @@ class ProductController extends Controller
     public function create()
     {
         $categories = Category::where('status', '=', 1, 'and')->get();
-        return view('admin.products.create', compact('categories'));
+        $attributes = Attribute::with(['values' => function ($query) {
+            $query->where('status', true)->orderBy('display_order', 'asc');
+        }])->where('status', true)->orderBy('group')->orderBy('name')->get();
+
+        return view('admin.products.create', compact('categories', 'attributes'));
     }
 
     public function store(Request $request)
@@ -36,10 +41,14 @@ class ProductController extends Controller
             'sale_price' => 'nullable|numeric|min:0',
             'stock_quantity' => 'required|integer|min:0',
             'status' => 'required|boolean',
+            'attributes' => 'nullable|array',
+            'attributes.*' => 'nullable|array',
+            'attributes.*.*' => 'integer|exists:attribute_values,id',
         ]);
 
         $data = $request->all();
         $data['slug'] = Str::slug($request->name);
+        $data['attributes'] = $this->sanitizeAttributes($request->input('attributes', []));
 
         // Handle Dynamic Multiple Images
         if ($request->hasFile('images')) {
@@ -62,8 +71,11 @@ class ProductController extends Controller
         $categories = Category::where('status', '=', 1, 'and')->get();
         $subCategories = SubCategory::where('category_id', '=', $product->category_id, 'and')->get();
         $childCategories = ChildCategory::where('sub_category_id', '=', $product->sub_category_id, 'and')->get();
-
-        return view('admin.products.edit', compact('product', 'categories', 'subCategories', 'childCategories'));
+        $attributes = Attribute::with(['values' => function ($query) {
+            $query->where('status', true)->orderBy('display_order', 'asc');
+        }])->where('status', true)->orderBy('group')->orderBy('name')->get();
+        
+        return view('admin.products.edit', compact('product', 'categories', 'subCategories', 'childCategories', 'attributes'));
     }
 
     public function update(Request $request, Product $product)
@@ -76,10 +88,14 @@ class ProductController extends Controller
             'sale_price' => 'nullable|numeric|min:0',
             'stock_quantity' => 'required|integer|min:0',
             'status' => 'required|boolean',
+            'attributes' => 'nullable|array',
+            'attributes.*' => 'nullable|array',
+            'attributes.*.*' => 'integer|exists:attribute_values,id',
         ]);
 
         $data = $request->all();
         $data['slug'] = Str::slug($request->name);
+        $data['attributes'] = $this->sanitizeAttributes($request->input('attributes', []));
 
         // Handle Images
         if ($request->hasFile('images')) {
@@ -129,5 +145,19 @@ class ProductController extends Controller
     {
         $childCategories = ChildCategory::where('sub_category_id', '=', $sub_category_id, 'and')->where('status', '=', 1, 'and')->get();
         return response()->json($childCategories);
+    }
+
+    private function sanitizeAttributes(array $attributes): array
+    {
+        $clean = [];
+
+        foreach ($attributes as $attributeId => $values) {
+            $valueIds = array_values(array_unique(array_filter(array_map('intval', (array) $values))));
+            if (!empty($valueIds)) {
+                $clean[(int) $attributeId] = $valueIds;
+            }
+        }
+
+        return $clean;
     }
 }

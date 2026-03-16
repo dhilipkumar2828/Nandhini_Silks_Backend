@@ -19,6 +19,11 @@ class UserAuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
+            if (Auth::user()) {
+                Auth::user()->forceFill([
+                    'last_login_at' => now(),
+                ])->save();
+            }
             return redirect()->intended(route('home'));
         }
 
