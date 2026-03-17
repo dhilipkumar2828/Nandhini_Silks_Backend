@@ -104,16 +104,8 @@
             </a>
 
             <!-- Catalog Dropdown -->
-<<<<<<< HEAD
-            <div
-                x-data="{ open: {{ request()->routeIs('admin.categories.*', 'admin.sub-categories.*', 'admin.child-categories.*', 'admin.attributes.*', 'admin.attribute-values.*') ? 'true' : 'false' }} }">
-                <button @click="open = !open"
-                    class="w-full nav-link flex items-center px-4 py-2.5 rounded-xl transition-all"
-                    :class="open ? 'bg-slate-50 text-[#a91b43]' : ''">
-=======
             <div x-data="{ open: {{ request()->routeIs('admin.categories.*', 'admin.sub-categories.*', 'admin.child-categories.*', 'admin.attributes.*', 'admin.attribute-values.*', 'admin.products.*') ? 'true' : 'false' }} }">
                 <button @click="open = !open" class="w-full nav-link flex items-center px-4 py-2.5 rounded-xl transition-all" :class="open ? 'bg-slate-50 text-[#a91b43]' : ''">
->>>>>>> origin/Mathan
                     <div class="w-6 flex justify-center"><i class="fas fa-book-open text-base"></i></div>
                     <span class="font-bold ml-2 text-xs text-left flex-1">Catalog</span>
                     <i class="fas fa-chevron-down text-[10px] transition-transform duration-300"
@@ -161,15 +153,12 @@
 
 
 
-<<<<<<< HEAD
-=======
             <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }} flex items-center px-4 py-2.5 rounded-xl">
                 <div class="w-6 flex justify-center"><i class="fas fa-users text-base"></i></div>
                 <span class="font-bold ml-2 text-xs">Users</span>
             </a>
 
            
->>>>>>> origin/Mathan
 
 
             <div class="px-4 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-2">Customer Insight
@@ -210,11 +199,6 @@
                 <div x-show="open" x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0 -translate-y-2"
                     x-transition:enter-end="opacity-100 translate-y-0" class="pl-4 mt-1 space-y-1">
-                    <a href="{{ route('admin.tax-settings.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.tax-settings.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
-                        <div class="w-4 flex justify-center"><i class="fas fa-cog text-[10px]"></i></div>
-                        <span class="font-bold ml-2 text-[10px]">General Settings</span>
-                    </a>
 
                     <a href="{{ route('admin.tax-classes.index') }}"
                         class="nav-link {{ request()->routeIs('admin.tax-classes.*') ? 'active' : '' }} flex items-center px-3 py-1.5 rounded-xl transition-all">
@@ -235,10 +219,26 @@
                 <span class="font-bold ml-2 text-xs">Coupons</span>
             </a>
 
-            <a href="#" class="nav-link flex items-center px-4 py-2.5 rounded-xl">
-                <div class="w-6 flex justify-center"><i class="fas fa-sliders text-base"></i></div>
-                <span class="font-bold ml-2 text-xs">Preferences</span>
-            </a>
+            <!-- Sidebar Profile -->
+            <div class="mt-auto border-t border-slate-50 p-4">
+                <a href="{{ route('admin.profile.index') }}" class="nav-link flex items-center p-2 rounded-xl {{ request()->routeIs('admin.profile.*') ? 'bg-slate-50 text-[#a91b43]' : '' }}">
+                    <div class="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shadow-sm">
+                        @php $admin = Auth::guard('admin')->user(); @endphp
+                        @if($admin->profile_photo)
+                            <img src="{{ asset($admin->profile_photo) }}" class="w-full h-full object-cover">
+                        @else
+                            <div class="w-full h-full gradient-bg flex items-center justify-center font-black text-xs text-white">
+                                {{ substr($admin->name, 0, 1) }}
+                            </div>
+                        @endif
+                    </div>
+                    <div class="ml-3 overflow-hidden">
+                        <p class="text-[11px] font-black text-slate-700 truncate capitalize">{{ $admin->name }}</p>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">View Profile</p>
+                    </div>
+                    <i class="fas fa-chevron-right ml-auto text-[10px] text-slate-300"></i>
+                </a>
+            </div>
         </nav>
     </aside>
 
@@ -271,25 +271,68 @@
                         class="absolute top-2 right-2 w-1.5 h-1.5 bg-rose-500 rounded-full border-2 border-white"></span>
                 </button>
 
-                <!-- Profile and Logout -->
-                <div class="flex items-center space-x-3 bg-white p-1 pr-3 rounded-xl border border-slate-100 shadow-sm">
-                    <div
-                        class="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center font-black text-sm text-white shadow-md">
-                        {{ substr(Auth::guard('admin')->user()->name, 0, 1) }}
+                <!-- Profile Dropdown -->
+                <div class="relative" x-data="{ open: false }" @click.away="open = false">
+                    <button @click="open = !open" class="flex items-center space-x-3 bg-white p-1 pr-3 rounded-xl border border-slate-100 shadow-sm hover:border-[#a91b43]/20 transition-all">
+                        <div class="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shadow-md">
+                            @php $admin = Auth::guard('admin')->user(); @endphp
+                            @if($admin->profile_photo)
+                                <img src="{{ asset($admin->profile_photo) }}" class="w-full h-full object-cover">
+                            @else
+                                <div class="w-full h-full gradient-bg flex items-center justify-center font-black text-sm text-white">
+                                    {{ substr($admin->name, 0, 1) }}
+                                </div>
+                            @endif
+                        </div>
+                        <div class="flex flex-col text-left">
+                            <span class="text-xs font-black text-slate-800 leading-none mb-0.5 capitalize">{{ $admin->name }}</span>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tight">{{ $admin->role }}</span>
+                        </div>
+                        <i class="fas fa-chevron-down text-[10px] text-slate-300 transition-transform duration-300" :class="open ? 'rotate-180' : ''"></i>
+                    </button>
+
+                    <!-- Dropdown Menu -->
+                    <div x-show="open" 
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+                         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-75"
+                         x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+                         class="absolute right-0 mt-2 w-56 card-glass rounded-2xl py-2 z-[60] overflow-hidden" 
+                         style="display: none;">
+                        
+                        <div class="px-4 py-3 border-b border-slate-50 mb-1">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Quick Access</p>
+                            <p class="text-xs font-black text-slate-900 truncate capitalize">{{ Auth::guard('admin')->user()->name }}</p>
+                        </div>
+
+                        <a href="{{ route('admin.profile.index') }}" class="flex items-center space-x-3 px-4 py-2 text-slate-600 hover:bg-[#a91b43]/5 hover:text-[#a91b43] transition-all group">
+                            <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center group-hover:bg-[#a91b43]/10 transition-colors">
+                                <i class="fas fa-user-circle text-sm"></i>
+                            </div>
+                            <span class="text-xs font-bold">My Profile</span>
+                        </a>
+
+                        <a href="{{ route('admin.manage-admins.index') }}" class="flex items-center space-x-3 px-4 py-2 text-slate-600 hover:bg-[#a91b43]/5 hover:text-[#a91b43] transition-all group">
+                            <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center group-hover:bg-[#a91b43]/10 transition-colors">
+                                <i class="fas fa-user-plus text-sm"></i>
+                            </div>
+                            <span class="text-xs font-bold">Add Admin</span>
+                        </a>
+
+                        <div class="h-[1px] bg-slate-50 my-1 mx-2"></div>
+
+                        <form action="{{ route('admin.logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="w-full flex items-center space-x-3 px-4 py-2 text-rose-600 hover:bg-rose-50 transition-all group">
+                                <div class="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center group-hover:bg-rose-100 transition-colors">
+                                    <i class="fas fa-power-off text-sm"></i>
+                                </div>
+                                <span class="text-xs font-bold">Sign Out</span>
+                            </button>
+                        </form>
                     </div>
-                    <div class="flex flex-col">
-                        <span
-                            class="text-xs font-black text-slate-800 leading-none mb-0.5">{{ Auth::guard('admin')->user()->name }}</span>
-                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Admin</span>
-                    </div>
-                    <div class="w-[1px] h-5 bg-slate-100 mx-1"></div>
-                    <form action="{{ route('admin.logout') }}" method="POST">
-                        @csrf
-                        <button type="submit"
-                            class="w-7 h-7 flex items-center justify-center bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-all rounded-lg shadow-sm group">
-                            <i class="fas fa-power-off text-[10px]"></i>
-                        </button>
-                    </form>
                 </div>
             </div>
         </header>

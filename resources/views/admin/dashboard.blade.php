@@ -9,19 +9,19 @@
         <div class="relative z-10 flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="space-y-3 text-center md:text-left">
                 <h2 class="text-xl md:text-2xl font-extrabold tracking-tight">Welcome, {{ Auth::guard('admin')->user()->name }} 👋</h2>
-                <p class="text-pink-100/80 text-sm max-w-xl">Revenue is up by <span class="text-white font-bold underline">12.5%</span> today.</p>
+                <p class="text-pink-100/80 text-sm max-w-xl">Overall system performance and registered user overview.</p>
                 <div class="flex flex-wrap justify-center md:justify-start gap-2">
-                    <a href="{{ route('admin.categories.create') }}" class="bg-white text-[#a91b43] px-5 py-2 rounded-lg text-xs font-bold hover:scale-105 transition-all shadow-xl shadow-black/10">
+                    <a href="{{ route('admin.users.index') }}" class="bg-white text-[#a91b43] px-5 py-2 rounded-lg text-xs font-bold hover:scale-105 transition-all shadow-xl shadow-black/10">
+                        <i class="fas fa-users mr-1.5"></i> Manage Users
+                    </a>
+                    <a href="{{ route('admin.categories.create') }}" class="bg-white/20 backdrop-blur-md text-white border border-white/30 px-5 py-2 rounded-lg text-xs font-bold hover:bg-white/30 transition-all">
                         <i class="fas fa-plus mr-1.5"></i> Category
                     </a>
-                    <button class="bg-white/20 backdrop-blur-md text-white border border-white/30 px-5 py-2 rounded-lg text-xs font-bold hover:bg-white/30 transition-all">
-                        <i class="fas fa-download mr-1.5"></i> Export
-                    </button>
                 </div>
             </div>
             <div class="hidden lg:block">
                 <div class="w-32 h-32 bg-white/10 rounded-full flex items-center justify-center animate-pulse">
-                    <i class="fas fa-rocket text-4xl text-pink-200/50"></i>
+                    <i class="fas fa-chart-line text-4xl text-pink-200/50"></i>
                 </div>
             </div>
         </div>
@@ -34,10 +34,10 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         @php
             $stats = [
-                ['label' => 'Total Sales', 'value' => '₹4,55,210', 'trend' => '+15.2%', 'icon' => 'fa-indian-rupee-sign', 'color' => 'pink'],
-                ['label' => 'Total Orders', 'value' => '1,210', 'trend' => '+8.4%', 'icon' => 'fa-shopping-cart', 'color' => 'amber'],
-                ['label' => 'Active Users', 'value' => '2,458', 'trend' => '+12.5%', 'icon' => 'fa-users', 'color' => 'indigo'],
-                ['label' => 'Total Products', 'value' => '856', 'trend' => '+2.1%', 'icon' => 'fa-box-open', 'color' => 'rose'],
+                ['label' => 'Total Sales', 'value' => '₹' . number_format($totalSales, 0), 'trend' => $salesTrend, 'icon' => 'fa-indian-rupee-sign', 'color' => 'pink'],
+                ['label' => 'Total Orders', 'value' => number_format($totalOrders), 'trend' => $ordersTrend, 'icon' => 'fa-shopping-cart', 'color' => 'amber'],
+                ['label' => 'Registered Users', 'value' => number_format($totalUsers), 'trend' => $usersTrend, 'icon' => 'fa-users', 'color' => 'indigo'],
+                ['label' => 'Total Products', 'value' => number_format($totalProducts), 'trend' => $productsTrend, 'icon' => 'fa-box-open', 'color' => 'rose'],
             ];
         @endphp
 
@@ -78,7 +78,7 @@
             </div>
         </div>
 
-        <!-- Recent Activities Card -->
+        <!-- Inventory Share Card -->
         <div class="card-glass p-6 rounded-[1.5rem] flex flex-col">
             <h3 class="text-lg font-bold text-slate-800 mb-4">Inventory Share</h3>
             <div class="flex-1 flex flex-col justify-center items-center">
@@ -99,50 +99,6 @@
                         <span class="w-2 h-2 rounded-full bg-rose-500 mr-1.5"></span> Other (10%)
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Top Categories / Products Section -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Top Categories -->
-        <div class="card-glass p-6 rounded-[1.5rem]">
-            <h3 class="text-lg font-bold text-slate-800 mb-4">Top Categories</h3>
-            <div class="space-y-3">
-                @php
-                    $cats = [
-                        ['name' => 'Kanchipuram Silk', 'sales' => '₹2.4L', 'percent' => 85, 'color' => '#a91b43'],
-                        ['name' => 'Cotton Collection', 'sales' => '₹1.1L', 'percent' => 65, 'color' => '#fbb624'],
-                        ['name' => 'Bridal Wear', 'sales' => '₹85K', 'percent' => 45, 'color' => '#6366f1'],
-                    ];
-                @endphp
-                @foreach($cats as $cat)
-                <div class="space-y-1.5">
-                    <div class="flex justify-between text-[11px] font-bold">
-                        <span class="text-slate-700">{{ $cat['name'] }}</span>
-                        <span class="text-slate-400">{{ $cat['sales'] }}</span>
-                    </div>
-                    <div class="w-full bg-slate-100 h-1.5 rounded-full">
-                        <div class="h-full rounded-full" style="width: {{ $cat['percent'] }}%; background-color: {{ $cat['color'] }}"></div>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-        </div>
-
-        <!-- Quick Links Grid -->
-        <div class="grid grid-cols-2 gap-3">
-            <div class="card-glass p-4 rounded-xl group bg-white hover:bg-[#a91b43] transition-all cursor-pointer">
-                <div class="w-8 h-8 rounded-lg bg-pink-50 flex items-center justify-center text-[#a91b43] group-hover:bg-white/20 group-hover:text-white transition-all">
-                    <i class="fas fa-plus text-sm"></i>
-                </div>
-                <h4 class="mt-2 font-bold text-slate-800 text-xs group-hover:text-white">Product</h4>
-            </div>
-            <div class="card-glass p-4 rounded-xl group bg-white hover:bg-slate-800 transition-all cursor-pointer text-slate-500">
-                <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-600 group-hover:bg-white/20 group-hover:text-white transition-all">
-                    <i class="fas fa-gear text-sm"></i>
-                </div>
-                <h4 class="mt-2 font-bold text-slate-800 text-xs group-hover:text-white">Settings</h4>
             </div>
         </div>
     </div>

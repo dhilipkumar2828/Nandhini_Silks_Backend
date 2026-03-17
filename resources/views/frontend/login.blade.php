@@ -13,21 +13,36 @@
 
                 <div class="auth-tabs" id="authTabs">
                     @if(session('error'))
-                        <div class="alert alert-danger" style="color: red; margin-bottom: 10px;">{{ session('error') }}</div>
+                        <div class="alert" style="color: #ef4444; background: #fee2e2; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 12px; font-weight: bold;">
+                            <i class="fas fa-exclamation-circle mr-2"></i> {{ session('error') }}
+                        </div>
                     @endif
                     @if(session('success'))
-                        <div class="alert alert-success" style="color: green; margin-bottom: 10px;">{{ session('success') }}</div>
+                        <div class="alert" style="color: #10b981; background: #d1fae5; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 12px; font-weight: bold;">
+                            <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
+                        </div>
                     @endif
+                    
+                    @if($errors->any())
+                        <div class="alert" style="color: #ef4444; background: #fee2e2; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 12px;">
+                            <ul style="list-style: none; padding: 0; margin: 0;">
+                                @foreach($errors->all() as $error)
+                                    <li style="font-weight: bold; margin-bottom: 2px;"><i class="fas fa-times-circle mr-1"></i> {{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <button class="auth-tab active" id="loginTab">Login</button>
                     <button class="auth-tab" id="registerTab">Register</button>
                 </div>
 
                 <!-- Login Form -->
-                <form id="loginForm" class="auth-form" method="post" action="{{ route('login') }}" >
+                <form id="loginForm" class="auth-form" method="post" action="{{ route('login.submit') }}" >
                     @csrf
                     <div class="form-group" id="loginEmailGroup">
                         <label class="form-label" for="loginEmail">Email Address</label>
-                        <input class="form-input" type="email" id="loginEmail" name="email" placeholder="Enter your email"
+                        <input class="form-input" type="email" id="loginEmail" name="email" value="{{ old('email') }}" placeholder="Enter your email"
                             required>
                     </div>
                     <div class="form-group">
@@ -51,17 +66,17 @@
                     @csrf
                     <div class="form-group">
                         <label class="form-label" for="regName">Full Name</label>
-                        <input class="form-input" type="text" id="regName" name="name" placeholder="Enter your full name"
+                        <input class="form-input" type="text" id="regName" name="name" value="{{ old('name') }}" placeholder="Enter your full name"
                             required>
                     </div>
                     <div class="form-group" id="regEmailGroup">
                         <label class="form-label" for="regEmail">Email Address</label>
-                        <input class="form-input" type="email" id="regEmail" name="email" placeholder="Enter your email"
+                        <input class="form-input" type="email" id="regEmail" name="email" value="{{ old('email') }}" placeholder="Enter your email"
                             required>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="regPhone">Phone Number</label>
-                        <input class="form-input" type="tel" id="regPhone" name="phone"
+                        <input class="form-input" type="tel" id="regPhone" name="phone" value="{{ old('phone') }}"
                             placeholder="Enter your phone number" required>
                     </div>
                     <div class="form-group">
@@ -77,7 +92,7 @@
 
                     <div class="form-options">
                         <label class="remember-me" style="display: flex; align-items: center; gap: 8px;">
-                            <input type="checkbox" name="terms" required checked> I agree to the <a href="{{ url('terms-conditions') }}" style="color: var(--pink);">Terms and Conditions</a>
+                            <input type="checkbox" name="terms" required checked> I agree to the <a href="{{ url('terms-conditions') }}" style="color: #a91b43;">Terms and Conditions</a>
                         </label>
                     </div>
 
@@ -111,5 +126,10 @@
             loginTab.classList.remove('active');
             authTitle.textContent = 'Join Us';
         };
+
+        // If there are errors other than login email/password mismatches, switch to register tab
+        @if($errors->has('name') || $errors->has('phone') || $errors->has('password_confirmation'))
+            registerTab.click();
+        @endif
     </script>
 @endpush

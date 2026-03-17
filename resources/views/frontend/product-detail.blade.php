@@ -104,17 +104,9 @@
                             OFF</span>
                     </div>
 
-<<<<<<< HEAD
-                    <div class="stock-status" style="margin-top: 5px; line-height: 1;">
-                        @if($product->stock > 0)
-                            <span class="stock-badge stock-in"
-                                style="background: #eafff8; color: #16a34a; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; border: 1px solid #bbf7d0;">●
-                                In Stock ({{ $product->stock }} left)</span>
-=======
                     <div class="stock-status" style="margin-top: 15px;">
                         @if($product->stock_quantity > 0)
                             <span class="stock-badge stock-in">● In Stock ({{ $product->stock_quantity }} left)</span>
->>>>>>> origin/Mathan
                         @else
                             <span class="stock-badge stock-out"
                                 style="background: #fff1f2; color: #e11d48; padding: 6px 16px; border-radius: 20px; font-size: 16px; font-weight: 700; border: 1px solid #fecdd3; display: inline-flex; align-items: center; gap: 8px;">
@@ -128,40 +120,6 @@
                         {!! Str::limit(strip_tags($product->description), 250) !!}
                     </div>
 
-<<<<<<< HEAD
-                    <!-- Attributes: Color (Mocked) -->
-                    <div class="attribute-section" style="margin-top: 12px;">
-                        <h3 class="attribute-title"
-                            style="font-size: 14px; margin-bottom: 10px; text-transform: uppercase; color: #888;">Select
-                            Color:</h3>
-                        <div class="swatch-container" style="display: flex; gap: 10px;">
-                            <div class="color-swatch active"
-                                style="background: #A91B43; width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #ddd; cursor: pointer;"
-                                title="Maroon"></div>
-                            <div class="color-swatch"
-                                style="background: #D4AF37; width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #ddd; cursor: pointer;"
-                                title="Gold"></div>
-                            <div class="color-swatch"
-                                style="background: #000080; width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #ddd; cursor: pointer;"
-                                title="Navy"></div>
-                        </div>
-                    </div>
-
-                    <!-- Attributes: Size/Type (Mocked) -->
-                    <div class="attribute-section" style="margin-top: 12px;">
-                        <h3 class="attribute-title"
-                            style="font-size: 14px; margin-bottom: 10px; text-transform: uppercase; color: #888;">Select
-                            Size / Length:</h3>
-                        <div class="swatch-container" style="display: flex; gap: 10px;">
-                            <button class="size-btn active"
-                                style="padding: 8px 15px; border: 1px solid #A91B43; background: #fff; color: #A91B43; border-radius: 5px; cursor: pointer;">Standard
-                                (6.2m)</button>
-                            <button class="size-btn"
-                                style="padding: 8px 15px; border: 1px solid #ddd; background: #fff; color: #666; border-radius: 5px; cursor: pointer;">Long
-                                (7.5m)</button>
-                        </div>
-                    </div>
-=======
                     @if(!empty($attributeGroups))
                         @foreach($attributeGroups as $group)
                             <div class="attribute-section" style="margin-top: 20px;">
@@ -190,7 +148,6 @@
                             </div>
                         @endforeach
                     @endif
->>>>>>> origin/Mathan
 
                     <!-- Quantity / Actions -->
                     <div class="product-actions-group" style="margin-top: 15px;">
@@ -204,29 +161,6 @@
                                 style="padding: 5px 15px; background: none; border: none; font-size: 20px; cursor: pointer;">+</button>
                         </div>
 
-<<<<<<< HEAD
-                        <div class="product-actions" style="display: flex; gap: 15px; align-items: center;">
-                            @if($product->stock > 0)
-                                <button class="btn-add-cart"
-                                    style="flex: 1; background: #A91B43; color: #fff; padding: 15px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                                    Add to Cart
-                                </button>
-                                <button class="btn-buy-now"
-                                    style="flex: 1; background: #333; color: #fff; padding: 15px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                                    Buy It Now
-                                </button>
-                            @else
-                                <button class="btn-out-of-stock" disabled
-                                    style="flex: 2; background: #f3f4f6; color: #9ca3af; padding: 15px; border: 1px solid #e5e7eb; border-radius: 8px; font-weight: 700; font-size: 18px; cursor: not-allowed; text-transform: uppercase; letter-spacing: 1px;">
-                                    Currently Out of Stock
-                                </button>
-                            @endif
-                            <button class="btn-wishlist-detail" aria-label="Add to Wishlist"
-                                style="background: #fdf2f5; border: none; padding: 10px; border-radius: 8px; cursor: pointer;">
-                                <img src="{{ asset('images/favorite.svg') }}" alt="" width="24">
-                            </button>
-                        </div>
-=======
                         <form class="product-actions" method="POST" action="{{ route('cart.add', $product->id) }}" style="display: flex; gap: 15px; align-items: center;">
     @csrf
     <input type="hidden" name="quantity" id="qtyInput" value="1">
@@ -240,7 +174,6 @@
         <img src="{{ asset('images/favorite.svg') }}" alt="" width="24">
     </button>
 </form>
->>>>>>> origin/Mathan
                     </div>
 
                     <div class="share-section" style="margin-top: 25px; border-top: 1px solid #eee; padding-top: 20px;">
@@ -462,9 +395,5 @@
             }
         });
     </script>
-<<<<<<< HEAD
-@endpush
-=======
 @endpush
 
->>>>>>> origin/Mathan

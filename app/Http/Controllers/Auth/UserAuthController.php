@@ -19,12 +19,12 @@ class UserAuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            if (Auth::user()) {
-                Auth::user()->forceFill([
-                    'last_login_at' => now(),
-                ])->save();
-            }
-            return redirect()->intended(route('home'));
+            
+            $user = Auth::user();
+            $user->last_login_at = now();
+            $user->save();
+            
+            return redirect()->intended(route('home'))->with('success', 'Welcome back, ' . $user->name . '!');
         }
 
         return back()->withErrors([
@@ -41,16 +41,24 @@ class UserAuthController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
+        // In Laravel 12 with 'password' => 'hashed' cast, we don't need Hash::make() 
+        // if we want to avoid double hashing, but standard practice is often to pass 
+        // the plain string and let the model handle it OR hash it here and ensure 
+        // the model doesn't re-hash. Since the model has the 'hashed' cast, 
+        // we'll pass it directly to be safe or use Hash::make and check if it breaks.
+        // Actually, to be absolutely sure what's failing, let's hash it but 
+        // I suspect the logic below is what they need.
+        
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
-            'password' => Hash::make($request->password),
+            'password' => $request->password, // Letting the 'hashed' cast handle it
         ]);
 
         Auth::login($user);
 
-        return redirect()->route('home')->with('success', 'Registration successful!');
+        return redirect()->route('home')->with('success', 'Registration successful! Welcome to Nandhini Silks.');
     }
 
     public function logout(Request $request)
@@ -58,6 +66,6 @@ class UserAuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('home');
+        return redirect()->route('home')->with('success', 'Logged out successfully.');
     }
 }

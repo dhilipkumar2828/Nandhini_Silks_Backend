@@ -81,11 +81,14 @@ class FrontendController extends Controller
     // Account Pages (Assuming guest for now as requested)
     public function userLogin() { return view('frontend.login'); }
     public function myAccount() { return view('frontend.my-account'); }
-    public function myAddresses() { return view('frontend.my-addresses'); }
+    public function myAddresses() 
+    { 
+        $addresses = auth()->check() ? auth()->user()->addresses : collect();
+        return view('frontend.my-addresses', compact('addresses')); 
+    }
     public function myOrders() { return view('frontend.my-orders'); }
     public function myProfile() { return view('frontend.my-profile'); }
     public function myReviews() { return view('frontend.my-reviews'); }
-    public function orderConfirmation() { return view('frontend.order-confirmation'); }
     public function orderDetail() { return view('frontend.order-detail'); }
 
     private function buildAttributeGroups(Product $product): array

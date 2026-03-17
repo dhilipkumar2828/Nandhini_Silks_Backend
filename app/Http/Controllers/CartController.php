@@ -141,6 +141,7 @@ class CartController extends Controller
         }
 
         $totals = $this->calculateTotals($items);
+        $addresses = auth()->check() ? auth()->user()->addresses : collect();
 
         return view('frontend.checkout', [
             'items' => $items,
@@ -151,6 +152,7 @@ class CartController extends Controller
             'grandTotal' => $totals['grandTotal'],
             'itemCount' => $totals['itemCount'],
             'coupon' => $totals['coupon'],
+            'addresses' => $addresses,
         ]);
     }
 
@@ -194,6 +196,8 @@ class CartController extends Controller
             }
         }
 
+        $isDifferentBilling = !$request->has('same_as_shipping');
+        
         $order = Order::create([
             'user_id' => auth()->id(),
             'coupon_id' => $coupon ? $coupon->id : null,
@@ -201,6 +205,10 @@ class CartController extends Controller
             'customer_name' => $request->input('customer_name'),
             'customer_email' => $request->input('customer_email'),
             'customer_phone' => $request->input('customer_phone'),
+            'billing_name' => $isDifferentBilling ? $request->input('billing_name') : $request->input('customer_name'),
+            'billing_email' => $isDifferentBilling ? $request->input('billing_email') : $request->input('customer_email'),
+            'billing_phone' => $isDifferentBilling ? $request->input('billing_phone') : $request->input('customer_phone'),
+            'different_billing_address' => $isDifferentBilling,
             'sub_total' => $totals['subTotal'],
             'discount' => $totals['discount'],
             'tax' => $totals['tax'],
@@ -210,6 +218,7 @@ class CartController extends Controller
             'payment_status' => 'pending',
             'order_status' => 'pending',
             'delivery_address' => $request->input('delivery_address'),
+            'billing_address' => $isDifferentBilling ? $request->input('billing_address') : $request->input('delivery_address'),
         ]);
 
         foreach ($items as $item) {

@@ -10,7 +10,11 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\Auth\UserAuthController;
+use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\UserAddressController;
+
+Route::post('/addresses', [UserAddressController::class, 'store'])->name('addresses.store');
 
 Route::get('/', [FrontendController::class, 'index'])->name('home');
 Route::get('/shop', [FrontendController::class, 'shop'])->name('shop');
@@ -48,7 +52,7 @@ Route::get('/my-account', [FrontendController::class, 'myAccount'])->name('my-ac
 Route::get('/my-addresses', [FrontendController::class, 'myAddresses'])->name('my-addresses');
 Route::get('/my-reviews', [FrontendController::class, 'myReviews'])->name('my-reviews');
 Route::get('/my-profile', [FrontendController::class, 'myProfile'])->name('my-profile');
-Route::get('/order-confirmation', [FrontendController::class, 'orderConfirmation'])->name('order-confirmation');
+Route::get('/my-orders', [FrontendController::class, 'myOrders'])->name('my-orders');
 Route::get('/order-confirmation/{order?}', [CartController::class, 'orderConfirmation'])->name('order-confirmation');
 Route::get('/order-detail', [FrontendController::class, 'orderDetail'])->name('order-detail');
 
@@ -116,6 +120,14 @@ Route::group(['prefix' => 'admin'], function () {
 
         // Products
         Route::resource('products', ProductController::class)->names('admin.products');
+
+        // Admin Profile & Management
+        Route::get('/profile', [AdminProfileController::class, 'index'])->name('admin.profile.index');
+        Route::post('/profile/update', [AdminProfileController::class, 'updateProfile'])->name('admin.profile.update');
+        Route::post('/profile/photo', [AdminProfileController::class, 'updatePhoto'])->name('admin.profile.photo');
+        Route::post('/profile/password', [AdminProfileController::class, 'updatePassword'])->name('admin.profile.password');
+        Route::get('/manage-admins', [AdminProfileController::class, 'admins'])->name('admin.manage-admins.index');
+        Route::post('/manage-admins', [AdminProfileController::class, 'storeAdmin'])->name('admin.manage-admins.store');
 
         // AJAX Helpers
         Route::get('/get-sub-categories/{category_id}', [ChildCategoryController::class, 'getSubCategories']);

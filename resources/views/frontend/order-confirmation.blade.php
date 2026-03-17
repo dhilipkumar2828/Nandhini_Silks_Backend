@@ -134,41 +134,38 @@
         <div class="success-card">
             <div class="success-icon">&#10003;</div>
             <h1 class="order-status-title">Thank You for Your Order!</h1>
-            <p class="order-status-text">Your order has been placed successfully. A confirmation email has been sent to
-                your registered address.</p>
+            <p class="order-status-text">Your order has been placed successfully. A confirmation email has been sent to your registered address.</p>
 
             <div class="confirmation-details-grid">
                 <div class="detail-box">
                     <div class="detail-label">Order Number</div>
-                    <div class="detail-value">#NS-{{ date('Y') }}-{{ $order ? $order->id : rand(10000, 99999) }}</div>
+                    <div class="detail-value">#NS-{{ date('Y') }}-{{ $order ? $order->id : 'XXXXX' }}</div>
                 </div>
                 <div class="detail-box">
                     <div class="detail-label">Estimated Delivery</div>
-                    <div class="detail-value">{{ now()->addDays(5)->format('F d, Y') }} -
-                        {{ now()->addDays(7)->format('F d, Y') }}</div>
+                    <div class="detail-value">{{ now()->addDays(5)->format('F d, Y') }} - {{ now()->addDays(7)->format('F d, Y') }}</div>
                 </div>
                 <div class="detail-box">
                     <div class="detail-label">Delivery Address</div>
-<div class="detail-value" style="font-weight: 400; line-height: 1.5;">
-    @if($order)
-        <strong>{{ $order->customer_name }}</strong><br>
-        {!! nl2br(e($order->delivery_address)) !!}
-    @else
-        <strong>Raswanth Sabarish</strong><br>
-        416/9 Aranmanai Street, S.V. Nagaram<br>
-        Arni, Tamil Nadu - 632317
-    @endif
-</div>
+                    <div class="detail-value" style="font-weight: 400; line-height: 1.5;">
+                        @if($order)
+                            <strong>{{ $order->customer_name }}</strong><br>
+                            {!! nl2br(e($order->delivery_address)) !!}
+                        @else
+                            <strong>Customer Name</strong><br>
+                            Address Details
+                        @endif
+                    </div>
                 </div>
                 <div class="detail-box">
                     <div class="detail-label">Payment Method</div>
-<div class="detail-value" style="display: flex; align-items: center; gap: 8px;">
-    @if($order)
-        {{ strtoupper($order->payment_method) }}
-    @else
-        <img src="https://razorpay.com/favicon.png" width="16" alt=""> Razorpay (Secured)
-    @endif
-</div>
+                    <div class="detail-value" style="display: flex; align-items: center; gap: 8px;">
+                        @if($order && $order->payment_method == 'razorpay')
+                            <img src="https://razorpay.com/favicon.png" width="16" alt=""> Razorpay (Secured)
+                        @else
+                            {{ strtoupper($order?->payment_method ?? 'COD') }}
+                        @endif
+                    </div>
                 </div>
             </div>
 
@@ -182,101 +179,58 @@
                     </tr>
                 </thead>
                 <tbody>
-    @if($order)
-        @foreach($order->items as $item)
-            @php
-                $itemImage = $item->product && $item->product->image_path
-                    ? asset('images/' . $item->product->image_path)
-                    : asset('images/pro.png');
-            @endphp
-            <tr>
-                <td>
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <img src="{{ $itemImage }}" width="40" height="50" style="object-fit: cover; border-radius: 4px;">
-                        <div>
-                            <div style="font-weight: 600;">{{ $item->product_name }}</div>
-                        </div>
-                    </div>
-                </td>
-                <td>{{ $item->quantity }}</td>
-                <td style="text-align: right;">&#8377;{{ number_format($item->total, 0) }}</td>
-            </tr>
-        @endforeach
-        <tr>
-            <td colspan="2" style="text-align: right; border: none; padding-top: 25px;">Subtotal:</td>
-            <td style="text-align: right; border: none; padding-top: 25px; font-weight: 600;">&#8377;{{ number_format($order->sub_total, 0) }}</td>
-        </tr>
-        @if($order->discount > 0)
-            <tr>
-                <td colspan="2" style="text-align: right; border: none;">Coupon {{ $order->coupon_code ? '(' . $order->coupon_code . ')' : '' }}:</td>
-                <td style="text-align: right; border: none; font-weight: 600; color: #2e7d32;">-&#8377;{{ number_format($order->discount, 0) }}</td>
-            </tr>
-        @endif
-        <tr>
-            <td colspan="2" style="text-align: right; border: none;">Shipping:</td>
-            <td style="text-align: right; border: none; color: #2e7d32; font-weight: 600;">
-                @if($order->shipping > 0)
-                    &#8377;{{ number_format($order->shipping, 0) }}
-                @else
-                    FREE
-                @endif
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2" style="text-align: right; border: none;">GST (5%):</td>
-            <td style="text-align: right; border: none; font-weight: 600;">&#8377;{{ number_format($order->tax, 0) }}</td>
-        </tr>
-        <tr class="total-row" style="font-size: 20px; font-weight: 700;">
-            <td colspan="2" style="text-align: right; border: none; padding-top: 15px; color: #333;">Total Paid:</td>
-            <td class="total-paid" style="text-align: right; border: none; padding-top: 15px; color: var(--pink);">&#8377;{{ number_format($order->grand_total, 0) }}</td>
-        </tr>
-    @else
-        <tr>
-            <td>
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <img src="{{ asset('images/product_detail.png') }}" width="40" height="50"
-                        style="object-fit: cover; border-radius: 4px;">
-                    <div>
-                        <div style="font-weight: 600;">Royal Gold Silk Saree</div>
-                        <div style="font-size: 11px; color: #999;">Color: Gold</div>
-                    </div>
-                </div>
-            </td>
-            <td>1</td>
-            <td style="text-align: right;">&#8377;7,490</td>
-        </tr>
-        <tr>
-            <td colspan="2" style="text-align: right; border: none; padding-top: 25px;">Subtotal:</td>
-            <td style="text-align: right; border: none; padding-top: 25px; font-weight: 600;">&#8377;7,490</td>
-        </tr>
-        <tr>
-            <td colspan="2" style="text-align: right; border: none;">Shipping:</td>
-            <td style="text-align: right; border: none; color: #2e7d32; font-weight: 600;">FREE</td>
-        </tr>
-        <tr>
-            <td colspan="2" style="text-align: right; border: none;">GST (5%):</td>
-            <td style="text-align: right; border: none; font-weight: 600;">&#8377;375</td>
-        </tr>
-        <tr class="total-row" style="font-size: 20px; font-weight: 700;">
-            <td colspan="2" style="text-align: right; border: none; padding-top: 15px; color: #333;">Total Paid:</td>
-            <td class="total-paid" style="text-align: right; border: none; padding-top: 15px; color: var(--pink);">&#8377;7,865</td>
-        </tr>
-    @endif
-</tbody>
+                    @if($order)
+                        @foreach($order->items as $item)
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 15px;">
+                                    <img src="{{ $item->product && $item->product->image_path ? asset('images/' . $item->product->image_path) : asset('images/product_detail.png') }}" width="40" height="50" style="object-fit: cover; border-radius: 4px;">
+                                    <div>
+                                        <div style="font-weight: 600;">{{ $item->product_name }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ $item->quantity }}</td>
+                            <td style="text-align: right;">₹{{ number_format($item->total, 0) }}</td>
+                        </tr>
+                        @endforeach
+                        <tr>
+                            <td colspan="2" style="text-align: right; border: none; padding-top: 25px;">Subtotal:</td>
+                            <td style="text-align: right; border: none; padding-top: 25px; font-weight: 600;">₹{{ number_format($order->sub_total, 0) }}</td>
+                        </tr>
+                        @if($order->discount > 0)
+                        <tr>
+                            <td colspan="2" style="text-align: right; border: none;">Discount:</td>
+                            <td style="text-align: right; border: none; color: #2e7d32; font-weight: 600;">-₹{{ number_format($order->discount, 0) }}</td>
+                        </tr>
+                        @endif
+                        <tr>
+                            <td colspan="2" style="text-align: right; border: none;">Shipping:</td>
+                            <td style="text-align: right; border: none; color: #2e7d32; font-weight: 600;">{{ $order->shipping > 0 ? '₹'.number_format($order->shipping, 0) : 'FREE' }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="text-align: right; border: none;">GST (5%):</td>
+                            <td style="text-align: right; border: none; font-weight: 600;">₹{{ number_format($order->tax, 0) }}</td>
+                        </tr>
+                        <tr class="total-row" style="font-size: 20px; font-weight: 700;">
+                            <td colspan="2" style="text-align: right; border: none; padding-top: 15px; color: #333;">Total Paid:</td>
+                            <td class="total-paid" style="text-align: right; border: none; padding-top: 15px; color: var(--pink);">₹{{ number_format($order->grand_total, 0) }}</td>
+                        </tr>
+                    @endif
+                </tbody>
             </table>
 
             <div class="conf-actions">
                 <a href="{{ url('/') }}" class="btn-conf btn-secondary-conf">Continue Shopping</a>
                 <button onclick="handleDownload()" class="btn-conf btn-primary-conf" style="cursor: pointer;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
                         <polyline points="7 10 12 15 17 10"></polyline>
                         <line x1="12" y1="15" x2="12" y2="3"></line>
                     </svg>
                     Download Invoice
                 </button>
-                <a href="{{ url('my-orders') }}" class="btn-conf btn-secondary-conf">Track My Order</a>
+                <a href="{{ route('my-orders') }}" class="btn-conf btn-secondary-conf">Track My Order</a>
             </div>
         </div>
     </div>
@@ -288,46 +242,42 @@
 <script src="{{ asset('js/invoice.js') }}"></script>
 <script>
     function handleDownload() {
-        const orderNo = document.querySelector('.detail-box .detail-value').innerText.trim();
-        const totalPaidText = document.querySelector('.total-paid').innerText.replace('₹', '').replace(',', '').trim();
-        const subtotalText = document.querySelector('tr:nth-last-child(4) td:last-child').innerText.replace('₹', '').replace(',', '').trim();
-        const gstText = document.querySelector('tr:nth-last-child(2) td:last-child').innerText.replace('₹', '').replace(',', '').trim();
-
+        @if($order)
         const orderData = {
-            orderNumber: orderNo,
-            date: new Date().toLocaleDateString(),
+            orderNumber: "{{ $order->id }}",
+            date: "{{ $order->created_at->format('d/m/Y') }}",
             customer: {
-                name: "Raswanth Sabarish",
-                address: "416/9 Aranmanai Street, S.V. Nagaram, Arni, Tamil Nadu - 632317",
-                phone: "+91 96295 52822"
+                name: "{{ $order->customer_name }}",
+                address: "{{ str_replace(["\r", "\n"], ' ', $order->delivery_address) }}",
+                phone: "{{ $order->customer_phone }}"
             },
             items: [
+                @foreach($order->items as $item)
                 {
-                    name: "Royal Gold Silk Saree",
-                    variant: "Gold",
+                    name: "{{ $item->product_name }}",
+                    variant: "-",
                     hsn: "5007",
-                    qty: 1,
-                    rate: parseFloat(subtotalText),
+                    qty: {{ $item->quantity }},
+                    rate: {{ $item->price }},
                     taxRate: 5
-                }
+                },
+                @endforeach
             ],
-            paymentMethod: "Razorpay",
-            subtotal: parseFloat(subtotalText),
-            taxAmount: parseFloat(gstText),
-            shipping: 0,
-            total: parseFloat(totalPaidText)
+            paymentMethod: "{{ $order->payment_method }}",
+            subtotal: {{ $order->sub_total }},
+            taxAmount: {{ $order->tax }},
+            shipping: {{ $order->shipping }},
+            total: {{ $order->grand_total }}
         };
 
         if (typeof InvoiceGenerator !== 'undefined') {
             InvoiceGenerator.download(orderData);
         } else {
-            console.error('InvoiceGenerator not found. Please ensure invoice.js is loaded correctly.');
-            alert('Invoice generator is still loading. Please try again in a moment.');
+            alert('Invoice generator is still loading. Please try again.');
         }
+        @else
+        alert('Order data not found.');
+        @endif
     }
 </script>
 @endpush
-
-
-
-
