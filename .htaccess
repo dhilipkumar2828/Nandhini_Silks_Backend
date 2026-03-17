@@ -5,6 +5,9 @@
 
     RewriteEngine On
 
+    # Ensure index.php is the default document
+    DirectoryIndex index.php index.html
+
     # Prevent loop if already inside public
     RewriteRule ^public/ - [L]
     
