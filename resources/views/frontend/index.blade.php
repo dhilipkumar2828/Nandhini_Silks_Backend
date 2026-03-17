@@ -614,6 +614,7 @@
                         </article>
                     </div>
 
+                    
                     <div class="swiper-slide">
                         <article class="collection-card">
                             @php
