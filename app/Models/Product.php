@@ -17,13 +17,17 @@ class Product extends Model
         'brand',
         'short_description',
         'full_description',
+        'isbn',
+        'image',
         'images',
+        'primary_image',
         'video_url',
         'price',
         'regular_price',
         'sale_price',
         'discount_percent',
         'tax_class',
+        'tax_class_id',
         'stock_quantity',
         'reserved_stock',
         'low_stock_threshold',
@@ -43,6 +47,7 @@ class Product extends Model
         'meta_description',
         'meta_keywords',
         'status',
+        'display_order',
         'is_featured'
     ];
 
@@ -77,6 +82,11 @@ class Product extends Model
         return $this->belongsTo(ChildCategory::class);
     }
 
+    public function taxClass()
+    {
+        return $this->belongsTo(TaxClass::class, 'tax_class_id');
+    }
+
     public function stockMovements()
     {
         return $this->hasMany(StockMovement::class);
@@ -85,6 +95,11 @@ class Product extends Model
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function product_variants()
+    {
+        return $this->hasMany(ProductVariant::class);
     }
 
     public function getAvailableStockAttribute()

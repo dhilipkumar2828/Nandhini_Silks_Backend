@@ -38,6 +38,7 @@ Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->name('cart.
 Route::post('/cart/coupon/remove', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
 Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
 Route::post('/checkout', [CartController::class, 'placeOrder'])->name('checkout.place');
+Route::post('/payment/razorpay/verify', [CartController::class, 'verifyRazorpay'])->name('razorpay.verify');
 
 Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
 Route::post('/wishlist/add/{product}', [WishlistController::class, 'add'])->name('wishlist.add');

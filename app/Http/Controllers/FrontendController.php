@@ -378,7 +378,7 @@ class FrontendController extends Controller
 
         $groups = [];
         foreach ($attributes as $attribute) {
-            $selectedIds = array_map('intval', $normalizedAttributes[$attribute->id] ?? []);
+            $selectedIds = array_map('intval', $normalizedAttributes[$attribute->id] ?? $normalizedAttributes[(string)$attribute->id] ?? []);
             $values = $attribute->values->filter(function ($value) use ($selectedIds) {
                 return in_array($value->id, $selectedIds, true);
             });

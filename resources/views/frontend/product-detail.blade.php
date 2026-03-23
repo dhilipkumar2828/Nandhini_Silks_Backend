@@ -53,6 +53,53 @@
             color: #fff !important;
             border-color: #A91B43 !important;
         }
+
+        /* Override cache for thumbnails */
+        .product-thumbnails {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 12px !important;
+            width: 70px !important;
+            overflow-y: auto;
+            max-height: 500px;
+        }
+        .product-thumbnails::-webkit-scrollbar {
+            width: 3px;
+        }
+        .product-thumbnails::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 10px;
+        }
+        .thumbnail {
+            width: 70px !important;
+            height: 87.5px !important; /* 4:5 ratio */
+            border-radius: 6px !important;
+            overflow: hidden;
+            border: 2px solid transparent !important;
+            cursor: pointer;
+            transition: border-color 0.2s ease, transform 0.2s ease;
+            flex-shrink: 0;
+            background: #f9f9f9;
+        }
+        .thumbnail.active, .thumbnail:hover {
+            border-color: #A91B43 !important;
+            transform: scale(1.02);
+        }
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        @media (max-width: 900px) {
+            .product-thumbnails {
+                flex-direction: row !important;
+                width: 100% !important;
+                max-height: auto;
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }
+        }
     </style>
     @endpush
     <main class="product-detail-page">
@@ -83,7 +130,7 @@
                             ];
                         }
 
-                        // Color-specific Images
+                        // Color-specific Images (Legacy)
                         $colorImagesMap = $product->color_images ?? [];
                         foreach ($colorImagesMap as $colorId => $imgs) {
                             foreach ((array)$imgs as $img) {
@@ -91,6 +138,22 @@
                                     'url' => asset('uploads/' . (str_starts_with($img, 'products/') ? $img : 'products/' . $img)),
                                     'color_id' => $colorId
                                 ];
+                            }
+                        }
+
+                        // Variant-specific Images (Multiple)
+                        if ($product->product_variants) {
+                            foreach($product->product_variants as $variant) {
+                                $vImgs = is_array($variant->images) ? $variant->images : (json_decode($variant->images ?? '[]', true) ?? []);
+                                if(empty($vImgs) && $variant->image) $vImgs = [$variant->image];
+                                
+                                foreach($vImgs as $vImg) {
+                                    $allImages[] = [
+                                        'url' => asset('uploads/' . $vImg),
+                                        'color_id' => null,
+                                        'variant_id' => $variant->id
+                                    ];
+                                }
                             }
                         }
 
@@ -108,10 +171,11 @@
                             <i class="{{ $inWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart" id="wishlistIcon" style="color: #A91B43; font-size: 18px;"></i>
                         </button>
                     </div>
-                    <div class="product-thumbnails">
+                    <div class="product-thumbnails" id="thumbnailsContainer" style="display: none;">
                         @foreach($allImages as $i => $imgData)
                             <div class="thumbnail {{ $i === 0 ? 'active' : '' }}" 
                                  data-color-id="{{ $imgData['color_id'] }}"
+                                 data-variant-id="{{ $imgData['variant_id'] ?? '' }}"
                                  onclick="changeImg('{{ $imgData['url'] }}', this)">
                                 <img src="{{ $imgData['url'] }}" alt="View {{ $i + 1 }}">
                             </div>
@@ -131,29 +195,21 @@
                     <div class="product-rating" style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
                         <div class="stars" style="line-height: 1; color: #FFB800; font-size: 13px;">★★★★★</div>
                         <span style="font-size: 12px; color: #888; font-weight: 500;">4.8 (12 Reviews)</span>
-                    </div>
-
-                    <div class="product-price-section" style="margin-bottom: 12px; display: flex; align-items: baseline; line-height: 1;">
-                        <span class="current-price" style="font-size: 28px; font-weight: 800; color: #A91B43;">₹{{ number_format($product->price, 0) }}</span>
+                                        <div class="product-price-section" style="margin-bottom: 4px; display: flex; align-items: baseline; line-height: 1;">
+                        <span class="current-price" id="displayPrice" style="font-size: 28px; font-weight: 800; color: #A91B43;">₹{{ number_format($product->price, 0) }}</span>
                         @if($product->regular_price > $product->price)
-                            <span class="old-price" style="text-decoration: line-through; color: #bbb; margin-left: 10px; font-size: 16px;">₹{{ number_format($product->regular_price, 0) }}</span>
-                        @else
-                            <span class="old-price" style="text-decoration: line-through; color: #bbb; margin-left: 10px; font-size: 16px;">₹{{ number_format($product->price * 1.25, 0) }}</span>
+                            <span class="old-price" id="displayRegularPrice" style="text-decoration: line-through; color: #bbb; margin-left: 10px; font-size: 16px;">₹{{ number_format($product->regular_price, 0) }}</span>
+                            <span class="discount-badge" id="displayDiscount" style="background: #e74c3c; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; margin-left: 10px; text-transform: uppercase;">{{ $product->discount_percent }}% OFF</span>
                         @endif
-                        <span class="discount-badge" style="background: #e74c3c; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; margin-left: 10px; text-transform: uppercase;">20% OFF</span>
                     </div>
+                    <p style="font-size: 11px; color: #888; margin-bottom: 15px; font-weight: 500;">(Inclusive of all taxes)</p>
 
                     <div class="stock-status" style="margin-bottom: 15px;">
-                        @if($product->stock_quantity > 0)
-                            <span class="stock-badge stock-in" style="font-size: 12px; font-weight: 600; color: #2ecc71; background: #f0fff4; padding: 4px 10px; border-radius: 4px; border: 1px solid #c6f6d5;">
-                                IN STOCK
-                            </span>
-                        @else
-                            <span class="stock-badge stock-out" style="font-size: 12px; font-weight: 600; color: #e74c3c; background: #fff5f5; padding: 4px 10px; border-radius: 4px; border: 1px solid #fed7d7;">
-                                OUT OF STOCK
-                            </span>
-                        @endif
-                    </div>
+                        <span id="stockStatus" class="stock-badge {{ $product->stock_quantity > 0 ? 'stock-in' : 'stock-out' }}" 
+                              style="font-size: 12px; font-weight: 600; {{ $product->stock_quantity > 0 ? 'color: #2ecc71; background: #f0fff4; border: 1px solid #c6f6d5;' : 'color: #e74c3c; background: #fff5f5; border: 1px solid #fed7d7;' }} padding: 4px 10px; border-radius: 4px;">
+                            {{ $product->stock_quantity > 0 ? 'IN STOCK' : 'OUT OF STOCK' }}
+                        </span>
+                    </div>          </div>
 
                     <div class="product-description-short" style="margin-bottom: 0px; color: #666; line-height: 1.5; font-size: 14px; max-width: 500px;">
                         {!! Str::limit(strip_tags($product->description), 150) !!}
@@ -430,18 +486,102 @@
             if(element.classList.contains('color-swatch')) {
                 updateGallery(valueId);
             }
+
+            // Sync Variants [PERFECT CONCEPT]
+            checkVariant();
         }
 
-        function updateGallery(colorId) {
+        const productVariants = {!! json_encode($product->product_variants) !!};
+        const basePrice = {{ $product->price }};
+        const baseRegularPrice = {{ $product->regular_price ?: $product->price }};
+        const baseSku = "{{ $product->sku }}";
+
+        function checkVariant() {
+            let selectedAttrs = [];
+            document.querySelectorAll('input[id^="attr_"]').forEach(input => {
+                if(input.value) selectedAttrs.push(parseInt(input.value));
+            });
+
+            // Match against v.combination (e.g. { "1": [10], "2": [15] })
+            let matched = productVariants.find(v => {
+                if(!v.combination) return false;
+                let vValues = Object.values(v.combination).flat().map(Number);
+                return selectedAttrs.length === vValues.length && selectedAttrs.every(id => vValues.includes(id));
+            });
+
+            if(matched) {
+                updatePriceDisplay(matched.price || basePrice, matched.sale_price || matched.price || basePrice);
+                document.querySelector('.product-sku').innerText = matched.sku || baseSku;
+                updateStockStatus(matched.stock_quantity);
+                
+                // Swap Main Image and filter thumbnails for this variant
+                updateGallery(null, matched.id);
+            } else {
+                 updatePriceDisplay(basePrice, baseRegularPrice);
+                 document.querySelector('.product-sku').innerText = baseSku;
+                 updateStockStatus({{ $product->stock_quantity }});
+                 updateGallery(null, null); // Show general images
+            }
+        }
+
+        function updatePriceDisplay(sale, regular) {
+            document.getElementById('displayPrice').innerText = '₹' + new Intl.NumberFormat().format(sale);
+            const regEl = document.getElementById('displayRegularPrice');
+            const discEl = document.getElementById('displayDiscount');
+            if(regEl && regular > sale) {
+                regEl.innerText = '₹' + new Intl.NumberFormat().format(regular);
+                regEl.style.display = 'inline';
+                if(discEl) {
+                    let pct = Math.round(((regular - sale) / regular) * 100);
+                    discEl.innerText = pct + '% OFF';
+                    discEl.style.display = 'inline';
+                }
+            } else if(regEl) {
+                regEl.style.display = 'none';
+                if(discEl) discEl.style.display = 'none';
+            }
+        }
+
+        function updateStockStatus(qty) {
+            const el = document.getElementById('stockStatus');
+            if(qty > 0) {
+                el.innerText = 'IN STOCK';
+                el.className = 'stock-badge stock-in';
+                el.style.color = '#2ecc71'; el.style.background = '#f0fff4'; el.style.borderColor = '#c6f6d5';
+            } else {
+                el.innerText = 'OUT OF STOCK';
+                el.className = 'stock-badge stock-out';
+                el.style.color = '#e74c3c'; el.style.background = '#fff5f5'; el.style.borderColor = '#fed7d7';
+            }
+        }
+
+        function updateGallery(colorId, variantId) {
             const thumbs = document.querySelectorAll('.thumbnail');
             let firstFound = null;
-            
+            let countVisible = 0;
+
             thumbs.forEach(t => {
                 const thumbColorId = t.getAttribute('data-color-id');
-                // Show if generic (null) OR matches colorId
-                if(!thumbColorId || thumbColorId === 'null' || thumbColorId == colorId) {
+                const thumbVariantId = t.getAttribute('data-variant-id');
+                
+                let show = false;
+                if(variantId) {
+                    // Show variant-specific images ONLY
+                    if(thumbVariantId == variantId) show = true;
+                } else if(colorId) {
+                    // Show color-specific OR general images
+                    if(!thumbColorId || thumbColorId === 'null' || thumbColorId == colorId) show = true;
+                    // Hide other variant-specific images if no variantId
+                    if(thumbVariantId) show = false; 
+                } else {
+                    // General view: show images with no color/variant ID
+                    if(!thumbColorId && !thumbVariantId) show = true;
+                }
+
+                if(show) {
                     t.style.display = 'block';
                     if(!firstFound) firstFound = t;
+                    countVisible++;
                 } else {
                     t.style.display = 'none';
                 }
@@ -463,6 +603,25 @@
 
         // Initialize Swipers
         document.addEventListener('DOMContentLoaded', function() {
+            // Auto Select First Options
+            let hasSelection = false;
+            document.querySelectorAll('.swatch-container').forEach(container => {
+                const firstOpt = container.querySelector('.attribute-option');
+                if (firstOpt) {
+                    firstOpt.click();
+                    hasSelection = true;
+                }
+            });
+
+            if (!hasSelection) {
+                // If simple product without attributes, just load base images
+                updateGallery(null, null);
+            }
+
+            // Unhide the thumbnails container after JS filters it
+            const tc = document.getElementById('thumbnailsContainer');
+            if (tc) tc.style.display = 'flex';
+
             const swiperOptions = {
                 slidesPerView: 2,
                 spaceBetween: 20,
@@ -498,7 +657,6 @@
                 });
             }
 
-            }
         });
     </script>
 @endpush
