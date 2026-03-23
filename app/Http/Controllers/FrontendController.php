@@ -104,7 +104,7 @@ class FrontendController extends Controller
 
     public function productShow($slug)
     {
-        $product = Product::with('category')->where('slug', '=', $slug)->where('status', '=', 1)->firstOrFail();
+        $product = Product::with(['category', 'product_variants'])->where('slug', '=', $slug)->where('status', '=', 1)->firstOrFail();
         
         // Handle Recently Viewed
         $viewedIds = session()->get('recently_viewed', []);

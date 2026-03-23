@@ -326,14 +326,17 @@ class CartController extends Controller
 
                 // Deduction of Stock with Movement Log [PERFECT FIX]
                 if ($product) {
-                    $oldStock = $product->stock_quantity;
-                    $product->decrement('stock_quantity', $item['quantity']);
+                    $oldStock = (int) $product->stock_quantity;
+                    $itemQty = (int) $item['quantity'];
+                    $newStock = max(0, $oldStock - $itemQty);
+
+                    $product->update(['stock_quantity' => $newStock]);
                     
                     StockMovement::create([
                         'product_id' => $product->id,
                         'type' => 'sale',
-                        'quantity' => $item['quantity'],
-                        'balance_after' => $product->stock_quantity,
+                        'quantity' => $itemQty,
+                        'balance_after' => $newStock,
                         'reason' => 'Sold in Order #' . $order->order_number,
                     ]);
 

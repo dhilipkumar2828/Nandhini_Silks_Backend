@@ -54,6 +54,45 @@
             border-color: #A91B43 !important;
         }
 
+        /* Unavailable/Out of Stock Swatch Style */
+        .attribute-option.unavailable {
+            position: relative !important;
+            opacity: 0.4 !important;
+            cursor: not-allowed !important;
+            pointer-events: none !important;
+            filter: grayscale(1);
+            background: #f5f5f5 !important;
+            color: #999 !important;
+            border-color: #ddd !important;
+            overflow: hidden;
+        }
+        .attribute-option.unavailable::after {
+            content: "SOLD OUT";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            font-size: 8px;
+            font-weight: 800;
+            color: #e74c3c;
+            background: rgba(255,255,255,0.9);
+            padding: 1px 4px;
+            border: 1px solid #e74c3c;
+            border-radius: 2px;
+            white-space: nowrap;
+            z-index: 5;
+            letter-spacing: 0.5px;
+        }
+        .attribute-option.unavailable.color-swatch::after {
+            font-size: 6px;
+            padding: 0px 1px;
+            background: #fff;
+            box-shadow: 0 0 2px rgba(0,0,0,0.5);
+        }
+        .attribute-option.unavailable.size-btn {
+            border-style: dashed !important;
+        }
+
         /* Override cache for thumbnails */
         .product-thumbnails {
             display: flex !important;
@@ -209,9 +248,13 @@
                             @endif
                         </div>
                         <div class="stock-status">
-                            <span id="stockStatus" class="stock-badge {{ $product->stock_quantity > 0 ? 'stock-in' : 'stock-out' }}" 
-                                   style="font-size: 9px; font-weight: 700; {{ $product->stock_quantity > 0 ? 'color: #2ecc71; background: #c0fbe15e; border: 1px solid #c6f6d5;' : 'color: #e74c3c; background: #fff5f5; border: 1px solid #fed7d7;' }} padding: 2px 6px; border-radius: 3px; text-transform: uppercase;">
-                                {{ $product->stock_quantity > 0 ? 'IN STOCK' : 'OUT OF STOCK' }}
+                            @php
+                                $totalVariantStock = $product->product_variants->sum('stock_quantity');
+                                $isInStock = ($product->product_variants->count() > 0) ? ($totalVariantStock > 0) : ($product->stock_quantity > 0);
+                            @endphp
+                            <span id="stockStatus" class="stock-badge {{ $isInStock ? 'stock-in' : 'stock-out' }}" 
+                                   style="font-size: 9px; font-weight: 700; {{ $isInStock ? 'color: #2ecc71; background: #c0fbe15e; border: 1px solid #c6f6d5;' : 'color: #e74c3c; background: #fff5f5; border: 1px solid #fed7d7;' }} padding: 2px 6px; border-radius: 3px; text-transform: uppercase;">
+                                {{ $isInStock ? 'IN STOCK' : 'OUT OF STOCK' }}
                             </span>
                         </div>
                     </div>
@@ -549,15 +592,15 @@
 
                     let isAvailable = productVariants.some(v => {
                         if(!v.combination) return false;
-                        // Combination is usually { "attr_id": [val_id] }
-                        let vValues = Object.entries(v.combination).map(([aid, vids]) => vids[0]);
                         
                         // Check if this variant matches ALL our testSelection criteria
-                        return Object.entries(testSelection).every(([aid, vid]) => {
-                           // If the variant doesn't even have this attribute, it's not a match for our specific selection
+                        let matches = Object.entries(testSelection).every(([aid, vid]) => {
                            if(!v.combination[aid]) return false;
                            return v.combination[aid].includes(vid);
                         });
+
+                        // It's ONLY available if it exists AND has stock > 0
+                        return matches && v.stock_quantity > 0;
                     });
 
                     if(isAvailable) {
