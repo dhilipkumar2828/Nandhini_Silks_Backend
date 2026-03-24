@@ -71,6 +71,7 @@ class CartController extends Controller
             $size = '';
             $color = '';
 
+            $matchedVariant = null;
             // Try to find matching variant for specific image/price
             if (!empty($attributes)) {
                 $variants = $product->product_variants;
@@ -91,6 +92,7 @@ class CartController extends Controller
                     }
                     if ($match) {
                         Log::info("MATCH FOUND! Variant ID: {$variant->id}");
+                        $matchedVariant = $variant;
                         if ($variant->price > 0) $price = $variant->price;
                         if ($variant->sale_price > 0) $price = $variant->sale_price;
                         if ($variant->image) $imagePath = $variant->image;
@@ -111,6 +113,7 @@ class CartController extends Controller
 
             $cart[$cartKey] = [
                 'product_id' => $product->id,
+                'variant_id' => $matchedVariant ? $matchedVariant->id : null,
                 'name' => $product->name,
                 'slug' => $product->slug,
                 'price' => $price,
@@ -324,25 +327,53 @@ class CartController extends Controller
                     'total' => $item['price'] * $item['quantity'],
                 ]);
 
-                // Deduction of Stock with Movement Log [PERFECT FIX]
+                // Deduction of Stock with Movement Log [VARIANT AWARE FIX]
                 if ($product) {
-                    $oldStock = (int) $product->stock_quantity;
+                    $variantId = $item['variant_id'] ?? null;
                     $itemQty = (int) $item['quantity'];
-                    $newStock = max(0, $oldStock - $itemQty);
-
-                    $product->update(['stock_quantity' => $newStock]);
                     
-                    StockMovement::create([
-                        'product_id' => $product->id,
-                        'type' => 'sale',
-                        'quantity' => $itemQty,
-                        'balance_after' => $newStock,
-                        'reason' => 'Sold in Order #' . $order->order_number,
-                    ]);
+                    if ($variantId) {
+                        $variant = \App\Models\ProductVariant::find($variantId);
+                        if ($variant) {
+                            $oldVStock = (int) $variant->stock_quantity;
+                            $newVStock = max(0, $oldVStock - $itemQty);
+                            $variant->update(['stock_quantity' => $newVStock]);
+                            
+                            StockMovement::create([
+                                'product_id' => $product->id,
+                                'type' => 'sale',
+                                'quantity' => $itemQty,
+                                'balance_after' => $newVStock,
+                                'reason' => 'Sold variant ' . $variant->sku . ' in Order #' . $order->order_number,
+                            ]);
+                        }
+                    } else {
+                        // Regular product (no variants)
+                        $oldStock = (int) $product->stock_quantity;
+                        $newStock = max(0, $oldStock - $itemQty);
+                        $product->update(['stock_quantity' => $newStock]);
+                        
+                        StockMovement::create([
+                            'product_id' => $product->id,
+                            'type' => 'sale',
+                            'quantity' => $itemQty,
+                            'balance_after' => $newStock,
+                            'reason' => 'Sold in Order #' . $order->order_number,
+                        ]);
+                    }
 
-                    // Update Status to Out of Stock if zero
-                    if ($product->stock_quantity <= 0) {
-                        $product->update(['stock_status' => 'outofstock']);
+                    // Always sync parent product stock as the sum of its variants if it has any
+                    if ($product->product_variants->count() > 0) {
+                        $totalVariantStock = $product->product_variants->sum('stock_quantity');
+                        $product->update([
+                            'stock_quantity' => $totalVariantStock,
+                            'stock_status' => $totalVariantStock > 0 ? 'instock' : 'outofstock'
+                        ]);
+                    } else {
+                        // For simple products without variants
+                        if ($product->stock_quantity <= 0) {
+                            $product->update(['stock_status' => 'outofstock']);
+                        }
                     }
                 }
             }

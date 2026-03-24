@@ -54,43 +54,41 @@
             border-color: #A91B43 !important;
         }
 
-        /* Unavailable/Out of Stock Swatch Style */
+        /* Unavailable/Out of Stock Swatch Style - Strike-through & Dashed */
         .attribute-option.unavailable {
             position: relative !important;
-            opacity: 0.4 !important;
+            opacity: 0.6 !important;
             cursor: not-allowed !important;
             pointer-events: none !important;
-            filter: grayscale(1);
-            background: #f5f5f5 !important;
-            color: #999 !important;
-            border-color: #ddd !important;
+            background: #f8f9fa !important;
+            color: #adb5bd !important;
+            border: 1px dashed #dee2e6 !important;
             overflow: hidden;
+            transition: all 0.3s ease;
         }
+
         .attribute-option.unavailable::after {
-            content: "SOLD OUT";
+            content: "";
             position: absolute;
             top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-15deg);
-            font-size: 8px;
-            font-weight: 800;
-            color: #e74c3c;
-            background: rgba(255,255,255,0.9);
-            padding: 1px 4px;
-            border: 1px solid #e74c3c;
-            border-radius: 2px;
-            white-space: nowrap;
-            z-index: 5;
-            letter-spacing: 0.5px;
+            left: 10%;
+            right: 10%;
+            height: 1px;
+            background: #adb5bd;
+            transform: translateY(-50%);
+            z-index: 10;
         }
+
+        /* Diagonal line for color swatches instead of horizontal */
         .attribute-option.unavailable.color-swatch::after {
-            font-size: 6px;
-            padding: 0px 1px;
-            background: #fff;
-            box-shadow: 0 0 2px rgba(0,0,0,0.5);
+            left: 0;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%) rotate(45deg);
         }
+
         .attribute-option.unavailable.size-btn {
-            border-style: dashed !important;
+            background-color: #f1f3f5 !important;
         }
 
         /* Override cache for thumbnails */
