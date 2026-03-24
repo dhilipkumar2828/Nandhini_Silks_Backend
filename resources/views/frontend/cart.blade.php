@@ -135,24 +135,17 @@
             if (!input) return;
             let current = parseInt(input.value) || 0;
             current += val;
-            if (current < 1) current = 1;
+            if (current < 1) return; // Prevent less than 1
             input.value = current;
+            
+            // Auto submit form to update totals
+            clearTimeout(window.cartUpdateTimer);
+            window.cartUpdateTimer = setTimeout(() => {
+                document.getElementById('cartForm').submit();
+            }, 600);
         }
 
-        function removeItem(key) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = "{{ url('cart/remove') }}/" + key;
-            
-            const csrf = document.createElement('input');
-            csrf.type = 'hidden';
-            csrf.name = '_token';
-            csrf.value = "{{ csrf_token() }}";
-            
-            form.appendChild(csrf);
-            document.body.appendChild(form);
-            form.submit();
-        }
+
 
     </script>
 @endpush

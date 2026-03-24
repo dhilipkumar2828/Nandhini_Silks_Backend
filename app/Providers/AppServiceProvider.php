@@ -29,6 +29,25 @@ class AppServiceProvider extends ServiceProvider
                 ->orderBy('display_order', 'asc')
                 ->get();
             $view->with('headerCategories', $categories);
+
+            // Total cart items count logic
+            $cartCount = 0;
+            if (auth()->check()) {
+                $cartCount = \App\Models\CartItem::where('user_id', auth()->id())->sum('quantity');
+            } else {
+                $cartCount = collect(session('cart', []))->sum('quantity');
+            }
+            $view->with('cartCount', $cartCount);
+
+            // Wishlist items count logic
+            $wishlistCount = 0;
+            if (auth()->check()) {
+                // If we decide to use DB for wishlist later, change here. Currently session.
+                $wishlistCount = count(session('wishlist', []));
+            } else {
+                $wishlistCount = count(session('wishlist', []));
+            }
+            $view->with('wishlistCount', $wishlistCount);
         });
     }
 }

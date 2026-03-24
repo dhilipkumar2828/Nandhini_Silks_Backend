@@ -16,6 +16,7 @@ use App\Models\ProductReview;
 
 use App\Models\Banner;
 use App\Models\Testimonial;
+use App\Models\Ad;
 
 class FrontendController extends Controller
 {
@@ -31,7 +32,10 @@ class FrontendController extends Controller
         // Fetch subcategories for "Saree Collections" (Top 5 for homepage)
         $subCategories = \App\Models\SubCategory::where('status', '=', 1)->orderBy('display_order', 'asc')->limit(8)->get();
 
-        return view('frontend.index', compact('banners', 'testimonials', 'featuredProducts', 'categories', 'subCategories'));
+        // Fetch advertisements for promo section
+        $ads = Ad::where('status', '=', 1)->latest()->get();
+
+        return view('frontend.index', compact('banners', 'testimonials', 'featuredProducts', 'categories', 'subCategories', 'ads'));
     }
 
     public function shop()
@@ -80,8 +84,8 @@ class FrontendController extends Controller
             foreach (request('attr') as $attr_id => $values) {
                 $query->where(function($q) use ($attr_id, $values) {
                     foreach ($values as $val_id) {
-                        $q->orWhereJsonContains('attributes', ['value_id' => (string)$val_id])
-                          ->orWhereJsonContains('attributes', ['value_id' => (int)$val_id]);
+                        $q->orWhereJsonContains('attributes->' . $attr_id, (int)$val_id)
+                          ->orWhereJsonContains('attributes->' . $attr_id, (string)$val_id);
                     }
                 });
             }
@@ -130,6 +134,17 @@ class FrontendController extends Controller
 
     public function about() { return view('frontend.about'); }
     public function contact() { return view('frontend.contact'); }
+    public function contactSubmit(Request $request)
+    {
+        // Simple validation for backend as well
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email',
+            'message' => 'required'
+        ]);
+
+        return back()->with('success', 'Thank you for contacting us! We will get back to you soon.');
+    }
     public function cart() { return view('frontend.cart'); }
     public function checkout() { return view('frontend.checkout'); }
     public function wishlist() { return view('frontend.wishlist'); }
@@ -219,10 +234,11 @@ class FrontendController extends Controller
         ]);
 
         if ($request->new_password) {
-            if (!\Hash::check($request->current_password, $user->password)) {
+            if (Hash::check($request->current_password, $user->password)) {
+                $user->password = Hash::make($request->new_password);
+            } else {
                 return back()->withErrors(['current_password' => 'Current password does not match.']);
             }
-            $user->password = \Hash::make($request->new_password);
         }
 
         $user->name = $data['name'];

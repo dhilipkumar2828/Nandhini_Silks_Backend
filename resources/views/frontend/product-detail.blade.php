@@ -811,6 +811,39 @@
             }
 
         });
+        // AJAX Add to Cart
+        document.getElementById('pdpForm').addEventListener('submit', function(e) {
+            const action = e.submitter ? e.submitter.value : 'cart';
+            
+            if (action === 'cart') {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                formData.append('action', 'cart');
+
+                fetch(this.getAttribute('action'), {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        toastr.success(data.message || 'Added to cart.');
+                        if (window.openCartDrawer) window.openCartDrawer();
+                    } else {
+                        toastr.error(data.message || 'Error adding to cart.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    toastr.error('Something went wrong.');
+                });
+            }
+        });
     </script>
 @endpush
 
