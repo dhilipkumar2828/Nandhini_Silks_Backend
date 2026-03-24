@@ -426,7 +426,7 @@
 
             .category-swiper-wrap {
                 overflow: hidden;
-                padding: 0 36px;
+                padding: 0 12px;
             }
 
             .category-swiper .swiper-slide {
@@ -455,18 +455,18 @@
                 padding-bottom: 10px;
                 height: 100% !important;
                 width: 100% !important;
-                max-width: 106px !important;
+                max-width: 156px !important;
                 margin: 0 auto !important;
             }
 
             .category-image-shell {
-                width: clamp(74px, 20vw, 92px) !important;
-                height: clamp(74px, 20vw, 92px) !important;
+                width: 136px !important;
+                height: 136px !important;
                 margin: 0 auto !important;
             }
 
             .category-name {
-                font-size: clamp(11px, 2.9vw, 13px) !important;
+                font-size: clamp(11px, 3vw, 13px) !important;
                 margin-top: 8px !important;
                 white-space: normal;
                 line-height: 1.35;
@@ -491,7 +491,16 @@
                 }
 
                 .category-swiper-wrap {
-                    padding: 0 32px;
+                    padding: 0 6px;
+                }
+
+                .category-card {
+                    max-width: 148px !important;
+                }
+
+                .category-image-shell {
+                    width: 128px !important;
+                    height: 128px !important;
                 }
             }
 
@@ -502,7 +511,11 @@
                 }
 
                 .category-swiper-wrap {
-                    padding: 0 28px;
+                    padding: 0 4px;
+                }
+
+                .category-card {
+                    max-width: 132px !important;
                 }
 
                 .category-prev,
@@ -514,6 +527,15 @@
                 .category-prev::after,
                 .category-next::after {
                     font-size: 11px !important;
+                }
+
+                .category-image-shell {
+                    width: 112px !important;
+                    height: 112px !important;
+                }
+
+                .category-name {
+                    font-size: 10px !important;
                 }
             }
 
@@ -1035,29 +1057,59 @@
                     }
                 });
 
+                const categoryWrapper = document.querySelector('.category-swiper .swiper-wrapper');
+                const originalCategorySlides = categoryWrapper ? Array.from(categoryWrapper.children) : [];
+
+                const originalCategoryCount = originalCategorySlides.length;
+
+                if (categoryWrapper && originalCategoryCount > 1) {
+                    while (categoryWrapper.children.length < Math.max(originalCategoryCount * 3, 18)) {
+                        originalCategorySlides.forEach((slide) => {
+                            const clone = slide.cloneNode(true);
+                            clone.classList.add('category-slide-clone');
+                            categoryWrapper.appendChild(clone);
+                        });
+                    }
+                }
+
+                const categorySlideCount = document.querySelectorAll('.category-swiper .swiper-slide').length;
+                const safeCategoryCount = Math.max(originalCategoryCount, 1);
+                const enableCategoryLoop = originalCategoryCount > 1;
+
                 new Swiper('.category-swiper', {
-                    slidesPerView: 3,
+                    slidesPerView: Math.min(2, safeCategoryCount),
                     slidesPerGroup: 1,
-                    spaceBetween: 4,
-                    centeredSlides: true,
-                    centeredSlidesBounds: true,
+                    spaceBetween: 8,
+                    speed: 900,
+                    centeredSlides: false,
+                    centeredSlidesBounds: false,
                     centerInsufficientSlides: true,
-                    loop: true,
+                    loop: enableCategoryLoop,
+                    loopedSlides: categorySlideCount,
+                    loopAdditionalSlides: categorySlideCount,
+                    loopPreventsSliding: true,
+                    roundLengths: true,
+                    watchOverflow: false,
+                    observer: true,
+                    observeParents: true,
                     autoplay: {
                         delay: 3500,
                         disableOnInteraction: false,
+                        pauseOnMouseEnter: false,
+                        waitForTransition: true,
                     },
                     navigation: {
                         nextEl: '.category-next',
                         prevEl: '.category-prev',
                     },
                     breakpoints: {
-                        400: { slidesPerView: 3, spaceBetween: 4 },
-                        480: { slidesPerView: 3, spaceBetween: 6 },
-                        640: { slidesPerView: 3, spaceBetween: 12 },
-                        768: { slidesPerView: 4, spaceBetween: 15 },
-                        1024: { slidesPerView: 5, spaceBetween: 20 },
-                        1280: { slidesPerView: 6, spaceBetween: 24 },
+                        0: { slidesPerView: Math.min(2, safeCategoryCount), spaceBetween: -4 },
+                        400: { slidesPerView: Math.min(2, safeCategoryCount), spaceBetween: -2 },
+                        480: { slidesPerView: Math.min(2, safeCategoryCount), spaceBetween: 0 },
+                        640: { slidesPerView: Math.min(3, safeCategoryCount), spaceBetween: 12 },
+                        768: { slidesPerView: Math.min(4, safeCategoryCount), spaceBetween: 14 },
+                        1024: { slidesPerView: Math.min(5, safeCategoryCount), slidesPerGroup: 1, spaceBetween: 12 },
+                        1280: { slidesPerView: Math.min(6, safeCategoryCount), slidesPerGroup: 1, spaceBetween: 12 },
                     }
                 });
 

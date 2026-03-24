@@ -131,6 +131,21 @@
         }
         
         @media (max-width: 900px) {
+            #zoomContainer {
+                position: relative !important;
+                overflow: hidden !important;
+                left: -10px !important;
+            }
+
+            #zoomContainer img,
+            #mainImg {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: cover !important;
+                object-position: center center !important;
+                transform: none !important;
+            }
+
             .product-thumbnails {
                 flex-direction: row !important;
                 width: 100% !important;

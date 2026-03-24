@@ -4477,17 +4477,39 @@ input:checked+.toggle-switch .toggle-dot {
 @media (max-width: 900px) {
   .product-gallery {
     flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
   }
 
   .product-thumbnails {
     flex-direction: row !important;
     width: 100% !important;
     overflow-x: auto;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    padding-top: 8px;
   }
 
   .thumbnail {
     width: 80px !important;
     height: 80px !important;
+  }
+
+  .main-product-image {
+    width: 100% !important;
+    max-width: 420px !important;
+    margin: 0 auto !important;
+    aspect-ratio: 4 / 5 !important;
+  }
+
+  .main-product-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
   }
 }
 
