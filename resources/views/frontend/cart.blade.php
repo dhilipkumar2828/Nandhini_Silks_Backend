@@ -3,6 +3,110 @@
 @section('title', 'Shopping Cart | Nandhini Silks')
 
 @section('content')
+    @push('styles')
+    <style>
+        @media (max-width: 768px) {
+            .cart-page {
+                padding: 18px 0 30px;
+            }
+
+            .cart-items-list,
+            .cart-summary {
+                padding: 18px;
+                border-radius: 16px;
+            }
+
+            .cart-item-row {
+                grid-template-columns: 72px 1fr auto !important;
+                grid-template-areas:
+                    "image info remove"
+                    "image price price"
+                    "image qty qty" !important;
+                align-items: start !important;
+                gap: 8px 14px !important;
+                padding: 16px 0 !important;
+            }
+
+            .cart-item-img {
+                width: 72px;
+                height: 72px;
+            }
+
+            .cart-item-info h3 {
+                font-size: 14px;
+                line-height: 1.4;
+                margin-bottom: 6px !important;
+            }
+
+            .cart-item-info .item-variants {
+                font-size: 10px !important;
+                line-height: 1.5;
+            }
+
+            .cart-item-price {
+                font-size: 15px;
+                font-weight: 700;
+            }
+
+            .quantity-picker {
+                justify-self: start !important;
+                transform: scale(0.95);
+                transform-origin: left center;
+                margin-top: 2px;
+            }
+
+            .remove-item {
+                font-size: 20px;
+                line-height: 1;
+                padding: 0;
+            }
+
+            .summary-title {
+                font-size: 18px;
+                margin-bottom: 18px;
+                padding-bottom: 12px;
+            }
+
+            .summary-row,
+            .summary-total {
+                font-size: 14px;
+                gap: 12px;
+            }
+
+            .summary-total {
+                font-size: 18px;
+            }
+
+            .coupon-input-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .coupon-input,
+            .btn-apply-coupon {
+                width: 100%;
+                border-radius: 8px;
+            }
+
+            .btn-apply-coupon {
+                min-height: 46px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 14px;
+                font-weight: 700;
+                letter-spacing: 0.02em;
+            }
+
+            .btn-checkout,
+            .btn-continue-shopping {
+                margin-top: 0;
+                min-height: 48px;
+                font-size: 15px;
+            }
+        }
+    </style>
+    @endpush
     <main class="cart-page">
         <div class="page-shell">
             <div class="breadcrumb">

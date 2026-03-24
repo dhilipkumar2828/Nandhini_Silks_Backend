@@ -509,6 +509,11 @@
                 <span class="hamburger-bar"></span>
             </button>
             <div class="nav-links" id="navLinks">
+                <div class="mobile-menu-header">
+                    <a href="{{ route('home') }}">
+                        <img src="{{ asset('images/image 1.png') }}" alt="Nandhini Silks" class="mobile-menu-logo">
+                    </a>
+                </div>
                 @foreach($headerCategories as $category)
                     <div class="nav-item-wrapper">
                         <a href="{{ url('category/'.$category->slug) }}" class="nav-item @if($category->subCategories->count() > 0) nav-dropdown-toggle @endif">{{ $category->name }}</a>
@@ -544,16 +549,44 @@
         document.addEventListener('DOMContentLoaded', () => {
             const menuToggle = document.getElementById('menuToggle');
             const navLinks = document.getElementById('navLinks');
+            const mobileBreakpoint = 768;
+
+            if (!menuToggle || !navLinks) {
+                return;
+            }
+
+            const closeMenu = () => {
+                navLinks.classList.remove('active');
+                menuToggle.classList.remove('active');
+                menuToggle.setAttribute('aria-expanded', 'false');
+                document.body.classList.remove('menu-open');
+
+                document.querySelectorAll('.nav-item-wrapper.mobile-open, .has-children.mobile-open').forEach(item => {
+                    item.classList.remove('mobile-open');
+                });
+            };
+
+            const openMenu = () => {
+                navLinks.classList.add('active');
+                menuToggle.classList.add('active');
+                menuToggle.setAttribute('aria-expanded', 'true');
+                document.body.classList.add('menu-open');
+            };
+
+            menuToggle.setAttribute('aria-expanded', 'false');
 
             menuToggle.addEventListener('click', () => {
-                navLinks.classList.toggle('active');
-                menuToggle.classList.toggle('active');
+                if (navLinks.classList.contains('active')) {
+                    closeMenu();
+                } else {
+                    openMenu();
+                }
             });
 
             const dropdownToggles = document.querySelectorAll('.nav-dropdown-toggle');
             dropdownToggles.forEach(toggle => {
                 toggle.addEventListener('click', (e) => {
-                    if (window.innerWidth <= 768) {
+                    if (window.innerWidth <= mobileBreakpoint) {
                         const parent = toggle.parentElement;
                         // Only prevent default if it has a dropdown
                         if (parent.querySelector('.dropdown-content')) {
@@ -568,13 +601,116 @@
             const hasChildrenLinks = document.querySelectorAll('.has-children > a');
             hasChildrenLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
-                    if (window.innerWidth <= 768) {
+                    if (window.innerWidth <= mobileBreakpoint) {
                         e.preventDefault();
                         const parent = link.parentElement;
                         parent.classList.toggle('mobile-open');
                     }
                 });
             });
+
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth <= mobileBreakpoint &&
+                    navLinks.classList.contains('active') &&
+                    !navLinks.contains(e.target) &&
+                    !menuToggle.contains(e.target)) {
+                    closeMenu();
+                }
+            });
+
+            navLinks.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth <= mobileBreakpoint &&
+                        !link.classList.contains('nav-dropdown-toggle') &&
+                        !link.parentElement.classList.contains('has-children')) {
+                        closeMenu();
+                    }
+                });
+            });
+
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > mobileBreakpoint) {
+                    closeMenu();
+                }
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileBreakpoint = 768;
+            const accountSidebars = document.querySelectorAll('.account-page .account-sidebar');
+
+            if (!accountSidebars.length) {
+                return;
+            }
+
+            accountSidebars.forEach((sidebar, index) => {
+                const existingToggle = sidebar.querySelector('.account-sidebar-toggle');
+
+                if (!existingToggle) {
+                    const toggle = document.createElement('button');
+                    toggle.type = 'button';
+                    toggle.className = 'account-sidebar-toggle';
+                    toggle.setAttribute('aria-expanded', 'false');
+                    toggle.setAttribute('aria-controls', `accountSidebarNav${index}`);
+                    toggle.innerHTML = '<span>My Account Menu</span><span class="account-sidebar-toggle-icon"><i class="fa-solid fa-chevron-down"></i></span>';
+                    const userInfo = sidebar.querySelector('.account-user-info');
+                    if (userInfo && userInfo.nextSibling) {
+                        sidebar.insertBefore(toggle, userInfo.nextSibling);
+                    } else if (userInfo) {
+                        sidebar.appendChild(toggle);
+                    } else {
+                        sidebar.insertBefore(toggle, sidebar.firstChild);
+                    }
+                }
+
+                const nav = sidebar.querySelector('.account-nav');
+                if (nav) {
+                    nav.id = nav.id || `accountSidebarNav${index}`;
+                }
+            });
+
+            const syncAccountSidebarState = () => {
+                const isMobile = window.innerWidth <= mobileBreakpoint;
+
+                accountSidebars.forEach((sidebar) => {
+                    const toggle = sidebar.querySelector('.account-sidebar-toggle');
+                    if (!toggle) {
+                        return;
+                    }
+
+                    sidebar.classList.toggle('account-sidebar-collapsible', isMobile);
+
+                    if (isMobile) {
+                        const isOpen = sidebar.classList.contains('open');
+                        toggle.hidden = false;
+                        toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                    } else {
+                        toggle.hidden = true;
+                        sidebar.classList.remove('open');
+                        toggle.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            };
+
+            document.addEventListener('click', (event) => {
+                const toggle = event.target.closest('.account-sidebar-toggle');
+
+                if (!toggle) {
+                    return;
+                }
+
+                const sidebar = toggle.closest('.account-sidebar');
+                if (!sidebar || window.innerWidth > mobileBreakpoint) {
+                    return;
+                }
+
+                const isOpen = sidebar.classList.toggle('open');
+                toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            });
+
+            window.addEventListener('resize', syncAccountSidebarState);
+            syncAccountSidebarState();
         });
     </script>
 

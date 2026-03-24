@@ -44,7 +44,7 @@ class FrontendController extends Controller
         $category = new Category(['name' => 'Shop']);
         $filterData = $this->getFilterData();
 
-        return view('frontend.sarees', compact('category', 'products', 'filterData'));
+        return view('frontend.category_listing', compact('category', 'products', 'filterData'));
     }
 
     public function category($slug, $sub_slug = null, $child_slug = null)
@@ -128,8 +128,11 @@ class FrontendController extends Controller
 
         $attributeGroups = $this->buildAttributeGroups($product);
         $inWishlist = in_array($product->id, session()->get('wishlist', []));
+        $userReview = auth()->check()
+            ? ProductReview::where('product_id', $product->id)->where('user_id', auth()->id())->latest()->first()
+            : null;
             
-        return view('frontend.product-detail', compact('product', 'relatedProducts', 'recentlyViewed', 'attributeGroups', 'inWishlist'));
+        return view('frontend.product-detail', compact('product', 'relatedProducts', 'recentlyViewed', 'attributeGroups', 'inWishlist', 'userReview'));
     }
 
     public function about() { return view('frontend.about'); }
@@ -318,6 +321,28 @@ class FrontendController extends Controller
         $review = \App\Models\ProductReview::where('id', '=', $id)->where('user_id', '=', Auth::id())->firstOrFail();
         $review->update($data);
         return back()->with('success', 'Review updated successfully.');
+    }
+
+    public function storeReview(Request $request, Product $product)
+    {
+        $data = $request->validate([
+            'stars' => 'required|integer|min:1|max:5',
+            'review' => 'required|string|min:10',
+        ]);
+
+        ProductReview::updateOrCreate(
+            [
+                'user_id' => Auth::id(),
+                'product_id' => $product->id,
+            ],
+            [
+                'stars' => $data['stars'],
+                'review' => $data['review'],
+                'status' => 0,
+            ]
+        );
+
+        return back()->with('success', 'Your review has been submitted and is awaiting approval.');
     }
 
     private function getFilterData(): array

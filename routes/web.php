@@ -54,6 +54,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/my-profile/photo', [FrontendController::class, 'updateProfilePhoto'])->name('profile.photo');
     Route::delete('/my-reviews/{id}', [FrontendController::class, 'deleteReview'])->name('profile.review.delete');
     Route::put('/my-reviews/{id}', [FrontendController::class, 'updateReview'])->name('profile.review.update');
+    Route::post('/product/{product}/review', [FrontendController::class, 'storeReview'])->name('product.review.store');
     Route::get('/my-orders', [FrontendController::class, 'myOrders'])->name('my-orders');
     Route::get('/order-detail', [FrontendController::class, 'orderDetail'])->name('order-detail');
 

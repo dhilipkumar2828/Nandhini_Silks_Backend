@@ -263,6 +263,20 @@
 
         /* testimonial nav handled in shared block above */
 
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .hero-swiper .swiper-slide {
+                background: #f7f1e5;
+            }
+
+            .hero-swiper .swiper-slide img {
+                width: 100% !important;
+                height: auto !important;
+                max-height: none !important;
+                object-fit: contain !important;
+                display: block;
+            }
+        }
+
         @media (max-width: 768px) {
             .hero {
                 margin-bottom: 20px;
@@ -528,6 +542,66 @@
                 top: 50%;
                 z-index: 1001;
             }
+
+            .collection-section {
+                padding-left: 20px !important;
+                padding-right: 20px !important;
+            }
+
+            .collection-swiper-wrap {
+                overflow: hidden;
+                padding: 0 34px;
+            }
+
+            .collection-swiper .swiper-slide {
+                display: flex !important;
+                justify-content: center !important;
+                align-items: stretch !important;
+            }
+
+            .collection-card {
+                flex: none !important;
+                width: 100% !important;
+                max-width: 250px !important;
+                margin: 0 auto !important;
+                padding: 0 !important;
+            }
+
+            .collection-image-wrap {
+                width: 100% !important;
+            }
+
+            .collection-cta {
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                width: 96px !important;
+                height: 30px !important;
+                font-size: 13px !important;
+                margin-top: 8px !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+
+            .collection-prev,
+            .collection-next {
+                display: flex !important;
+                width: 32px !important;
+                height: 32px !important;
+                top: 38% !important;
+                z-index: 1002 !important;
+                background: #fff !important;
+            }
+
+            .collection-prev {
+                left: 0 !important;
+            }
+
+            .collection-next {
+                right: 0 !important;
+            }
         }
         /* Category Slider Alignment Pixes */
         .category-swiper .swiper-slide {
@@ -551,6 +625,8 @@
         .category-image {
             width: 100% !important;
             height: 100% !important;
+        }
+
         .category-name {
             font-size: 14px !important;
             margin-top: 15px !important;

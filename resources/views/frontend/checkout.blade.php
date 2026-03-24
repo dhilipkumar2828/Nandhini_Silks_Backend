@@ -166,6 +166,29 @@
       width: 0;
       height: 0;
     }
+
+    .checkout-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        gap: 12px;
+    }
+
+    .checkout-section-header .section-title-v4 {
+        margin: 0;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .checkout-saved-address-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        flex-shrink: 0;
+        align-self: center;
+    }
     .slider-v4 {
       position: absolute;
       cursor: pointer;
@@ -206,6 +229,46 @@
     .form-input-v4:focus {
         border-color: var(--pink-dark);
     }
+
+    @media (max-width: 768px) {
+        .checkout-section-header {
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            text-align: center;
+        }
+
+        .checkout-section-header .section-title-v4 {
+            font-size: 18px !important;
+            line-height: 1.2;
+        }
+
+        .checkout-saved-address-btn {
+            padding: 6px 12px !important;
+            font-size: 10px !important;
+            line-height: 1.2;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 34px;
+            align-self: center;
+        }
+
+        .checkout-saved-address-btn i {
+            margin-right: 4px !important;
+        }
+
+        .summary-title-v4 {
+            justify-content: center;
+            text-align: center;
+        }
+
+        .card-v4,
+        .summary-card-v4 {
+            margin-left: auto;
+            margin-right: auto;
+        }
+    }
 </style>
 @endpush
 
@@ -227,11 +290,11 @@
 
                     {{-- SHIPPING ADDRESS SECTION --}}
                     <div class="card-v4" style="margin-bottom: 25px; position: relative;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div class="checkout-section-header">
                             <h2 class="section-title-v4" style="font-size: 20px; margin: 0;">Shipping Address</h2>
                             
                             @if($addresses->count() > 0)
-                            <button type="button" onclick="openAddressModal()" style="background: var(--pink-light); color: var(--pink-dark); border: 1px solid var(--pink); border-radius: 8px; padding: 6px 15px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">
+                            <button type="button" onclick="openAddressModal()" class="checkout-saved-address-btn" style="background: var(--pink-light); color: var(--pink-dark); border: 1px solid var(--pink); border-radius: 8px; padding: 6px 15px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">
                                 <i class="fa-solid fa-address-book" style="margin-right: 5px;"></i> Or Use Saved Address
                             </button>
                             @endif
