@@ -497,7 +497,11 @@
         @yield('content')
     </main>
 
+    <script>
+        window.UPLOAD_URL = "{{ asset('uploads') }}";
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
     <script>
         $(document).ready(function() {
             // Initialize Flatpickr for dates
