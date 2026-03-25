@@ -163,5 +163,15 @@ Route::group(['prefix' => 'admin'], function () {
         // AJAX Helpers
         Route::get('/get-sub-categories/{category_id}', [ChildCategoryController::class, 'getSubCategories']);
         Route::get('/get-child-categories/{sub_category_id}', [ProductController::class, 'getChildCategories']);
+
+        // Catch-all for admin area (handles typos like /admin/loginnn)
+        Route::any('{any}', function () {
+            return redirect()->route('admin.login');
+        })->where('any', '.*');
     });
+});
+
+// Global fallback for website (handles typos like /loginmm)
+Route::fallback(function () {
+    return redirect()->route('home');
 });

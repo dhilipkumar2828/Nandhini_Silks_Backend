@@ -70,8 +70,7 @@ class FrontendController extends Controller
                     $category = $childCategory;
                     $query->where('child_category_id', '=', $childCategory->id);
                 } else {
-                    if ($slug === 'sarees') return $this->shop();
-                    abort(404);
+                    return redirect()->route('home');
                 }
             }
         }
@@ -108,7 +107,8 @@ class FrontendController extends Controller
 
     public function productShow($slug)
     {
-        $product = Product::with(['category', 'product_variants'])->where('slug', '=', $slug)->where('status', '=', 1)->firstOrFail();
+        $product = Product::with(['category', 'product_variants'])->where('slug', '=', $slug)->where('status', '=', 1)->first();
+        if (!$product) return redirect()->route('home');
         
         // Handle Recently Viewed
         $viewedIds = session()->get('recently_viewed', []);
