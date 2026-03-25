@@ -607,7 +607,7 @@ $(document).ready(function() {
                                     
                                     return arr.map(img => `
                                         <div class="relative flex items-center gap-2 bg-slate-50 border border-slate-200 p-1 rounded-xl group w-16 h-16">
-                                            <img src="/uploads/${img}" class="w-full h-full rounded-lg object-cover">
+                                            <img src="${window.UPLOAD_URL}/${img}" class="w-full h-full rounded-lg object-cover">
                                             <button type="button" class="remove-variant-image absolute -top-2 -right-2 bg-[#a91b43] text-white w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-lg opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all text-[10px]" data-type="existing" data-combo="${comboIds}">
                                                 <i class="fas fa-times"></i>
                                             </button>
@@ -680,7 +680,7 @@ $(document).ready(function() {
                 images = JSON.parse($hidden.val() || '[]'); 
             } catch(e) { images = []; }
             
-            const imgUrl = $btn.siblings('img').attr('src').replace('/uploads/', '');
+            const imgUrl = $btn.siblings('img').attr('src').replace(window.UPLOAD_URL + '/', '');
             images = images.filter(img => img !== imgUrl);
             $hidden.val(JSON.stringify(images));
             $btn.parent().remove();
