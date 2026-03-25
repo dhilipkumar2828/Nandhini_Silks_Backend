@@ -10,9 +10,17 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="space-y-1.5">
                     <label class="block text-xs font-bold text-slate-700">Category Name <span class="text-rose-500">*</span></label>
-                    <input type="text" name="name" value="{{ old('name') }}" required
+                    <input type="text" name="name" id="categoryName" value="{{ old('name') }}" required
                         class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] focus:ring-2 focus:ring-pink-50 transition-all text-slate-800"
                         placeholder="Enter category name">
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">Category Slug (auto-generated) <span class="text-rose-500">*</span></label>
+                    <input type="text" name="slug" id="categorySlug" value="{{ old('slug') }}" required
+                        class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] focus:ring-2 focus:ring-pink-50 transition-all text-slate-800"
+                        placeholder="category-slug">
+                    @error('slug') <p class="text-rose-500 text-[10px] mt-1 font-bold">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="space-y-1.5">
@@ -76,4 +84,11 @@
         </form>
     </div>
 </div>
+@push('scripts')
+<script>
+    document.getElementById('categoryName').addEventListener('input', function() {
+        document.getElementById('categorySlug').value = slugify(this.value);
+    });
+</script>
+@endpush
 @endsection

@@ -87,7 +87,18 @@
     {{-- Header --}}
     <div class="header">
         <div class="header-left">
-            <div class="brand-name">Nandhini Silks</div>
+            @php
+                $logoPath = public_path('images/image 1.png');
+                $logoBase64 = '';
+                if (file_exists($logoPath)) {
+                    $logoBase64 = base64_encode(file_get_contents($logoPath));
+                }
+            @endphp
+            @if($logoBase64)
+                <img src="data:image/png;base64,{{ $logoBase64 }}" style="height: 50px; width: auto; margin-bottom: 5px;">
+            @else
+                <div class="brand-name">Nandhini Silks</div>
+            @endif
             <div class="brand-tagline">Premium Silk Collections</div>
             <div class="brand-address">
                 Salem, Tamil Nadu, India<br>

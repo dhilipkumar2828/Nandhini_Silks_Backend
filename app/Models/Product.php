@@ -35,7 +35,7 @@ class Product extends Model
         'stock_status',
         'restock_quantity',
         'restock_date',
-        'supplier',
+        'offer_collection',
         'weight',
         'dimensions',
         'shipping_class',

@@ -61,18 +61,38 @@ class AttributeValueController extends Controller
             'status' => 'required|boolean',
         ]);
 
-        $data = $request->all();
-        $data['slug'] = Str::slug($request->name);
-        $data['swatch_value'] = $request->input('swatch_value');
-
+        $names = array_map('trim', explode(',', $request->name));
+        $attributeId = $request->attribute_id;
+        $count = 0;
+        
+        $swatchValue = $request->input('swatch_value');
         if ($request->hasFile('swatch_image')) {
-            $data['swatch_value'] = $this->storeSwatchImage($request->file('swatch_image'));
+            $swatchValue = $this->storeSwatchImage($request->file('swatch_image'));
         }
 
-        AttributeValue::create($data);
+        foreach ($names as $index => $name) {
+            if (empty($name)) continue;
 
-        return redirect()->route('admin.attribute-values.index', ['attribute_id' => $request->attribute_id])
-            ->with('success', 'Attribute value created successfully.');
+            $slug = Str::slug($name);
+            $originalSlug = $slug;
+            $i = 1;
+            while (AttributeValue::where('slug', '=', $slug)->exists()) {
+                $slug = $originalSlug . '-' . $i++;
+            }
+
+            AttributeValue::create([
+                'attribute_id' => $attributeId,
+                'name' => $name,
+                'slug' => $slug,
+                'swatch_value' => $swatchValue,
+                'display_order' => (int)$request->display_order + $index,
+                'status' => $request->status,
+            ]);
+            $count++;
+        }
+
+        return redirect()->route('admin.attribute-values.index', ['attribute_id' => $attributeId])
+            ->with('success', $count . ' Attribute value(s) created successfully.');
     }
 
     public function edit(AttributeValue $attributeValue)
@@ -86,14 +106,16 @@ class AttributeValueController extends Controller
         $request->validate([
             'attribute_id' => 'required|exists:attributes,id',
             'name' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:attribute_values,slug,' . $attributeValue->id,
             'swatch_value' => 'nullable|string|max:255',
             'swatch_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'display_order' => 'required|integer',
             'status' => 'required|boolean',
+        ], [
+            'slug.unique' => 'This Attribute Value Slug is already in use. Please choose a different one.',
         ]);
 
         $data = $request->all();
-        $data['slug'] = Str::slug($request->name);
         $data['swatch_value'] = $request->input('swatch_value');
 
         if ($request->hasFile('swatch_image')) {

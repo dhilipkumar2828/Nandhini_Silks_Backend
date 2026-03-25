@@ -40,6 +40,7 @@ class SubCategoryController extends Controller
         $request->validate([
             'category_id' => 'required|exists:categories,id',
             'name' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:sub_categories,slug',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'description' => 'nullable|string',
             'meta_title' => 'nullable|string|max:255',
@@ -47,10 +48,11 @@ class SubCategoryController extends Controller
             'meta_keywords' => 'nullable|string',
             'status' => 'required',
             'display_order' => 'required|integer',
+        ], [
+            'slug.unique' => 'This Sub Category Slug is already in use. Please choose a different one.',
         ]);
 
         $data = $request->all();
-        $data['slug'] = Str::slug($request->name);
 
         if ($request->hasFile('image')) {
             $imageName = time() . '_' . Str::random(8) . '.' . $request->image->extension();
@@ -74,6 +76,7 @@ class SubCategoryController extends Controller
         $request->validate([
             'category_id' => 'required|exists:categories,id',
             'name' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:sub_categories,slug,' . $subCategory->id,
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'description' => 'nullable|string',
             'meta_title' => 'nullable|string|max:255',
@@ -81,10 +84,11 @@ class SubCategoryController extends Controller
             'meta_keywords' => 'nullable|string',
             'status' => 'required',
             'display_order' => 'required|integer',
+        ], [
+            'slug.unique' => 'This Sub Category Slug is already in use. Please choose a different one.',
         ]);
 
         $data = $request->all();
-        $data['slug'] = Str::slug($request->name);
 
         if ($request->hasFile('image')) {
             if ($subCategory->image && file_exists(public_path('uploads/' . $subCategory->image))) {

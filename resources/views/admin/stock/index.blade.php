@@ -89,7 +89,7 @@
                             <th class="py-4 px-4 text-center w-32">Current Qty</th>
                             <th class="py-4 px-4 text-center w-32">Threshold</th>
                             <th class="py-4 px-4 text-center w-40">Restock Plan</th>
-                            <th class="py-4 px-4">Supplier</th>
+                            <th class="py-4 px-4">Offer Collection</th>
                             <th class="py-4 px-6 text-right w-40">Status</th>
                         </tr>
                     </thead>
@@ -174,8 +174,8 @@
                             <td class="py-5 px-4">
                                 <div class="relative group/sup">
                                     <i class="fas fa-truck-field text-[10px] text-slate-300 absolute left-2 top-1/2 -translate-y-1/2 group-focus-within/sup:text-[#a91b43] transition-colors"></i>
-                                    <input type="text" name="stock[{{ $product->id }}][supplier]" value="{{ $product->supplier }}" 
-                                        class="w-full pl-7 bg-transparent border-b border-transparent hover:border-slate-100 focus:border-[#a91b43] py-2 text-[10px] font-medium text-slate-500 outline-none transition-all placeholder:text-slate-200" placeholder="Supplier...">
+                                    <input type="text" name="stock[{{ $product->id }}][offer_collection]" value="{{ $product->offer_collection }}" 
+                                        class="w-full pl-7 bg-transparent border-b border-transparent hover:border-slate-100 focus:border-[#a91b43] py-2 text-[10px] font-medium text-slate-500 outline-none transition-all placeholder:text-slate-200" placeholder="Collection...">
                                 </div>
                             </td>
 

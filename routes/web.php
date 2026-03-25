@@ -25,6 +25,12 @@ Route::post('/login', [UserAuthController::class, 'login'])->name('login.submit'
 Route::post('/register', [UserAuthController::class, 'register'])->name('register');
 Route::post('/logout', [UserAuthController::class, 'logout'])->name('logout');
 
+// Password Reset Routes
+Route::get('/forgot-password', [UserAuthController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/forgot-password', [UserAuthController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('/reset-password/{token}', [UserAuthController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [UserAuthController::class, 'reset'])->name('password.update');
+
 use App\Http\Controllers\WishlistController;
 
 // Frontend Static Pages
@@ -148,6 +154,8 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/stock/{product}/logs', [\App\Http\Controllers\Admin\StockController::class, 'showLogs'])->name('admin.stock.logs');
 
         // Products
+        Route::get('products/check-uniqueness', [ProductController::class, 'checkUniqueness'])->name('admin.products.check-uniqueness');
+        Route::get('products/success', function() { return view('admin.products.success'); })->name('admin.products.success');
         Route::resource('products', ProductController::class)->names('admin.products');
 
         // Admin Profile & Management
@@ -161,5 +169,15 @@ Route::group(['prefix' => 'admin'], function () {
         // AJAX Helpers
         Route::get('/get-sub-categories/{category_id}', [ChildCategoryController::class, 'getSubCategories']);
         Route::get('/get-child-categories/{sub_category_id}', [ProductController::class, 'getChildCategories']);
+
+        // Catch-all for admin area (handles typos like /admin/loginnn)
+        Route::any('{any}', function () {
+            return redirect()->route('admin.login');
+        })->where('any', '.*');
     });
+});
+
+// Global fallback for website (handles typos like /loginmm)
+Route::fallback(function () {
+    return redirect()->route('home');
 });

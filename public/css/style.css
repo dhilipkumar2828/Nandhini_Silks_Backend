@@ -908,6 +908,7 @@ body {
   padding: 48px 46px 44px 28px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: flex-start;
   gap: 16px;
 }

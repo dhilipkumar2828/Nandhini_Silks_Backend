@@ -174,10 +174,12 @@
                         <span>Shipping</span>
                         <span id="shippingDisp">{{ $shipping > 0 ? '₹' . number_format($shipping, 0) : 'FREE' }}</span>
                     </div>
+                    @if($tax > 0)
                     <div class="summary-row">
-                        <span>Estimated Tax (GST 5%)</span>
+                        <span>Estimated Tax (GST <span id="taxRateLabel">{{ $taxPercentage ?? 0 }}</span>%)</span>
                         <span id="taxDisp">&#8377;{{ number_format($tax ?? 0, 0) }}</span>
                     </div>
+                    @endif
                     <div class="summary-row" style="color: #2e7d32; font-weight: 600;">
                         <span>Coupon Discount</span>
                         <span id="discountDisp">-&#8377;{{ number_format($discount ?? 0, 0) }}</span>
@@ -235,21 +237,86 @@
 @push('scripts')
     <script>
         function updateCartQty(key, val) {
-            const input = document.querySelector(`input[name="quantities[${key}]"]`);
+            const input = document.querySelector(`input[name="quantities[${key}]\"]`);
             if (!input) return;
             let current = parseInt(input.value) || 0;
             current += val;
-            if (current < 1) return; // Prevent less than 1
+            if (current < 1) return;
             input.value = current;
-            
-            // Auto submit form to update totals
+
+            // Debounce AJAX call
             clearTimeout(window.cartUpdateTimer);
-            window.cartUpdateTimer = setTimeout(() => {
-                document.getElementById('cartForm').submit();
-            }, 600);
+            window.cartUpdateTimer = setTimeout(() => ajaxUpdateCart(key, current), 500);
         }
 
+        function ajaxUpdateCart(key, qty) {
+            // Show loading state on summary spans
+            ['subtotalDisp','taxDisp','totalDisp'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) { el.style.opacity = '0.4'; }
+            });
 
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                || '{{ csrf_token() }}';
 
+            const formData = new FormData();
+            formData.append('_token', token);
+            formData.append(`quantities[${key}]`, qty);
+
+            fetch('{{ route("cart.update") }}', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                body: formData
+            })
+            .then(res => {
+                if (res.redirected || res.status === 302) {
+                    // Fallback: full reload if server doesn't support AJAX
+                    window.location.reload();
+                    return null;
+                }
+                return res.json().catch(() => null);
+            })
+            .then(data => {
+                if (!data) return;
+
+                // Update totals if returned
+                if (data.subTotal !== undefined) {
+                    setAmt('subtotalDisp', data.subTotal);
+                    setAmt('taxDisp', data.tax);
+                    setAmt('totalDisp', data.grandTotal);
+                    
+                    if (data.taxPercentage !== undefined) {
+                        const taxLabel = document.getElementById('taxRateLabel');
+                        if (taxLabel) taxLabel.textContent = data.taxPercentage;
+                    }
+                    const shipEl = document.getElementById('shippingDisp');
+                    if (shipEl) {
+                        shipEl.textContent = data.shipping > 0 ? '₹' + fmt(data.shipping) : 'FREE';
+                        shipEl.style.opacity = '1';
+                    }
+                    const discEl = document.getElementById('discountDisp');
+                    if (discEl) {
+                        discEl.textContent = '-₹' + fmt(data.discount || 0);
+                        discEl.style.opacity = '1';
+                    }
+                } else {
+                    // Server returned HTML redirect — refresh page to get updated totals
+                    window.location.reload();
+                }
+            })
+            .catch(() => window.location.reload());
+        }
+
+        function setAmt(id, val) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = '₹' + fmt(val);
+            el.style.opacity = '1';
+            el.style.transition = 'opacity 0.3s ease';
+        }
+
+        function fmt(val) {
+            return Number(val).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+        }
     </script>
 @endpush

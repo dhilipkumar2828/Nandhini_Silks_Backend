@@ -209,6 +209,9 @@
         .offer-content,
         .wedding-content {
             height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .testimonial-section {
@@ -924,8 +927,9 @@
                             <img class="offer-image" src="{{ asset('uploads/'.$ad->image) }}" alt="{{ $ad->title }}" />
                         </div>
                         <div class="offer-content">
-                            <h2 class="offer-title">{{ $ad->title }}</h2>
-                            <p class="offer-text">Special limited time offer! Explore our latest collection and enjoy exclusive discounts.</p>
+                            @if($ad->title && !Str::contains(strtolower($ad->title), 'test'))
+                                <h2 class="offer-title text-2xl font-bold mb-2">{{ $ad->title }}</h2>
+                            @endif
                             <a class="offer-link" href="{{ $ad->link ?: route('shop') }}" @if($ad->open_new_tab) target="_blank" @endif>
                                 <span>Shop Now</span>
                                 <span class="offer-link-arrow" aria-hidden="true">&#8594;</span>
@@ -954,17 +958,14 @@
                                         <stop offset="80%" stop-color="#A91B43" />
                                     </radialGradient>
                                 </defs>
-                                <text x="0" y="180" text-anchor="start" fill="url(#textFillPromo)" stroke="url(#strokeGradientPromo)"
-                                    stroke-width="3" paint-order="stroke">
-                                    {{ $adTitleParts[0] ?? '' }}
-                                </text>
+                               
                                 <text x="0" y="400" text-anchor="start" fill="url(#textFillPromo)" stroke="url(#strokeGradientPromo)"
                                     stroke-width="3" paint-order="stroke">
                                     {{ $adTitleParts[1] ?? '' }}
                                 </text>
                             </svg>
-                            <p class="wedding-text">Discover our exquisite collection curated just for you. Pure silk elegance redefined.</p>
-                            <button class="wedding-cta" type="button" onclick="window.location.href='{{ $ad->link ?: route('shop') }}'">Shop Now</button>
+                           
+                            <button class="wedding-cta" type="button" onclick="window.location.href='{{ route('shop') }}'">Shop Now</button>
                         </div>
                     </article>
                 @endif

@@ -41,16 +41,13 @@ class AttributeController extends Controller
         $request->validate([
             'group' => 'required|string|max:255',
             'name' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:attributes,slug',
             'status' => 'required|boolean',
+        ], [
+            'slug.unique' => 'This Attribute Slug is already in use. Please choose a different one.',
         ]);
 
         $data = $request->all();
-        $data['slug'] = Str::slug($request->name);
-
-        // Check for duplicate slug
-        if (Attribute::where('slug', $data['slug'])->exists()) {
-            $data['slug'] = $data['slug'] . '-' . time();
-        }
 
         Attribute::create($data);
 
@@ -67,16 +64,13 @@ class AttributeController extends Controller
         $request->validate([
             'group' => 'required|string|max:255',
             'name' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:attributes,slug,' . $attribute->id,
             'status' => 'required|boolean',
+        ], [
+            'slug.unique' => 'This Attribute Slug is already in use. Please choose a different one.',
         ]);
 
         $data = $request->all();
-        $data['slug'] = Str::slug($request->name);
-
-        // Check for duplicate slug (excluding current)
-        if (Attribute::where('slug', $data['slug'])->where('id', '!=', $attribute->id)->exists()) {
-            $data['slug'] = $data['slug'] . '-' . time();
-        }
 
         $attribute->update($data);
 

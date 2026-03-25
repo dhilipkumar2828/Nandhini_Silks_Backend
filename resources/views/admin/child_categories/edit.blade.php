@@ -31,8 +31,15 @@
 
                 <div class="space-y-1.5">
                     <label class="block text-xs font-bold text-slate-700">Child Category Name <span class="text-rose-500">*</span></label>
-                    <input type="text" name="name" value="{{ old('name', $childCategory->name) }}" required
+                    <input type="text" name="name" id="childCategoryName" value="{{ old('name', $childCategory->name) }}" required
                         class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">Child Category Slug (auto-generated) <span class="text-rose-500">*</span></label>
+                    <input type="text" name="slug" id="childCategorySlug" value="{{ old('slug', $childCategory->slug) }}" required
+                        class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
+                    @error('slug') <p class="text-rose-500 text-[10px] mt-1 font-bold">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="space-y-1.5">
@@ -103,6 +110,10 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
+        document.getElementById('childCategoryName').addEventListener('input', function() {
+            document.getElementById('childCategorySlug').value = slugify(this.value);
+        });
+
         $('#category_id').on('change', function() {
             var category_id = $(this).val();
             if(category_id) {

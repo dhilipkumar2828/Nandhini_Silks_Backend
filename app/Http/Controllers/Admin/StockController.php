@@ -38,7 +38,7 @@ class StockController extends Controller
                             'low_stock_threshold' => $stockData['low_stock_threshold'] ?? $product->low_stock_threshold,
                             'restock_quantity' => $stockData['restock_quantity'] ?? $product->restock_quantity,
                             'restock_date' => $stockData['restock_date'] ?? $product->restock_date,
-                            'supplier' => $stockData['supplier'] ?? $product->supplier,
+                            'offer_collection' => $stockData['offer_collection'] ?? $product->offer_collection,
                             'stock_status' => $newQty > ($stockData['low_stock_threshold'] ?? $product->low_stock_threshold) ? 'instock' : ($newQty > 0 ? 'lowstock' : 'outofstock'),
                         ]);
                         StockMovement::create([
@@ -54,7 +54,7 @@ class StockController extends Controller
                             'low_stock_threshold' => $stockData['low_stock_threshold'] ?? $product->low_stock_threshold,
                             'restock_quantity' => $stockData['restock_quantity'] ?? $product->restock_quantity,
                             'restock_date' => $stockData['restock_date'] ?? $product->restock_date,
-                            'supplier' => $stockData['supplier'] ?? $product->supplier,
+                            'offer_collection' => $stockData['offer_collection'] ?? $product->offer_collection,
                         ]);
                     }
                 }

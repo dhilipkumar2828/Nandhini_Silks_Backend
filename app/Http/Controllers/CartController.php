@@ -40,6 +40,7 @@ class CartController extends Controller
             'subTotal' => $totals['subTotal'],
             'discount' => $totals['discount'],
             'tax' => $totals['tax'],
+            'taxPercentage' => $totals['taxPercentage'],
             'shipping' => $totals['shipping'],
             'grandTotal' => $totals['grandTotal'],
             'itemCount' => $totals['itemCount'],
@@ -54,60 +55,73 @@ class CartController extends Controller
         $attributes = $request->input('attributes', []);
         $cart = $this->getCart();
 
-        // Create a unique key for the cart item based on product ID and attributes
-        $cartKey = $product->id;
-        if (!empty($attributes)) {
-            ksort($attributes);
-            foreach ($attributes as $id => $val) {
-                $cartKey .= '_' . $id . '_' . $val;
+        // 1. Determine Variant
+        $isVariant = $product->product_variants->count() > 0;
+        $matchedVariant = null;
+        $price = $this->productPrice($product);
+        $imagePath = $this->productImagePath($product);
+        $size = '';
+        $color = '';
+
+        if ($isVariant && !empty($attributes)) {
+            foreach ($product->product_variants as $v) {
+                $combination = is_string($v->combination) ? json_decode($v->combination, true) : $v->combination;
+                $match = true;
+                foreach ($attributes as $aid => $avid) {
+                    if (!isset($combination[$aid]) || !in_array((int)$avid, (array)$combination[$aid])) {
+                        $match = false; break;
+                    }
+                }
+                if ($match) {
+                    $matchedVariant = $v;
+                    if ($v->price > 0) $price = $v->price;
+                    if ($v->sale_price > 0) $price = $v->sale_price;
+                    if ($v->image) $imagePath = $v->image;
+                    break;
+                }
             }
         }
 
+        // 2. Selection Check & Mandatory Selection
+        if ($isVariant && empty($attributes)) {
+            return $this->errorResponse('Please select options first.', $request);
+        }
+
+        // 3. Stock Check
+        $availableStock = $isVariant ? ($matchedVariant ? $matchedVariant->stock_quantity : 0) : $product->stock_quantity;
+        if ($availableStock <= 0) {
+            return $this->errorResponse('This product/variation is out of stock.', $request);
+        }
+        
+        if ($availableStock < $quantity) {
+             return $this->errorResponse('Only ' . $availableStock . ' items available.', $request);
+        }
+
+        // 4. Unique Key & Existing Qty Check
+        $cartKey = (string)$product->id;
+        if (!empty($attributes)) {
+            ksort($attributes);
+            foreach ($attributes as $aid => $avid) {
+                $cartKey .= '_' . $aid . '_' . $avid;
+            }
+        }
+
+        $existingQty = isset($cart[$cartKey]) ? (int)$cart[$cartKey]['quantity'] : 0;
+        if (($existingQty + $quantity) > $availableStock) {
+            return $this->errorResponse('You already have ' . $existingQty . ' in cart. Total stock is ' . $availableStock . '.', $request);
+        }
+
+        // 5. Build/Update Cart Item
         if (isset($cart[$cartKey])) {
             $cart[$cartKey]['quantity'] += $quantity;
         } else {
-            $price = $this->productPrice($product);
-            $imagePath = $this->productImagePath($product);
-            $size = '';
-            $color = '';
-
-            $matchedVariant = null;
-            // Try to find matching variant for specific image/price
-            if (!empty($attributes)) {
-                $variants = $product->product_variants;
-                foreach ($variants as $variant) {
-                    $combination = $variant->combination; 
-                    if (!is_array($combination)) {
-                        $combination = is_string($combination) ? json_decode($combination, true) : [];
-                    }
-
-                    Log::info("CHECKING VARIANT {$variant->id}:", ['combination' => $combination, 'attributes' => $attributes]);
-                    $match = true;
-                    foreach ($attributes as $aid => $avid) {
-                        $avidInt = (int) $avid;
-                        if (!isset($combination[$aid]) || !in_array($avidInt, $combination[$aid])) {
-                            $match = false;
-                            break;
-                        }
-                    }
-                    if ($match) {
-                        Log::info("MATCH FOUND! Variant ID: {$variant->id}");
-                        $matchedVariant = $variant;
-                        if ($variant->price > 0) $price = $variant->price;
-                        if ($variant->sale_price > 0) $price = $variant->sale_price;
-                        if ($variant->image) $imagePath = $variant->image;
-                        break;
-                    }
-                }
-
-                // Get size and color names for display
-                foreach($attributes as $aid => $avid) {
-                    $val = \App\Models\AttributeValue::with('attribute')->find($avid);
-                    if($val && $val->attribute) {
-                        $attrName = strtolower($val->attribute->name);
-                        if(str_contains($attrName, 'size')) $size = $val->name;
-                        if(str_contains($attrName, 'color')) $color = $val->name;
-                    }
+            // Get Readable Names
+            foreach ($attributes as $aid => $avid) {
+                $val = \App\Models\AttributeValue::with('attribute')->find($avid);
+                if ($val && $val->attribute) {
+                    $attrName = strtolower($val->attribute->name);
+                    if (str_contains($attrName, 'size')) $size = $val->name;
+                    if (str_contains($attrName, 'color')) $color = $val->name;
                 }
             }
 
@@ -116,7 +130,7 @@ class CartController extends Controller
                 'variant_id' => $matchedVariant ? $matchedVariant->id : null,
                 'name' => $product->name,
                 'slug' => $product->slug,
-                'price' => $price,
+                'price' => (float)$price,
                 'image_path' => $imagePath,
                 'image_url' => $this->productImageUrl($imagePath),
                 'quantity' => $quantity,
@@ -127,23 +141,26 @@ class CartController extends Controller
         }
 
         $this->putCart($cart);
-        $itemCount = collect($cart)->sum('quantity');
-
-        $action = $request->input('action', 'cart');
-        if ($action === 'checkout') {
-            return redirect()->route('checkout');
-        }
+        $totalItems = collect($cart)->sum('quantity');
 
         if ($request->ajax() || $request->wantsJson()) {
-            $totalCount = collect($cart)->sum('quantity');
             return response()->json([
-                'success' => true,
-                'message' => 'Added to cart.',
-                'cartCount' => $totalCount
+                'success' => true, 
+                'message' => 'Successfully added to cart!', 
+                'cartCount' => $totalItems
             ]);
         }
+        
+        $target = ($request->input('action') === 'checkout') ? 'checkout' : 'cart';
+        return redirect()->route($target)->with('success', 'Added to cart.');
+    }
 
-        return redirect()->route('cart')->with('success', 'Added to cart.');
+    private function errorResponse($message, $request)
+    {
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => false, 'message' => $message], 422);
+        }
+        return redirect()->back()->with('error', $message)->withInput();
     }
 
     public function getMiniCart()
@@ -184,6 +201,22 @@ class CartController extends Controller
         }
 
         $this->putCart($cart);
+
+        // AJAX request — return JSON totals for dynamic display
+        if ($request->ajax() || $request->wantsJson()) {
+            $items = array_values($cart);
+            $totals = $this->calculateTotals($items);
+            return response()->json([
+                'success'    => true,
+                'subTotal'   => $totals['subTotal'],
+                'tax'        => $totals['tax'],
+                'taxPercentage' => $totals['taxPercentage'],
+                'shipping'   => $totals['shipping'],
+                'discount'   => $totals['discount'],
+                'grandTotal' => $totals['grandTotal'],
+                'itemCount'  => $totals['itemCount'],
+            ]);
+        }
 
         if ($request->input('action') === 'checkout') {
             return redirect()->route('checkout');
@@ -267,6 +300,7 @@ class CartController extends Controller
             'subTotal' => $totals['subTotal'],
             'discount' => $totals['discount'],
             'tax' => $totals['tax'],
+            'taxPercentage' => $totals['taxPercentage'],
             'shipping' => $totals['shipping'],
             'grandTotal' => $totals['grandTotal'],
             'itemCount' => $totals['itemCount'],
@@ -293,6 +327,7 @@ class CartController extends Controller
             'success' => true,
             'shipping' => $totals['shipping'],
             'tax' => $totals['tax'],
+            'taxPercentage' => $totals['taxPercentage'],
             'grandTotal' => $totals['grandTotal'],
             'shippingFormatted' => $totals['shipping'] > 0 ? '₹' . number_format($totals['shipping'], 0) : 'FREE',
             'taxFormatted' => '₹' . number_format($totals['tax'], 0),
@@ -344,6 +379,28 @@ class CartController extends Controller
         $isDifferentBilling = !$request->has('same_as_shipping');
         $paymentMethod = $request->input('payment_method', 'cod');
 
+        // Build full delivery address from individual fields
+        $addressParts = array_filter([
+            $request->input('delivery_address'),
+            $request->input('city'),
+            $request->input('state'),
+            $request->input('pincode') ? 'PIN: ' . $request->input('pincode') : null,
+        ]);
+        $fullDeliveryAddress = implode(', ', $addressParts);
+
+        // Build billing address
+        if ($isDifferentBilling && $request->filled('billing_address')) {
+            $billingParts = array_filter([
+                $request->input('billing_address'),
+                $request->input('billing_city'),
+                $request->input('billing_state'),
+                $request->input('billing_pincode') ? 'PIN: ' . $request->input('billing_pincode') : null,
+            ]);
+            $fullBillingAddress = implode(', ', $billingParts);
+        } else {
+            $fullBillingAddress = $fullDeliveryAddress;
+        }
+
         DB::beginTransaction();
         try {
             $order = Order::create([
@@ -366,8 +423,8 @@ class CartController extends Controller
                 'payment_method' => $paymentMethod,
                 'payment_status' => 'pending',
                 'order_status' => 'pending',
-                'delivery_address' => $request->input('delivery_address'),
-                'billing_address' => $isDifferentBilling ? $request->input('billing_address') : $request->input('delivery_address'),
+                'delivery_address' => $fullDeliveryAddress,
+                'billing_address' => $fullBillingAddress,
             ]);
 
             // Increment Coupon usage if applicable
@@ -449,12 +506,11 @@ class CartController extends Controller
             }
 
             // Clear cart ONLY for COD here. Razorpay will clear in verifyRazorpay
-            // Clear cart from both session and DB for auth users
             if (auth()->check()) {
                 \App\Models\CartItem::where('user_id', '=', auth()->id(), 'and')->delete();
             }
             session()->forget(['cart', 'coupon_id']);
-            return redirect()->route('my-orders')->with('success', 'Your order is completed successfully');
+            return redirect()->route('order-confirmation', $order)->with('success', 'Your order has been placed successfully! 🎉');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -505,7 +561,7 @@ class CartController extends Controller
                 }
                 session()->forget(['cart', 'coupon_id']);
                 
-                return redirect()->route('my-orders')->with('success', 'Your order is completed successfully');
+                return redirect()->route('order-confirmation', $order)->with('success', 'Payment successful! Your order is confirmed. 🎉');
             }
         }
 
@@ -639,18 +695,24 @@ class CartController extends Controller
         
         // DYNAMIC TAX CALCULATION [PERFECT FIX]
         $tax = 0;
+        $firstRate = 0;
         foreach ($items as $item) {
             $product = Product::with('taxClass.rates')->find($item['product_id']);
             if ($product) {
+                // Get the float rate (0.1, 0.05 etc)
                 $rate = $this->getTaxRate($product);
+                if ($firstRate === 0) {
+                    $firstRate = $rate * 100; // Track first applicable rate in percentage (10, 5 etc)
+                }
                 $tax += ($item['price'] * $item['quantity']) * $rate;
             }
         }
 
         $tax = round($tax, 2);
+        $taxPercentage = $firstRate ?: 5; // Default to 5 if none found
         $grandTotal = round($taxableAmount + $tax + $shipping, 2);
 
-        return compact('subTotal', 'discount', 'tax', 'shipping', 'grandTotal', 'itemCount', 'coupon');
+        return compact('subTotal', 'discount', 'tax', 'taxPercentage', 'shipping', 'grandTotal', 'itemCount', 'coupon');
     }
 
     private function productPrice(Product $product): float

@@ -550,13 +550,19 @@
                     <h1 class="product-title-detail" style="margin: 0 0 5px; line-height: 1.1; font-size: 32px; font-weight: 700; color: #1a1a1a;">{{ $product->name }}</h1>
 
                     <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mb-2">
+                        
                         <div class="product-rating flex items-center gap-2">
-                            <div class="stars flex" style="line-height: 1; color: #FFB800; font-size: 12px;">
+                            <div class="stars flex" style="line-height: 1; color: #FFB800; font-size: 11px;">
                                 @for($i=1; $i<=5; $i++)
                                     <i class="{{ $i <= round($product->average_rating) ? 'fas' : 'far' }} fa-star"></i>
                                 @endfor
                             </div>
-                            <span style="font-size: 11px; color: #888; font-weight: 500;">{{ number_format($product->average_rating, 1) }} ({{ $product->reviews_count }} Reviews)</span>
+                            <span style="font-size: 11px; color: #888; font-weight: 500;">
+                                {{ number_format($product->average_rating, 1) }}
+                                @if($product->reviews_count > 0)
+                                    ({{ $product->reviews_count }} {{ $product->reviews_count == 1 ? 'Review' : 'Reviews' }})
+                                @endif
+                            </span>
                         </div>
                         <div class="product-price-section flex items-baseline gap-2">
                             <span class="current-price" id="displayPrice" style="font-size: 24px; font-weight: 800; color: #A91B43;">₹{{ number_format($product->price, 0) }}</span>
@@ -578,9 +584,9 @@
                     </div>
                     <p style="font-size: 10px; color: #999; margin-bottom: 8px; font-weight: 500; margin-top: -5px;">(Inclusive of all taxes)</p>
 
-                    @if($product->description)
+                    @if($product->full_description)
                     <div class="product-description-short" style="margin-bottom: 0px; color: #666; line-height: 1.5; font-size: 14px; max-width: 500px;">
-                        {!! Str::limit(strip_tags($product->description), 150) !!}
+                        {!! Str::limit(strip_tags($product->full_description), 150) !!}
                     </div>
                     @endif
 
@@ -613,32 +619,54 @@
                                                     $isHexColor = $swatch && preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $swatch);
                                                 @endphp
                                                 
-                                                @if($isColorAttr || $swatch)
-                                                    @php
-                                                        $bgStyle = "";
-                                                        if($isHexColor) {
-                                                            $bgStyle = "background: $swatch;";
-                                                        } elseif($swatch) {
-                                                            $bgStyle = "background-image: url('" . asset('uploads/' . $swatch) . "'); background-size: cover; background-position: center;";
-                                                        } else {
-                                                            // Fallback to color name as background with a small mapping for common saree colors
-                                                            $colorMap = [
-                                                                'gold' => '#D4AF37',
-                                                                'mustard' => '#E1AD01',
-                                                                'maroon' => '#800000',
-                                                                'navy blue' => '#000080',
-                                                                'cream' => '#FFFDD0',
-                                                                'bottle green' => '#006A4E',
-                                                                'rama blue' => '#008080',
-                                                                'pista green' => '#93C572',
-                                                                'onion pink' => '#D192A0',
-                                                                'copper' => '#B87333',
-                                                                'silver' => '#C0C0C0',
-                                                            ];
-                                                            $colorName = strtolower($value->name);
-                                                            $bgStyle = "background: " . ($colorMap[$colorName] ?? $colorName) . ";";
+                                                @php
+                                                    // Determine if this particular VALUE can be rendered as a color swatch
+                                                    $canRenderAsSwatch = false;
+                                                    $bgStyle = "";
+                                                    if ($isHexColor) {
+                                                        $canRenderAsSwatch = true;
+                                                        $bgStyle = "background: $swatch;";
+                                                    } elseif ($swatch) {
+                                                        $canRenderAsSwatch = true;
+                                                        $bgStyle = "background-image: url('" . asset('uploads/' . $swatch) . "'); background-size: cover; background-position: center;";
+                                                    } elseif ($isColorAttr) {
+                                                        // Only use color-name mapping for color attributes — but ONLY if the name is a recognized color
+                                                        $colorMap = [
+                                                            'gold' => '#D4AF37',
+                                                            'mustard' => '#E1AD01',
+                                                            'maroon' => '#800000',
+                                                            'navy' => '#000080',
+                                                            'navy blue' => '#000080',
+                                                            'cream' => '#FFFDD0',
+                                                            'white' => '#FFFFFF',
+                                                            'black' => '#000000',
+                                                            'red' => '#CC0000',
+                                                            'pink' => '#FF69B4',
+                                                            'blue' => '#0000CD',
+                                                            'green' => '#006400',
+                                                            'yellow' => '#FFD700',
+                                                            'orange' => '#FF8C00',
+                                                            'purple' => '#800080',
+                                                            'grey' => '#808080',
+                                                            'gray' => '#808080',
+                                                            'brown' => '#8B4513',
+                                                            'beige' => '#F5F5DC',
+                                                            'bottle green' => '#006A4E',
+                                                            'rama blue' => '#008080',
+                                                            'pista green' => '#93C572',
+                                                            'onion pink' => '#D192A0',
+                                                            'copper' => '#B87333',
+                                                            'silver' => '#C0C0C0',
+                                                        ];
+                                                        $colorName = strtolower($value->name);
+                                                        if (isset($colorMap[$colorName])) {
+                                                            $canRenderAsSwatch = true;
+                                                            $bgStyle = "background: " . $colorMap[$colorName] . ";";
                                                         }
-                                                    @endphp
+                                                    }
+                                                @endphp
+
+                                                @if($canRenderAsSwatch)
                                                     <div class="attribute-option color-swatch" 
                                                          data-attr-id="{{ $attrId }}" 
                                                          data-value-id="{{ $value->id }}"
@@ -651,7 +679,7 @@
                                                             data-attr-id="{{ $attrId }}" 
                                                             data-value-id="{{ $value->id }}"
                                                             onclick="selectAttribute(this)"
-                                                            style="padding: 10px 20px; border: 1.5px solid #e5e7eb; background: #fff; color: #1a1a1a; border-radius: 8px; cursor: pointer; font-size: 13.5px; font-weight: 600;">
+                                                            style="padding: 9px 20px; border: 1.5px solid #e0e0e0; background: #f5f5f5; color: #333; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 700; min-width: 48px; transition: all 0.15s ease;">
                                                         {{ $value->name }}
                                                     </button>
                                                 @endif
@@ -671,14 +699,16 @@
                                 <button type="button" class="qty-btn" onclick="updateQty(1)">+</button>
                             </div>
                         </div>
-
                         <!-- Action Buttons -->
                         <div class="product-actions-group" style="display: flex; gap: 15px; max-width: 500px; margin-top: 5px;">
-                            <button type="submit" name="action" value="cart" class="btn-add-cart" style="flex: 1.2; background: #A91B43; color: #fff; height: 56px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 14px; letter-spacing: 1px; transition: all 0.3s; box-shadow: 0 8px 20px rgba(169, 27, 67, 0.2); display: flex; align-items: center; justify-content: center; gap: 10px;">
+                            <button type="submit" name="action" value="cart" class="btn-add-cart" {{ !$isInStock ? 'disabled' : '' }} 
+                                    style="flex: 1.2; background: {{ $isInStock ? '#A91B43' : '#ccc' }}; color: #fff; height: 56px; border: none; border-radius: 12px; font-weight: 800; cursor: {{ $isInStock ? 'pointer' : 'not-allowed' }}; font-size: 14px; letter-spacing: 1px; transition: all 0.3s; box-shadow: 0 8px 20px rgba(169, 27, 67, 0.2); display: flex; align-items: center; justify-content: center; gap: 10px;">
                                 <i class="fas fa-shopping-bag" style="font-size: 16px;"></i>
-                                ADD TO CART
+                                {{ $isInStock ? 'ADD TO CART' : 'OUT OF STOCK' }}
                             </button>
-                            <button type="submit" name="action" value="checkout" class="btn-buy-now" style="flex: 1; background: #1a1a1a; color: #fff; height: 56px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 14px; letter-spacing: 1px; transition: all 0.3s; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); display: flex; align-items: center; justify-content: center; gap: 10px;">
+                            <button type="submit" name="action" value="checkout" class="btn-buy-now" {{ !$isInStock ? 'disabled' : '' }} 
+                                    style="flex: 1; background: {{ $isInStock ? '#1a1a1a' : '#eee' }}; color: {{ $isInStock ? '#fff' : '#888' }}; height: 56px; border: none; border-radius: 12px; font-weight: 800; cursor: {{ $isInStock ? 'pointer' : 'not-allowed' }}; font-size: 14px; letter-spacing: 1px; transition: all 0.3s; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); display: flex; align-items: center; justify-content: center; gap: 10px;">
+                                <i class="fas fa-bolt" style="font-size: 16px;"></i>
                                 BUY IT NOW
                             </button>
                         </div>
@@ -739,7 +769,7 @@
                         #tabDesc li { margin-bottom: 2px; }
                     </style>
                     <div style="color: #666; line-height: 1.4; font-size: 15px;">
-                        {!! $product->description !!}
+                        {!! $product->full_description !!}
                     </div>
                 </div>
 
@@ -755,7 +785,7 @@
                         </tr>
                         <tr>
                             <td class="specs-label">Material</td>
-                            <td class="specs-value">Pure Silk / Handloom</td>
+                            <td class="specs-value">{{ $product->brand ?? '-' }}</td>
                         </tr>
                     </table>
                 </div>

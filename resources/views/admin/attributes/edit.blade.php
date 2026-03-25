@@ -23,8 +23,14 @@
 
             <div>
                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Attribute Name</label>
-                <input type="text" name="name" value="{{ $attribute->name }}" class="w-full px-4 py-2 rounded-xl border border-slate-100 focus:outline-none focus:border-[#a91b43] text-sm transition-all" required>
+                <input type="text" name="name" id="attributeName" value="{{ old('name', $attribute->name) }}" class="w-full px-4 py-2 rounded-xl border border-slate-100 focus:outline-none focus:border-[#a91b43] text-sm transition-all" required>
                 @error('name') <p class="text-rose-500 text-[10px] mt-1">{{ $message }}</p> @enderror
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Attribute Slug (auto-generated)</label>
+                <input type="text" name="slug" id="attributeSlug" value="{{ old('slug', $attribute->slug) }}" class="w-full px-4 py-2 rounded-xl border border-slate-100 focus:outline-none focus:border-[#a91b43] text-sm transition-all" required>
+                @error('slug') <p class="text-rose-500 text-[10px] mt-1 font-bold">{{ $message }}</p> @enderror
             </div>
 
             <div>
@@ -43,4 +49,11 @@
         </div>
     </form>
 </div>
+@push('scripts')
+<script>
+    document.getElementById('attributeName').addEventListener('input', function() {
+        document.getElementById('attributeSlug').value = slugify(this.value);
+    });
+</script>
+@endpush
 @endsection

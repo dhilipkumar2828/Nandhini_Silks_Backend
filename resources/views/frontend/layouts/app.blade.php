@@ -694,7 +694,7 @@
         <div class="cart-drawer-footer" id="miniCartFooter">
             <div class="cart-drawer-summary">
                 <span>Subtotal</span>
-                <span id="miniCartSubtotal">Γé╣0</span>
+                <span id="miniCartSubtotal">&#8377;0</span>
             </div>
             <a href="{{ route('cart') }}" class="cart-drawer-btn cart-drawer-btn-primary">View Full Cart</a>
             <a href="{{ route('checkout') }}" class="cart-drawer-btn cart-drawer-btn-secondary">Checkout Now</a>
@@ -750,14 +750,14 @@
                                         ${item.color ? ' | Color: ' + item.color : ''}
                                         <br>Qty: ${item.quantity}
                                     </div>
-                                    <div class="cart-item-mini-price">Γé╣${item.price.toLocaleString()}</div>
+                                    <div class="cart-item-mini-price">&#8377;${(item.price * item.quantity).toLocaleString('en-IN')}</div>
                                 </div>
                                 <button onclick="removeMiniCartItem('${item.key}')" style="position: absolute; top: 0; right: 0; background: none; border: none; color: #ff4d4d; cursor: pointer; font-size: 16px; padding: 5px;">&times;</button>
                             </div>
                         `;
                     });
                     content.innerHTML = html;
-                    subtotal.textContent = 'Γé╣' + data.subTotal.toLocaleString();
+                    subtotal.textContent = '\u20B9' + data.subTotal.toLocaleString('en-IN');
                 }
                 
                 // Sync main cart badges

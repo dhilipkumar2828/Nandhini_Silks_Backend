@@ -21,8 +21,15 @@
 
                 <div class="space-y-1.5">
                     <label class="block text-xs font-bold text-slate-700">Sub Category Name <span class="text-rose-500">*</span></label>
-                    <input type="text" name="name" value="{{ old('name', $subCategory->name) }}" required
+                    <input type="text" name="name" id="subCategoryName" value="{{ old('name', $subCategory->name) }}" required
                         class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">Sub Category Slug (auto-generated) <span class="text-rose-500">*</span></label>
+                    <input type="text" name="slug" id="subCategorySlug" value="{{ old('slug', $subCategory->slug) }}" required
+                        class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
+                    @error('slug') <p class="text-rose-500 text-[10px] mt-1 font-bold">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="space-y-1.5">
@@ -93,6 +100,10 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
+        document.getElementById('subCategoryName').addEventListener('input', function() {
+            document.getElementById('subCategorySlug').value = slugify(this.value);
+        });
+
         $("#subCategoryForm").validate({
             rules: {
                 category_id: "required",

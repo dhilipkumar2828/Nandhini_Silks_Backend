@@ -42,6 +42,7 @@ class ChildCategoryController extends Controller
             'category_id' => 'required|exists:categories,id',
             'sub_category_id' => 'required|exists:sub_categories,id',
             'name' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:child_categories,slug',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'description' => 'nullable|string',
             'meta_title' => 'nullable|string|max:255',
@@ -49,10 +50,11 @@ class ChildCategoryController extends Controller
             'meta_keywords' => 'nullable|string',
             'status' => 'required',
             'display_order' => 'required|integer',
+        ], [
+            'slug.unique' => 'This Child Category Slug is already in use. Please choose a different one.',
         ]);
 
         $data = $request->all();
-        $data['slug'] = Str::slug($request->name);
 
         if ($request->hasFile('image')) {
             $imageName = time() . '_' . Str::random(8) . '.' . $request->image->extension();
@@ -78,6 +80,7 @@ class ChildCategoryController extends Controller
             'category_id' => 'required|exists:categories,id',
             'sub_category_id' => 'required|exists:sub_categories,id',
             'name' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:child_categories,slug,' . $childCategory->id,
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'description' => 'nullable|string',
             'meta_title' => 'nullable|string|max:255',
@@ -85,10 +88,11 @@ class ChildCategoryController extends Controller
             'meta_keywords' => 'nullable|string',
             'status' => 'required',
             'display_order' => 'required|integer',
+        ], [
+            'slug.unique' => 'This Child Category Slug is already in use. Please choose a different one.',
         ]);
 
         $data = $request->all();
-        $data['slug'] = Str::slug($request->name);
 
         if ($request->hasFile('image')) {
             if ($childCategory->image && file_exists(public_path('uploads/' . $childCategory->image))) {

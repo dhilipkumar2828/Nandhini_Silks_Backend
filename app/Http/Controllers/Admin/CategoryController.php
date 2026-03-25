@@ -38,6 +38,7 @@ class CategoryController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:categories,slug',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'description' => 'nullable|string',
             'meta_title' => 'nullable|string|max:255',
@@ -45,10 +46,11 @@ class CategoryController extends Controller
             'meta_keywords' => 'nullable|string',
             'status' => 'required',
             'display_order' => 'required|integer',
+        ], [
+            'slug.unique' => 'This Category Slug is already in use. Please choose a different one.',
         ]);
 
         $data = $request->all();
-        $data['slug'] = Str::slug($request->name);
 
         if ($request->hasFile('image')) {
             $imageName = time() . '_' . Str::random(8) . '.' . $request->image->extension();
@@ -70,6 +72,7 @@ class CategoryController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:categories,slug,' . $category->id,
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'description' => 'nullable|string',
             'meta_title' => 'nullable|string|max:255',
@@ -77,10 +80,11 @@ class CategoryController extends Controller
             'meta_keywords' => 'nullable|string',
             'status' => 'required',
             'display_order' => 'required|integer',
+        ], [
+            'slug.unique' => 'This Category Slug is already in use. Please choose a different one.',
         ]);
 
         $data = $request->all();
-        $data['slug'] = Str::slug($request->name);
 
         if ($request->hasFile('image')) {
             if ($category->image && file_exists(public_path('uploads/' . $category->image))) {

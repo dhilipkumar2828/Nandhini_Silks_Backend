@@ -44,7 +44,7 @@ class ProductController extends Controller
             $query->where('status', '=', true)->orderBy('display_order', 'asc');
         }])->where('status', '=', true)->orderBy('group')->orderBy('name')->get();
         $taxClasses = TaxClass::where('status', '=', 1)->get();
-        $shippingClasses = \App\Models\ShippingClass::where('status', 1)->get();
+        $shippingClasses = \App\Models\ShippingClass::where('status', '=', 1)->get();
         $products = Product::where('status', '=', 1)->orderBy('name')->get(['id', 'name']);
 
         return view('admin.products.create', compact('categories', 'attributes', 'taxClasses', 'shippingClasses', 'products'));
@@ -52,17 +52,21 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
+        $isVariant = $request->input('is_variant') == '1';
+
         $request->validate([
             'category_id' => 'required|exists:categories,id',
             'sub_category_id' => 'nullable|exists:sub_categories,id',
             'child_category_id' => 'nullable|exists:child_categories,id',
             'name' => 'required|string|max:255',
+            'offer_collection' => 'nullable|string|max:255',
+            'slug' => 'required|string|max:255|unique:products,slug',
             'sku' => 'nullable|string|unique:products,sku',
             'barcode' => 'nullable|string',
             'isbn' => 'nullable|string',
-            'regular_price' => 'required|numeric|min:0',
+            'regular_price' => $isVariant ? 'nullable|numeric|min:0' : 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0',
-            'stock_quantity' => 'required|integer|min:0',
+            'stock_quantity' => $isVariant ? 'nullable|integer|min:0' : 'required|integer|min:0',
             'status' => 'required',
             'display_order' => 'nullable|integer',
             'attributes' => 'nullable|array',
@@ -70,11 +74,22 @@ class ProductController extends Controller
             'shipping_class_id' => 'nullable|exists:shipping_classes,id',
             'related_products' => 'nullable|array',
             'tags' => 'nullable|string',
+        ], [
+            'slug.unique' => 'This Product Slug is already in use. Please choose a different one.',
         ]);
 
         $data = $request->except(['color_images', 'images']);
-        $data['slug'] = Str::slug($request->name);
-        $data['price'] = $request->sale_price ?: $request->regular_price;
+        
+        // If it's a variant product and regular_price is empty, try to get from first variant
+        if($isVariant && empty($request->regular_price) && $request->has('v_price')) {
+            $vPrices = $request->input('v_price');
+            $data['regular_price'] = is_array($vPrices) ? reset($vPrices) : $vPrices;
+        }
+
+        $data['price'] = $request->sale_price ?: ($data['regular_price'] ?? $request->regular_price);
+        $vStocks = $request->input('v_stock');
+        $data['stock_quantity'] = $isVariant && empty($request->stock_quantity) ? ($vStocks ? (is_array($vStocks) ? reset($vStocks) : 0) : 0) : $request->stock_quantity;
+        
         $data['attributes'] = $this->sanitizeAttributes($request->input('attributes', []));
         $data['related_products'] = $request->input('related_products', []);
         
@@ -114,14 +129,16 @@ class ProductController extends Controller
 
         // Handle Variant Matrix Storage
         // Handle Variant Matrix
-        if ($request->has('variant_combinations')) {
+        if ($request->input('is_variant') == '1' && $request->has('variant_combinations')) {
             $combs = $request->input('variant_combinations');
             $prices = $request->input('v_price');
             $stocks = $request->input('v_stock');
             $skus = $request->input('v_sku');
-            $variantImagesFiles = $request->file('v_images');
+            $variantImagesFiles = $request->file('v_images') ?? [];
 
             $usedSkus = [];
+            $variantFound = false;
+            $firstVariantState = [];
 
             foreach ($combs as $index => $idsString) {
                 if(empty($idsString)) continue;
@@ -137,10 +154,10 @@ class ProductController extends Controller
                 }
 
                 // Auto-deduplicate SKU
-                $baseSku = !empty($skus[$index]) ? $skus[$index] : ($product->sku ? $product->sku . '-' . $index : 'PRD-' . $product->id . '-' . $index);
+                $baseSku = !empty($skus[$idsString]) ? $skus[$idsString] : (!empty($skus[$index]) ? $skus[$index] : ($product->sku ? $product->sku . '-' . $index : 'PRD-' . $product->id . '-' . $index));
                 $variantSku = $baseSku;
                 $skuCounter = 1;
-                while(in_array($variantSku, $usedSkus) || \App\Models\ProductVariant::where('sku', $variantSku)->exists()) {
+                while(in_array($variantSku, $usedSkus) || \App\Models\ProductVariant::where('sku', '=', $variantSku)->exists()) {
                     $variantSku = $baseSku . '-' . $skuCounter;
                     $skuCounter++;
                 }
@@ -150,30 +167,70 @@ class ProductController extends Controller
                     'product_id' => $product->id,
                     'combination' => $combJson,
                     'attribute_values' => $attrValuesJson,
-                    'price' => $prices[$index] ?? $product->price,
-                    'sale_price' => $prices[$index] ?? $product->price,
-                    'stock_quantity' => $stocks[$index] ?? 0,
+                    'price' => $prices[$idsString] ?? ($prices[$index] ?? ($product->regular_price ?? $product->price)),
+                    'sale_price' => $request->v_sale_price[$idsString] ?? ($request->v_sale_price[$index] ?? $product->sale_price),
+                    'stock_quantity' => $stocks[$idsString] ?? ($stocks[$index] ?? 0),
+                    'low_stock_threshold' => $request->v_low_stock[$idsString] ?? ($request->v_low_stock[$index] ?? null),
+                    'weight' => $request->v_weight[$idsString] ?? ($request->v_weight[$index] ?? null),
+                    'shipping_class_id' => $request->v_shipping_class[$idsString] ?? ($request->v_shipping_class[$index] ?? null),
                     'sku' => $variantSku,
                     'status' => 'active'
                 ];
 
                 // Handle Multiple Variant Images
                 $vUploadedImages = [];
-                if (isset($variantImagesFiles[$index])) {
-                    foreach ($variantImagesFiles[$index] as $file) {
+                $rowFiles = $variantImagesFiles[$idsString] ?? ($variantImagesFiles[$index] ?? null);
+
+                if ($rowFiles) {
+                    foreach ($rowFiles as $file) {
                         $imgName = time() . '_v_' . $index . '_' . uniqid() . '.' . $file->extension();
                         $file->move(public_path('uploads/products/variants'), $imgName);
                         $vUploadedImages[] = 'products/variants/' . $imgName;
                     }
                     $variantData['images'] = $vUploadedImages;
-                    $variantData['image'] = $vUploadedImages[0] ?? null; // For legacy
+                    $variantData['image'] = $vUploadedImages[0] ?? null; 
                 }
 
-                \App\Models\ProductVariant::create($variantData);
+                $newVariant = \App\Models\ProductVariant::create($variantData);
+
+                // Collect first variant's data for master product sync
+                if (!$variantFound) {
+                    $firstVariantState = [
+                        'primary_image' => $newVariant->image,
+                        'image_path' => $newVariant->image,
+                        'images' => $newVariant->images,
+                        'regular_price' => $newVariant->price,
+                        'price' => $newVariant->sale_price ?: $newVariant->price,
+                        'sale_price' => $newVariant->sale_price,
+                        'stock_quantity' => $newVariant->stock_quantity,
+                        'sku' => $newVariant->sku ?: $product->sku
+                    ];
+                    $variantFound = true;
+                }
             }
+            
+            if ($variantFound) {
+                $product->update($firstVariantState);
+            }
+            
+            $attributeMap = [];
+            foreach ($combs as $idsString) {
+                if(empty($idsString)) continue;
+                $idsArray = explode(',', $idsString);
+                foreach ($idsArray as $valId) {
+                    $val = \App\Models\AttributeValue::find($valId);
+                    if ($val) {
+                        $attributeMap[$val->attribute_id][] = (int)$valId;
+                    }
+                }
+            }
+            foreach ($attributeMap as $attrId => $vIds) {
+                $attributeMap[$attrId] = array_values(array_unique($vIds));
+            }
+            $product->update(['attributes' => $attributeMap]);
         }
 
-        return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
+        return redirect()->route('admin.products.success')->with(['success' => 'Product published successfully.', 'action' => 'published']);
     }
 
     public function edit(Product $product)
@@ -185,7 +242,7 @@ class ProductController extends Controller
             $query->where('status', '=', true)->orderBy('display_order', 'asc');
         }])->where('status', '=', true)->orderBy('group')->orderBy('name')->get();
         $taxClasses = TaxClass::where('status', '=', 1)->get();
-        $shippingClasses = \App\Models\ShippingClass::where('status', 1)->get();
+        $shippingClasses = \App\Models\ShippingClass::where('status', '=', 1)->get();
         $products = Product::where('status', '=', 1)->where('id', '!=', $product->id)->orderBy('name')->get(['id', 'name']);
         
         return view('admin.products.edit', compact('product', 'categories', 'subCategories', 'childCategories', 'attributes', 'taxClasses', 'shippingClasses', 'products'));
@@ -193,17 +250,21 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
+        $isVariant = $request->input('is_variant') == '1';
+
         $request->validate([
             'category_id' => 'required|exists:categories,id',
             'sub_category_id' => 'nullable|exists:sub_categories,id',
             'child_category_id' => 'nullable|exists:child_categories,id',
             'name' => 'required|string|max:255',
+            'offer_collection' => 'nullable|string|max:255',
+            'slug' => 'required|string|max:255|unique:products,slug,' . $product->id,
             'sku' => 'nullable|string|unique:products,sku,' . $product->id,
             'barcode' => 'nullable|string',
             'isbn' => 'nullable|string',
-            'regular_price' => 'required|numeric|min:0',
+            'regular_price' => $isVariant ? 'nullable|numeric|min:0' : 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0',
-            'stock_quantity' => 'required|integer|min:0',
+            'stock_quantity' => $isVariant ? 'nullable|integer|min:0' : 'required|integer|min:0',
             'status' => 'required',
             'display_order' => 'nullable|integer',
             'attributes' => 'nullable|array',
@@ -211,11 +272,23 @@ class ProductController extends Controller
             'shipping_class_id' => 'nullable|exists:shipping_classes,id',
             'related_products' => 'nullable|array',
             'tags' => 'nullable|string',
+        ], [
+            'slug.unique' => 'This Product Slug is already in use. Please choose a different one.',
         ]);
 
+        $isVariant = $request->input('is_variant') == '1';
         $data = $request->except(['color_images', 'images']);
-        $data['slug'] = Str::slug($request->name);
-        $data['price'] = $request->sale_price ?: $request->regular_price;
+        
+        // If it's a variant product and regular_price is empty, try to get from first variant
+        if($isVariant && empty($request->regular_price) && $request->has('v_price')) {
+            $vPrices = $request->input('v_price');
+            $data['regular_price'] = is_array($vPrices) ? reset($vPrices) : $vPrices;
+        }
+
+        $data['price'] = $request->sale_price ?: ($data['regular_price'] ?? $request->regular_price);
+        $vStocks = $request->input('v_stock');
+        $data['stock_quantity'] = $isVariant && empty($request->stock_quantity) ? ($vStocks ? (is_array($vStocks) ? reset($vStocks) : 0) : 0) : $request->stock_quantity;
+
         $data['attributes'] = $this->sanitizeAttributes($request->input('attributes', []));
         $data['related_products'] = $request->input('related_products', []);
 
@@ -266,16 +339,17 @@ class ProductController extends Controller
         $data['color_images'] = $colorImages;
 
         // Handle Variant Matrix
-        if ($request->has('variant_combinations')) {
+        if ($request->input('is_variant') == '1' && $request->has('variant_combinations')) {
             $product->product_variants()->delete(); 
             $combinations = $request->variant_combinations;
             $prices = $request->v_price;
             $stocks = $request->v_stock;
             $skus = $request->v_sku;
-            $variantImagesFiles = $request->file('v_images');
-            $existingImages = $request->v_existing_image;
+            $variantImagesFiles = $request->file('v_images') ?? [];
 
+            $variantFound = false;
             $usedSkus = [];
+            $firstVariantState = [];
 
             foreach ($combinations as $index => $idsString) {
                 if(empty($idsString)) continue;
@@ -291,7 +365,7 @@ class ProductController extends Controller
                 }
 
                 // Auto-deduplicate SKU
-                $baseSku = !empty($skus[$index]) ? $skus[$index] : ($product->sku ? $product->sku . '-' . $index : 'PRD-' . $product->id . '-' . $index);
+                $baseSku = !empty($skus[$idsString]) ? $skus[$idsString] : (!empty($skus[$index]) ? $skus[$index] : ($product->sku ? $product->sku . '-' . $index : 'PRD-' . $product->id . '-' . $index));
                 $variantSku = $baseSku;
                 $skuCounter = 1;
                 while(in_array($variantSku, $usedSkus) || \App\Models\ProductVariant::where('sku', $variantSku)->exists()) {
@@ -304,9 +378,12 @@ class ProductController extends Controller
                     'product_id' => $product->id,
                     'combination' => $combJson,
                     'attribute_values' => $attrValuesJson,
-                    'price' => $prices[$index] ?? $product->price,
-                    'sale_price' => $prices[$index] ?? $product->price,
-                    'stock_quantity' => $stocks[$index] ?? 0,
+                    'price' => $prices[$idsString] ?? ($prices[$index] ?? ($product->regular_price ?? $product->price)),
+                    'sale_price' => $request->v_sale_price[$idsString] ?? ($request->v_sale_price[$index] ?? $product->sale_price),
+                    'stock_quantity' => $stocks[$idsString] ?? ($stocks[$index] ?? 0),
+                    'low_stock_threshold' => $request->v_low_stock[$idsString] ?? ($request->v_low_stock[$index] ?? null),
+                    'weight' => $request->v_weight[$idsString] ?? ($request->v_weight[$index] ?? null),
+                    'shipping_class_id' => $request->v_shipping_class[$idsString] ?? ($request->v_shipping_class[$index] ?? null),
                     'sku' => $variantSku,
                     'status' => 'active'
                 ];
@@ -315,35 +392,84 @@ class ProductController extends Controller
                 $vUploadedImages = [];
                 $vExistingArray = [];
                 
-                // Get existing images from hidden input if present
-                if ($request->has('v_existing_images') && isset($request->v_existing_images[$index])) {
-                    $val = $request->v_existing_images[$index];
+                // Get existing images from hidden input
+                if ($request->has('v_existing_images')) {
+                    $val = $request->v_existing_images[$idsString] ?? ($request->v_existing_images[$index] ?? null);
                     if ($val) {
-                        $vExistingArray = json_decode($val, true) ?? [];
-                        if (!is_array($vExistingArray) && !empty($val)) $vExistingArray = [$val];
+                        try {
+                            $vExistingArray = json_decode($val, true);
+                            if (!is_array($vExistingArray)) {
+                                $vExistingArray = !empty($val) ? [$val] : [];
+                            }
+                        } catch (\Exception $e) {
+                            $vExistingArray = !empty($val) ? [$val] : [];
+                        }
                     }
                 }
 
-                if (isset($variantImagesFiles[$index])) {
-                    foreach ($variantImagesFiles[$index] as $file) {
+                $rowFiles = $variantImagesFiles[$idsString] ?? ($variantImagesFiles[$index] ?? null);
+
+                if ($rowFiles) {
+                    foreach ($rowFiles as $file) {
                         $imgName = time() . '_v_' . $index . '_' . uniqid() . '.' . $file->extension();
                         $file->move(public_path('uploads/products/variants'), $imgName);
                         $vUploadedImages[] = 'products/variants/' . $imgName;
                     }
-                    $variantData['images'] = $vUploadedImages;
-                    $variantData['image'] = $vUploadedImages[0] ?? null; 
+                    // MERGE new uploads with existing ones
+                    $variantData['images'] = array_merge($vExistingArray, $vUploadedImages);
+                    $variantData['image'] = $variantData['images'][0] ?? null; 
                 } else {
                     $variantData['images'] = $vExistingArray;
                     $variantData['image'] = $vExistingArray[0] ?? null;
                 }
 
-                $product->product_variants()->create($variantData);
+                $newVariant = $product->product_variants()->create($variantData);
+
+                // Collect first variant's data for master product sync
+                if (!$variantFound) {
+                    $firstVariantState = [
+                        'primary_image' => $newVariant->image,
+                        'image_path' => $newVariant->image,
+                        'images' => (array)$newVariant->images,
+                        'regular_price' => $newVariant->price,
+                        'price' => $newVariant->sale_price ?: $newVariant->price,
+                        'sale_price' => $newVariant->sale_price,
+                        'stock_quantity' => $newVariant->stock_quantity,
+                        'sku' => $newVariant->sku ?: $product->sku
+                    ];
+                    $variantFound = true;
+                }
             }
+            
+            // Merge variant state into the final data array so it's not overwritten
+            if ($variantFound) {
+                $data = array_merge($data, $firstVariantState);
+            }
+
+            // Sync top-level attributes for frontend display/filters
+            $attributeMap = [];
+            foreach ($request->variant_combinations as $idsString) {
+                if(empty($idsString)) continue;
+                $idsArray = explode(',', $idsString);
+                foreach ($idsArray as $valId) {
+                    $val = \App\Models\AttributeValue::find($valId);
+                    if ($val) {
+                        $attributeMap[$val->attribute_id][] = (int)$valId;
+                    }
+                }
+            }
+            foreach ($attributeMap as $attrId => $vIds) {
+                $attributeMap[$attrId] = array_values(array_unique($vIds));
+            }
+            $data['attributes'] = $attributeMap; 
+        } else {
+            // Delete all variants if switch is OFF
+            $product->product_variants()->delete();
         }
 
         $product->update($data);
 
-        return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
+        return redirect()->route('admin.products.success')->with(['success' => 'Product updated successfully.', 'action' => 'updated']);
     }
 
     public function destroy(Product $product)
@@ -370,6 +496,20 @@ class ProductController extends Controller
     {
         $childCategories = ChildCategory::where('sub_category_id', '=', $sub_category_id)->where('status', '=', 1)->get();
         return response()->json($childCategories);
+    }
+
+    public function checkUniqueness(Request $request)
+    {
+        $field = $request->field;
+        $value = $request->value;
+        $excludeId = $request->exclude;
+
+        $query = Product::where($field, '=', $value);
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        return response()->json(['exists' => $query->exists()]);
     }
 
     private function sanitizeAttributes(array $attributes): array

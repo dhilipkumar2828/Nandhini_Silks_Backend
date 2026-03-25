@@ -64,7 +64,15 @@ class UserAuthController extends Controller
         // Sync cart from session to database
         (new \App\Http\Controllers\CartController)->syncCartOnLogin();
 
-        return redirect()->route('home')->with('success', 'Registration successful! Welcome to Nandhini Silks.');
+        // New Email Integration - Send emails to customer and admin
+        try {
+            \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\NewUserRegistration($user));
+            \Illuminate\Support\Facades\Mail::to('orders@nandhinisilks.com')->send(new \App\Mail\NewUserRegistration($user, true));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Registration Mail Failure: ' . $e->getMessage());
+        }
+
+        return redirect()->intended(route('home'))->with('success', 'Registration successful! Welcome to Nandhini Silks.');
     }
 
     public function logout(Request $request)
@@ -73,6 +81,54 @@ class UserAuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect()->route('home')->with('success', 'Logged out successfully.');
+    }
+
+    // Password Reset Methods
+    public function showLinkRequestForm()
+    {
+        return view('auth.passwords.email');
+    }
+
+    public function sendResetLinkEmail(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+
+        $status = \Illuminate\Support\Facades\Password::broker()->sendResetLink(
+            $request->only('email')
+        );
+
+        return $status === \Illuminate\Support\Facades\Password::RESET_LINK_SENT
+                    ? back()->with('status', __($status))
+                    : back()->withErrors(['email' => __($status)]);
+    }
+
+    public function showResetForm(Request $request, $token = null)
+    {
+        return view('auth.passwords.reset')->with(
+            ['token' => $token, 'email' => $request->email]
+        );
+    }
+
+    public function reset(Request $request)
+    {
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|confirmed|min:8',
+        ]);
+
+        $status = \Illuminate\Support\Facades\Password::broker()->reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user, $password) {
+                $user->password = $password; // Letting the 'hashed' cast handle it
+                $user->setRememberToken(\Illuminate\Support\Str::random(60));
+                $user->save();
+            }
+        );
+
+        return $status === \Illuminate\Support\Facades\Password::PASSWORD_RESET
+                    ? redirect()->route('login')->with('success', __($status))
+                    : back()->withErrors(['email' => [__($status)]]);
     }
 }
 
