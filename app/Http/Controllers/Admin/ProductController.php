@@ -486,13 +486,13 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully.');
     }
 
-    public function getSubCategories($category_id = null)
+    public function getSubCategories($category_id)
     {
         $subCategories = SubCategory::where('category_id', '=', $category_id)->where('status', '=', 1)->get();
         return response()->json($subCategories);
     }
 
-    public function getChildCategories($sub_category_id = null)
+    public function getChildCategories($sub_category_id)
     {
         $childCategories = ChildCategory::where('sub_category_id', '=', $sub_category_id)->where('status', '=', 1)->get();
         return response()->json($childCategories);
