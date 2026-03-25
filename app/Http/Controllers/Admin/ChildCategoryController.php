@@ -118,7 +118,7 @@ class ChildCategoryController extends Controller
         return redirect()->route('admin.child-categories.index')->with('success', 'Child Category deleted successfully.');
     }
 
-    public function getSubCategories($category_id = null)
+    public function getSubCategories($category_id)
     {
         $subCategories = SubCategory::where('category_id', '=', $category_id)->where('status', '=', 1)->get();
         return response()->json($subCategories);
