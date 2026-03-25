@@ -696,8 +696,8 @@
                 <span>Subtotal</span>
                 <span id="miniCartSubtotal">&#8377;0</span>
             </div>
-            <a href="{{ route('cart') }}" class="cart-drawer-btn cart-drawer-btn-primary">View Full Cart</a>
-            <a href="{{ route('checkout') }}" class="cart-drawer-btn cart-drawer-btn-secondary">Checkout Now</a>
+            <a href="{{ route('cart') }}" class="cart-drawer-btn cart-drawer-btn-primary">Cart</a>
+            <a href="{{ route('checkout') }}" class="cart-drawer-btn cart-drawer-btn-secondary">Checkout</a>
         </div>
     </div>
 
