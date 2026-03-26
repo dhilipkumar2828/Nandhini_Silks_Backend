@@ -518,7 +518,6 @@ html, body {
 
 .featured-section {
   width: 100%;
-  margin: 35px 0;
   padding: 60px 0;
   position: relative;
   overflow: hidden;
@@ -546,7 +545,7 @@ html, body {
   left: 0;
   bottom: 0px;
   transform: rotate(180deg);
-  top: 340px;
+  top: 320px;
 }
 
 .featured-decor-right {
@@ -1202,7 +1201,6 @@ html, body {
 }
 
 .footer-inner {
-  width: min(1180px, calc(100% - 40px));
   margin: 0 auto;
   padding: 54px 0 48px;
 }
@@ -1316,7 +1314,7 @@ html, body {
 .footer-links a {
   color: #ffffff;
   text-decoration: none;
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 400;
   line-height: 1.2;
   cursor: pointer;
@@ -1702,8 +1700,8 @@ html, body {
     height: 18px !important;
     padding: 0 8px !important;
     font-size: 10px !important;
-    left: 8px !important;
-    top: 8px !important;
+    left: 8px;
+    top: 8px;
   }
 
   .featured-progress {
@@ -1821,8 +1819,8 @@ html, body {
 
 
   .footer-contact-grid {
-    grid-template-columns: 1fr;
-    gap: 18px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px 10px;
     align-items: center;
   }
 
@@ -1830,11 +1828,20 @@ html, body {
     justify-content: center !important;
     min-width: 0;
     padding: 0;
+    flex-wrap: nowrap;
+    width: 100%;
   }
 
   .footer-contact-item:nth-child(3) {
-    grid-column: auto;
+    grid-column: span 2;
     justify-content: center !important;
+  }
+
+  .footer-links {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 15px 10px !important;
+    justify-items: center;
   }
 
   /* Hamburger Animation */
@@ -2006,15 +2013,37 @@ html, body {
   .footer-contact-grid {
     grid-template-columns: 1fr;
     justify-content: center;
+    justify-items: start;
   }
 
   .footer-contact-item {
-    justify-content: center !important;
+    justify-content: flex-start !important;
+    flex-wrap: nowrap;
+    margin-left: 26px !important;
   }
 
   .footer-contact-text {
     font-size: 15px;
     line-height: 1.4;
+  }
+
+  .footer-contact-item:nth-child(-n+2) .footer-contact-text {
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+
+  .footer-contact-item:nth-child(-n+2) {
+    gap: 12px;
+    justify-content: flex-start !important;
+    width: max-content;
+    max-width: 100%;
+    margin-left: 26px !important;
+    margin-right: auto;
+  }
+
+  .footer-contact-item:nth-child(-n+2) .footer-contact-text {
+    font-size: 13px;
+    line-height: 1.2;
   }
 
   .footer-links {
@@ -2026,7 +2055,7 @@ html, body {
   }
 
   .footer-links a {
-    font-size: 14px;
+    font-size: 12px;
     line-height: 1.3;
     text-align: center;
   }
@@ -2119,7 +2148,6 @@ html, body {
 
 @media (max-width: 640px) {
   .footer-inner {
-    width: min(100% - 24px, 1180px);
     padding: 38px 0 34px;
   }
 
@@ -2135,10 +2163,29 @@ html, body {
   .footer-contact-grid {
     grid-template-columns: 1fr;
     gap: 18px;
+    justify-items: start;
   }
 
   .footer-contact-item {
-    justify-content: center !important;
+    justify-content: flex-start !important;
+    flex-wrap: nowrap;
+    width: 100%;
+    margin-left: 18px !important;
+  }
+
+  .footer-contact-item:nth-child(-n+2) .footer-contact-text {
+    white-space: nowrap;
+    flex: 0 0 auto;
+    font-size: 13px;
+    line-height: 1.2;
+  }
+
+  .footer-contact-item:nth-child(-n+2) {
+    gap: 10px;
+    width: max-content;
+    max-width: 100%;
+    margin-left: 18px !important;
+    margin-right: auto;
   }
 
   .footer-extra-touch {
@@ -2174,7 +2221,7 @@ html, body {
   }
 
   .footer-links a {
-    font-size: 15px;
+    font-size: 13px;
   }
 
   .footer-copy {
@@ -3565,7 +3612,6 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
 }
 
 .btn-wishlist-detail {
@@ -4758,8 +4804,21 @@ input:checked+.toggle-switch .toggle-dot {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
-.product-grid-main.view-list .product-card-v2>a {
+/* Display contents ONLY on the image/info link, not the View Details button */
+.product-grid-main.view-list .product-card-v2 > a:not(.add-to-cart-v2) {
   display: contents;
+}
+
+/* Ensure View Details button is always visible in list view */
+.product-grid-main.view-list .product-card-v2 > a.add-to-cart-v2 {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  grid-area: actions;
+  width: 100% !important;
+  height: auto !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .product-grid-main.view-list .product-image-v2 {
@@ -4853,8 +4912,17 @@ input:checked+.toggle-switch .toggle-dot {
   }
 
   .product-grid-main.view-list .product-image-v2 {
-    height: 300px !important;
-    width: 220px !important;
+    height: 220px !important;
+    width: 100% !important;
+    aspect-ratio: 3/4 !important;
+  }
+
+  /* Ensure button fills the actions area on mobile list view */
+  .product-grid-main.view-list .product-card-v2 > a.add-to-cart-v2 {
+    width: 100% !important;
+    text-align: center !important;
+    padding: 12px !important;
+    border-radius: 8px !important;
   }
 }
 

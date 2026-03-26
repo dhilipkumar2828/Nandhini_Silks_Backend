@@ -25,6 +25,9 @@ class FrontendController extends Controller
         $banners = Banner::where('status', '=', 1, 'and')->orderBy('display_order', 'asc')->get();
         $testimonials = Testimonial::where('status', '=', 1)->where('display_homepage', '=', true)->latest()->get();
         $featuredProducts = Product::where('is_featured', '=', true, 'and')->where('status', '=', 1, 'and')->get();
+        $offerProducts = $featuredProducts->isNotEmpty()
+            ? $featuredProducts
+            : Product::where('status', '=', 1)->latest()->limit(8)->get();
         
         // Fetch categories for "Browse Our Categories"
         $categories = Category::with('subCategories')->where('status', '=', 1)->orderBy('display_order', 'asc')->get();
@@ -35,7 +38,7 @@ class FrontendController extends Controller
         // Fetch advertisements for promo section
         $ads = Ad::where('status', '=', 1)->latest()->get();
 
-        return view('frontend.index', compact('banners', 'testimonials', 'featuredProducts', 'categories', 'subCategories', 'ads'));
+        return view('frontend.index', compact('banners', 'testimonials', 'featuredProducts', 'offerProducts', 'categories', 'subCategories', 'ads'));
     }
 
     public function shop()
