@@ -912,9 +912,26 @@ class CartController extends Controller
 
         foreach ($items as $item) {
             $product = Product::find($item['product_id']);
-            if (!$product || !$product->shipping_class_id) continue;
+            if (!$product) continue;
 
-            $shippingClass = $product->shippingClass;
+            $shippingClassId = null;
+            
+            // Check variant first if it exists
+            if (!empty($item['variant_id'])) {
+                $variant = \App\Models\ProductVariant::find($item['variant_id']);
+                if ($variant && $variant->shipping_class_id) {
+                    $shippingClassId = $variant->shipping_class_id;
+                }
+            }
+
+            // Fallback to parent product shipping class
+            if (!$shippingClassId) {
+                $shippingClassId = $product->shipping_class_id;
+            }
+
+            if (!$shippingClassId) continue;
+
+            $shippingClass = \App\Models\ShippingClass::find($shippingClassId);
             if (!$shippingClass || !$shippingClass->status) continue;
 
             // Find best matching rate
@@ -929,9 +946,10 @@ class CartController extends Controller
                 ->first();
 
             if ($rate) {
-                // For now, let's assume the rate is per item. 
-                // Alternatively, it could be per order per class.
-                $totalShipping += $rate->cost * $item['quantity'];
+                // Modified: Add shipping cost ONCE per unique product entry in cart, 
+                // regardless of its quantity. This ensures multiple products add up 
+                // but single product increment doesn't add extra shipping.
+                $totalShipping += (float)$rate->cost;
             }
         }
 
