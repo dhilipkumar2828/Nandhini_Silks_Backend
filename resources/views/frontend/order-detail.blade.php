@@ -175,7 +175,123 @@
         color: var(--pink);
         text-decoration: none;
         font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
     }
+
+    .action-link:hover {
+        opacity: 0.8;
+        transform: translateY(-1px);
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(4px);
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .modal-content {
+        background: #fff;
+        width: 100%;
+        max-width: 450px;
+        border-radius: 20px;
+        overflow: hidden;
+        animation: modalSlide 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes modalSlide {
+        from { transform: translateY(30px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #f5f5f5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-body {
+        padding: 24px;
+    }
+
+    .rating-stars {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 25px;
+    }
+
+    .rating-stars input {
+        display: none;
+    }
+
+    .rating-stars label {
+        cursor: pointer;
+        font-size: 32px;
+        color: #e5e7eb;
+        transition: all 0.2s ease;
+    }
+
+    .rating-stars label:hover,
+    .rating-stars label:hover ~ label,
+    .rating-stars input:checked ~ label {
+        color: #fbbf24;
+        transform: scale(1.1);
+    }
+
+    .review-textarea {
+        width: 100%;
+        padding: 15px;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 14px;
+        outline: none;
+        transition: all 0.2s ease;
+        resize: none;
+    }
+
+    .review-textarea:focus {
+        border-color: var(--pink);
+        box-shadow: 0 0 0 4px rgba(169, 27, 67, 0.05);
+    }
+
+    /* Modal Styling Utilities */
+    .modal-product-thumbnail {
+        width: 64px;
+        height: 64px;
+        border-radius: 12px;
+        object-fit: cover;
+        background: #f8fafc;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .modal-title { font-size: 16px; font-weight: 700; color: #1e293b; margin: 0; }
+    .modal-subtitle { font-size: 10px; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin: 0; }
+    .modal-product-name { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 2px; }
+    .submit-btn {
+        width: 100%;
+        background: #a91b43;
+        color: #fff;
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 4px 6px -1px rgba(169, 27, 67, 0.2);
+    }
+    .submit-btn:hover { background: #940437; transform: translateY(-1px); }
+    .submit-btn:active { transform: translateY(0); }
+    .stars-label { font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 8px; }
 
     .summary-row {
         display: flex;
@@ -552,7 +668,7 @@
                                 <td class="item-qty" data-label="Qty">{{ $item->quantity }}</td>
                                 <td data-label="Subtotal">&#8377;{{ number_format($item->price * $item->quantity, 0) }}</td>
                                 <td class="item-actions-cell" data-label="Actions">
-                                    <a href="#" class="action-link">Write Review</a>
+                                    <a href="javascript:void(0)" class="action-link" onclick="openReviewModal('{{ $item->product_id }}', '{{ e($item->product_name) }}', '{{ $item->getImageUrl() }}')">Write Review</a>
                                     <a href="#" class="action-link" style="color: #999;">Need Help?</a>
                                 </td>
                             </tr>
@@ -631,6 +747,55 @@
 </main>
 @endsection
 
+<!-- Review Modal -->
+<div id="reviewModal" class="modal-overlay">
+    <div class="modal-content" style="box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+        <div class="modal-header">
+            <h3 class="modal-title">Write a Review</h3>
+            <button onclick="closeReviewModal()" class="text-slate-400" style="background:none; border:none; cursor:pointer;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <form id="reviewForm" method="POST">
+            @csrf
+            <div class="modal-body">
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+                    <img id="modalProductImg" src="" class="modal-product-thumbnail">
+                    <div>
+                        <h4 id="modalProductName" class="modal-product-name">Product Name</h4>
+                        <p class="modal-subtitle">Share your experience</p>
+                    </div>
+                </div>
+
+                <div class="rating-stars">
+                    <input type="radio" id="star5" name="stars" value="5" required />
+                    <label for="star5" title="5 stars"><i class="fas fa-star"></i></label>
+                    <input type="radio" id="star4" name="stars" value="4" />
+                    <label for="star4" title="4 stars"><i class="fas fa-star"></i></label>
+                    <input type="radio" id="star3" name="stars" value="3" />
+                    <label for="star3" title="3 stars"><i class="fas fa-star"></i></label>
+                    <input type="radio" id="star2" name="stars" value="2" />
+                    <label for="star2" title="2 stars"><i class="fas fa-star"></i></label>
+                    <input type="radio" id="star1" name="stars" value="1" />
+                    <label for="star1" title="1 star"><i class="fas fa-star"></i></label>
+                </div>
+
+                <div style="margin-top: 10px;">
+                    <label class="stars-label">Your Feedback</label>
+                    <textarea name="review" class="review-textarea" rows="4" placeholder="How was the product quality and delivery? (Min. 10 characters)" required minlength="10"></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn" style="margin-top: 24px;">
+                    Submit Review
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @push('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="{{ asset('js/invoice.js') }}"></script>
@@ -641,6 +806,34 @@
         } else {
             console.error('InvoiceGenerator not found. Please check if invoice.js is loaded.');
             alert('Invoice generator is still loading. Please try again.');
+        }
+    }
+
+    function openReviewModal(productId, productName, productImg) {
+        const modal = document.getElementById('reviewModal');
+        const form = document.getElementById('reviewForm');
+        
+        document.getElementById('modalProductName').textContent = productName;
+        document.getElementById('modalProductImg').src = productImg;
+        
+        // Dynamic Route Base on Product ID
+        form.action = "{{ url('product') }}/" + productId + "/review";
+        
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeReviewModal() {
+        const modal = document.getElementById('reviewModal');
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    // Close on outside click
+    window.onclick = function(event) {
+        const modal = document.getElementById('reviewModal');
+        if (event.target == modal) {
+            closeReviewModal();
         }
     }
 </script>

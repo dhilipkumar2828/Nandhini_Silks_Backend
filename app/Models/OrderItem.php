@@ -32,9 +32,9 @@ class OrderItem extends Model
     {
         $path = $this->product_image;
         if (!$path && $this->product) {
-            $path = $this->product->image_path;
+            $path = $this->product->primary_image;
             
-            // Fallback to images[0] if image_path is empty
+            // Fallback to images[0] if primary_image is empty
             if (!$path && !empty($this->product->images)) {
                 $images = $this->product->images;
                 if (is_string($images)) {

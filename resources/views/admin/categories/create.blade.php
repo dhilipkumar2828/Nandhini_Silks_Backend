@@ -30,9 +30,10 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <label class="block text-xs font-bold text-slate-700">Category Image</label>
-                    <input type="file" name="image" 
+                    <label class="block text-xs font-bold text-slate-700">Category Image <span class="text-rose-500">*</span></label>
+                    <input type="file" name="image" required
                         class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
+                    @error('image') <p class="text-rose-500 text-[10px] mt-1 font-bold">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="space-y-1.5">
