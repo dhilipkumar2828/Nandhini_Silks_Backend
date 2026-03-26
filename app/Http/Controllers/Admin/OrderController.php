@@ -125,13 +125,14 @@ class OrderController extends Controller
         try {
             ini_set('memory_limit', '512M');
             
-            $order->load(['items.product']);
-            
-            $filename = 'invoice-' . ($order->order_number ?: $order->id) . '.pdf';
+            // TEST: Can we even generate a basic PDF?
+            $pdf = Pdf::loadHTML('<h1>Hello World! Order #'. $order->id .'</h1>');
+            return $pdf->download('test-invoice.pdf');
 
-            // Use simple view rendering to ensure no errors in the view itself
+            /* Previous logic commented out for debugging
+            $order->load(['items.product']);
+            $filename = 'invoice-' . ($order->order_number ?: $order->id) . '.pdf';
             $html = view('admin.orders.invoice', compact('order'))->render();
-            
             $pdf = Pdf::loadHTML($html)
                 ->setPaper('a4', 'portrait')
                 ->setOptions([
@@ -140,11 +141,10 @@ class OrderController extends Controller
                     'isRemoteEnabled' => true,
                     'chroot' => public_path(),
                 ]);
-
             return $pdf->download($filename);
+            */
         } catch (\Exception $e) {
-            \Log::error('Invoice Generation Error: ' . $e->getMessage());
-            return back()->with('error', 'Could not generate invoice. ' . $e->getMessage());
+            return "PDF Engine Error: " . $e->getMessage();
         }
     }
 }
