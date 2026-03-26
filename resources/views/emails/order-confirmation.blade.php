@@ -36,11 +36,10 @@
         <div class="header">
             <img src="{{ url('images/nandhini-logo.png') }}" alt="Nandhini Silks" style="max-height: 80px; width: auto; margin-bottom: 15px; background: white; padding: 10px; border-radius: 12px;" onerror="this.src='https://nandhinisilks.com/demo/images/nandhini-logo.png'; this.onerror=null;">
             <h1>Nandhini Silks</h1>
-            <p style="margin: 5px 0 0; opacity: 0.9; font-weight: 600;">Elegance Redefined</p>
         </div>
         <div class="content">
-            <h2 style="color: #111; font-weight: 800; margin-top: 0;">Namaste, {{ $order->customer_name }}!</h2>
-            <p>Aapka swagat hai! We've received your order and are spinning our looms to get it ready for shipment. Thank you for choosing Nandhini Silks for your celebration.</p>
+            <h2 style="color: #111; font-weight: 800; margin-top: 0;">Hello, {{ $order->customer_name }}!</h2>
+            <p>We've received your order and are spinning our looms to get it ready for shipment. Thank you for choosing Nandhini Silks for your celebration.</p>
             
             <div class="order-info">
                 <p><strong>Order Number:</strong> #{{ $order->order_number }}</p>
@@ -68,7 +67,7 @@
                             @endif
                         </td>
                         <td style="text-align: center; font-weight: 700;">{{ $item->quantity }}</td>
-                        <td style="text-align: right; font-weight: 700; color: #111;">₹{{ number_format($item->total, 2) }}</td>
+                        <td style="text-align: right; font-weight: 700; color: #111;">₹{{ number_format($item->total, 0) }}</td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -77,27 +76,27 @@
             <div class="totals">
                 <div class="totals-row">
                     <span class="totals-label">Subtotal:</span>
-                    <span class="totals-value">₹{{ number_format($order->sub_total, 2) }}</span>
+                    <span class="totals-value">₹{{ number_format($order->sub_total, 0) }}</span>
                 </div>
                 @if($order->tax > 0)
                 <div class="totals-row">
                     <span class="totals-label">Tax:</span>
-                    <span class="totals-value">₹{{ number_format($order->tax, 2) }}</span>
+                    <span class="totals-value">₹{{ number_format($order->tax, 0) }}</span>
                 </div>
                 @endif
                 <div class="totals-row">
                     <span class="totals-label">Shipping:</span>
-                    <span class="totals-value">₹{{ number_format($order->shipping, 2) }}</span>
+                    <span class="totals-value">₹{{ number_format($order->shipping, 0) }}</span>
                 </div>
                 @if($order->discount > 0)
                 <div class="totals-row">
                     <span class="totals-label" style="color: #10b981;">Discount:</span>
-                    <span class="totals-value" style="color: #10b981;">-₹{{ number_format($order->discount, 2) }}</span>
+                    <span class="totals-value" style="color: #10b981;">-₹{{ number_format($order->discount, 0) }}</span>
                 </div>
                 @endif
                 <div class="totals-row grand-total">
                     <span class="totals-label" style="font-weight: 800;">TOTAL:</span>
-                    <span class="totals-value" style="font-size: 24px; font-weight: 800;">₹{{ number_format($order->grand_total, 2) }}</span>
+                    <span class="totals-value" style="font-size: 24px; font-weight: 800;">₹{{ number_format($order->grand_total, 0) }}</span>
                 </div>
             </div>
 
@@ -108,7 +107,6 @@
         <div class="footer">
             <p>&copy; {{ date('Y') }} Nandhini Silks. Arani - 632317, Tamil Nadu.</p>
             <p>Wait times are tough, but excellence takes time. We appreciate your patience!</p>
-            <p>Questions? Contact us at <a href="mailto:nandhinisilks.arani@gmail.com" class="social-link">nandhinisilks.arani@gmail.com</a></p>
         </div>
     </div>
 </body>

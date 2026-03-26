@@ -142,8 +142,19 @@ class FrontendController extends Controller
         $userReview = Auth::guard('web')->check()
             ? ProductReview::where('product_id', $product->id)->where('user_id', Auth::guard('web')->id())->latest()->first()
             : null;
-            
-        return view('frontend.product-detail', compact('product', 'relatedProducts', 'recentlyViewed', 'attributeGroups', 'inWishlist', 'userReview'));
+
+        // Correctly check if product is in cart (handles both session and DB)
+        $inCart = false;
+        if (Auth::guard('web')->check()) {
+            $inCart = \App\Models\CartItem::where('user_id', Auth::guard('web')->id())
+                ->where('product_id', $product->id)
+                ->exists();
+        } else {
+            $cart = session()->get('cart', []);
+            $inCart = collect($cart)->contains('product_id', $product->id);
+        }
+
+        return view('frontend.product-detail', compact('product', 'relatedProducts', 'recentlyViewed', 'attributeGroups', 'inWishlist', 'inCart', 'userReview'));
     }
 
     public function about() { return view('frontend.about'); }

@@ -439,36 +439,41 @@
     function handleDownload() {
         @if($order)
         const orderData = {
-            orderNumber: "{{ $order->id }}",
-            date: "{{ $order->created_at->format('d/m/Y') }}",
+            orderNumber: "{{ $order ? $order->order_number : '' }}",
+            date: "{{ $order ? $order->created_at->format('d/m/Y') : date('d/m/Y') }}",
             customer: {
-                name: "{{ $order->customer_name }}",
-                address: "{{ str_replace(["\r", "\n"], ' ', $order->delivery_address) }}",
-                phone: "{{ $order->customer_phone }}"
+                name: "{{ $order ? $order->customer_name : '' }}",
+                address: "{{ $order ? str_replace(["\r", "\n"], ' ', $order->delivery_address) : '' }}",
+                phone: "{{ $order ? $order->customer_phone : '' }}"
             },
             items: [
-                @foreach($order->items as $item)
-                {
-                    name: "{{ $item->product_name }}",
-                    variant: "{{ ($item->color ? $item->color : '') . ($item->size ? ' / '.$item->size : '') ?: '-' }}",
-                    hsn: "5007",
-                    qty: {{ $item->quantity }},
-                    rate: {{ $item->price }},
-                    taxRate: 5
-                },
-                @endforeach
+                @if($order)
+                    @foreach($order->items as $item)
+                    {
+                        name: "{{ $item->product_name }}",
+                        image: "{{ $item->product && $item->product->image_path ? asset('images/' . $item->product->image_path) : asset('images/product_detail.png') }}",
+                        variant: "{{ ($item->color ? $item->color : '') . ($item->size ? ' / '.$item->size : '') ?: '-' }}",
+                        hsn: "5007",
+                        qty: {{ $item->quantity }},
+                        rate: {{ $item->price }},
+                        taxRate: 5
+                    },
+                    @endforeach
+                @endif
             ],
-            paymentMethod: "{{ $order->payment_method }}",
-            subtotal: {{ $order->sub_total }},
-            taxAmount: {{ $order->tax }},
-            shipping: {{ $order->shipping }},
-            total: {{ $order->grand_total }}
+            paymentMethod: "{{ $order ? ($order->payment_method == 'razorpay' ? 'Online (Razorpay)' : 'Cash on Delivery') : '' }}",
+            subtotal: {{ $order ? $order->sub_total : 0 }},
+            taxAmount: {{ $order ? $order->tax : 0 }},
+            shipping: {{ $order ? $order->shipping : 0 }},
+            discount: {{ $order ? $order->discount : 0 }},
+            total: {{ $order ? $order->grand_total : 0 }}
         };
         if (typeof InvoiceGenerator !== 'undefined') {
             InvoiceGenerator.download(orderData);
         } else {
             alert('Invoice generator still loading. Please try again in a moment.');
         }
+
         @else
         alert('Order data not found.');
         @endif

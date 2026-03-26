@@ -1649,11 +1649,19 @@
                         </div>
                         <!-- Action Buttons -->
                         <div class="product-actions-group">
-                            <button type="submit" name="action" value="cart"
-                                class="btn-add-cart {{ !$isInStock ? 'disabled' : '' }}">
-                                <i class="fas fa-shopping-bag"></i>
-                                {{ $isInStock ? 'ADD TO CART' : 'OUT OF STOCK' }}
-                            </button>
+                            @if($inCart)
+                                <a href="{{ route('cart') }}" class="btn-add-cart" style="text-decoration: none; justify-content: center; background: #2a2a2a;">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    GO TO CART
+                                </a>
+                            @else
+                                <button type="submit" name="action" value="cart" id="addToCartBtn"
+                                    class="btn-add-cart {{ !$isInStock ? 'disabled' : '' }}">
+                                    <i class="fas fa-shopping-bag"></i>
+                                    {{ $isInStock ? 'ADD TO CART' : 'OUT OF STOCK' }}
+                                </button>
+                            @endif
+                            
                             <button type="submit" name="action" value="checkout" class="btn-buy-now"
                                 {{ !$isInStock ? 'disabled' : '' }}>
                                 <i class="fas fa-bolt"></i>
@@ -2279,6 +2287,16 @@
                         if (data.success) {
                             toastr.success(data.message || 'Added to cart.');
                             if (window.updateMiniCart) window.updateMiniCart();
+                            
+                            // Change button to GO TO CART
+                            const btn = document.getElementById('addToCartBtn');
+                            if (btn && action === 'cart') {
+                                btn.innerHTML = '<i class="fas fa-shopping-cart"></i> GO TO CART';
+                                btn.classList.add('go-to-cart-state');
+                                btn.style.background = '#2a2a2a';
+                                btn.type = 'button';
+                                btn.onclick = function() { window.location.href = "{{ route('cart') }}"; };
+                            }
                         } else {
                             toastr.error(data.message || 'Error adding to cart.');
                         }

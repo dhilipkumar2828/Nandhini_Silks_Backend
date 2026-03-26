@@ -1,14 +1,14 @@
 @if ($paginator->hasPages())
-    <nav role="navigation" aria-label="Pagination Navigation" class="flex items-center justify-between">
-        <div class="flex items-center space-x-1">
+    <nav role="navigation" aria-label="Pagination Navigation" class="custom-pagination">
+        <div class="pagination-links">
             {{-- Previous Page Link --}}
             @if ($paginator->onFirstPage())
-                <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-50 text-slate-300 cursor-not-allowed">
-                    <i class="fas fa-chevron-left text-[10px]"></i>
+                <span class="pagination-item disabled">
+                    <i class="fas fa-chevron-left"></i>
                 </span>
             @else
-                <a href="{{ $paginator->previousPageUrl() }}" rel="prev" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-500 hover:border-[#a91b43] hover:text-[#a91b43] transition-all">
-                    <i class="fas fa-chevron-left text-[10px]"></i>
+                <a href="{{ $paginator->previousPageUrl() }}" rel="prev" class="pagination-item">
+                    <i class="fas fa-chevron-left"></i>
                 </a>
             @endif
 
@@ -16,18 +16,18 @@
             @foreach ($elements as $element)
                 {{-- "Three Dots" Separator --}}
                 @if (is_string($element))
-                    <span class="px-2 text-slate-400 text-xs">{{ $element }}</span>
+                    <span class="pagination-item dots">{{ $element }}</span>
                 @endif
 
                 {{-- Array Of Links --}}
                 @if (is_array($element))
                     @foreach ($element as $page => $url)
                         @if ($page == $paginator->currentPage())
-                            <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#a91b43] text-white text-xs font-bold shadow-md shadow-pink-200">
+                            <span class="pagination-item active">
                                 {{ $page }}
                             </span>
                         @else
-                            <a href="{{ $url }}" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-500 text-xs font-bold hover:border-[#a91b43] hover:text-[#a91b43] transition-all">
+                            <a href="{{ $url }}" class="pagination-item">
                                 {{ $page }}
                             </a>
                         @endif
@@ -37,26 +37,27 @@
 
             {{-- Next Page Link --}}
             @if ($paginator->hasMorePages())
-                <a href="{{ $paginator->nextPageUrl() }}" rel="next" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-500 hover:border-[#a91b43] hover:text-[#a91b43] transition-all">
-                    <i class="fas fa-chevron-right text-[10px]"></i>
+                <a href="{{ $paginator->nextPageUrl() }}" rel="next" class="pagination-item">
+                    <i class="fas fa-chevron-right"></i>
                 </a>
             @else
-                <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-50 text-slate-300 cursor-not-allowed">
-                    <i class="fas fa-chevron-right text-[10px]"></i>
+                <span class="pagination-item disabled">
+                    <i class="fas fa-chevron-right"></i>
                 </span>
             @endif
         </div>
 
-        <div class="hidden sm:block">
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+        <div class="pagination-results">
+            <p>
                 {!! __('Showing') !!}
-                <span class="font-black text-slate-600">{{ $paginator->firstItem() }}</span>
+                <span class="font-bold">{{ $paginator->firstItem() }}</span>
                 {!! __('to') !!}
-                <span class="font-black text-slate-600">{{ $paginator->lastItem() }}</span>
+                <span class="font-bold">{{ $paginator->lastItem() }}</span>
                 {!! __('of') !!}
-                <span class="font-black text-slate-600">{{ $paginator->total() }}</span>
+                <span class="font-bold">{{ $paginator->total() }}</span>
                 {!! __('Results') !!}
             </p>
         </div>
     </nav>
 @endif
+

@@ -40,7 +40,33 @@
 
         .featured-section {
             overflow: visible;
+            position: relative;
+            z-index: 1;
         }
+
+        .featured-decor {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0.8;
+            height: auto !important;
+            width: auto !important;
+            max-width: 320px !important;
+            z-index: 0;
+        }
+
+        .featured-decor-left {
+            left: 0;
+            bottom: 0;
+            top: auto !important;
+            transform: rotate(0deg) !important;
+        }
+
+        .featured-decor-right {
+            right: 0;
+            top: 0;
+            transform: rotate(180deg) !important;
+        }
+
 
         .featured-inner {
             max-width: 1360px;
@@ -50,11 +76,18 @@
         }
 
         .collection-section,
-        .featured-section,
         .category-section {
             margin-top: 0;
             margin-bottom: 50px;
         }
+
+        .featured-section {
+            margin-top: 0;
+            margin-bottom: 0;
+            padding-top: 60px;
+            padding-bottom: 60px;
+        }
+
 
         .collection-title,
         .featured-title,
@@ -1012,7 +1045,7 @@
                                             </div>
                                             <h3 class="featured-name">{{ $product->name }}</h3>
                                         </a>
-                                        <div class="featured-footer">
+                                        <div class="featured-footer" style="margin-top: -19px;">
                                             <div class="featured-price-wrap">
                                                 <span class="featured-price">&#8377; {{ number_format($product->price, 0) }}</span>
                                                 @if ($product->regular_price > $product->price)
@@ -1117,6 +1150,7 @@
                     <div class="swiper-button-prev featured-prev collection-prev-{{ $collection->id }}"></div>
                 </div>
             </div>
+            <!-- Ensure no gap between consecutive featured sections by using simple structure here -->
         </section>
     @endforeach
 
