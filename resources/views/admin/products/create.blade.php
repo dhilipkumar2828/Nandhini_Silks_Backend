@@ -56,11 +56,11 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
+                        {{-- <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Offer Collection</label>
                             <input type="text" name="offer_collection" value="{{ old('offer_collection') }}"
                                 class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all" placeholder="e.g. Summer Sale, New Arrival">
-                        </div>
+                        </div> --}}
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Video URL</label>
                             <input type="url" name="video_url" value="{{ old('video_url') }}"
@@ -228,6 +228,32 @@
                             <select name="child_category_id" id="child_category_id" required class="w-full select2-searchable">
                                 <option value="">Select Child Category</option>
                             </select>
+                        </div>
+                    </div>
+
+                    {{-- Offer Collections Section --}}
+                    <div class="pt-6 border-t border-slate-100 col-span-full">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-2">Offer Collections / Specials</label>
+                                <select name="offer_collections[]" id="offer_collections" class="w-full select2-searchable" multiple>
+                                    @foreach($offerCollections as $collection)
+                                        <option value="{{ $collection->id }}" {{ in_array($collection->id, old('offer_collections', [])) ? 'selected' : '' }}>
+                                            {{ $collection->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="flex items-center gap-3 pb-2">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="show_offer_on_homepage" value="1" {{ old('show_offer_on_homepage') ? 'checked' : '' }} class="sr-only peer">
+                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#a91b43]"></div>
+                                </label>
+                                <div>
+                                    <span class="text-sm font-bold text-slate-700">Show in Home Page</span>
+                                    <p class="text-[10px] text-slate-400 font-medium tracking-tight">Product will display in Offer Collection section on homepage</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
