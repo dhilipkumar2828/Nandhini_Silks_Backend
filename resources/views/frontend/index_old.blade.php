@@ -315,7 +315,7 @@
 
             /* ── Special case for featured-inner which is already a sub-container ── */
             .featured-section {
-                margin-bottom: 30px;
+                margin-bottom: 5px;
             }
 
             /* Nav buttons sit on the left/right edge of the section padding area */
