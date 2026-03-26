@@ -123,28 +123,26 @@ class OrderController extends Controller
     public function downloadInvoice(Order $order)
     {
         try {
-            ini_set('memory_limit', '512M');
+            // DIAGNOSTIC START
+            $checks = [
+                'mbstring' => extension_loaded('mbstring'),
+                'dom' => extension_loaded('dom'),
+                'gd' => extension_loaded('gd'),
+                'libxml' => extension_loaded('libxml'),
+                'class_exists' => class_exists('\Barryvdh\DomPDF\Facade\Pdf'),
+            ];
             
-            // TEST: Can we even generate a basic PDF?
-            $pdf = Pdf::loadHTML('<h1>Hello World! Order #'. $order->id .'</h1>');
-            return $pdf->download('test-invoice.pdf');
+            if (in_array(false, $checks, true)) {
+                return "Server System Error: " . json_encode($checks);
+            }
+            // DIAGNOSTIC END
 
-            /* Previous logic commented out for debugging
-            $order->load(['items.product']);
-            $filename = 'invoice-' . ($order->order_number ?: $order->id) . '.pdf';
-            $html = view('admin.orders.invoice', compact('order'))->render();
-            $pdf = Pdf::loadHTML($html)
-                ->setPaper('a4', 'portrait')
-                ->setOptions([
-                    'defaultFont' => 'sans-serif',
-                    'isHtml5ParserEnabled' => true,
-                    'isRemoteEnabled' => true,
-                    'chroot' => public_path(),
-                ]);
-            return $pdf->download($filename);
-            */
-        } catch (\Exception $e) {
-            return "PDF Engine Error: " . $e->getMessage();
+            ini_set('memory_limit', '512M');
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML('<h1>PDF Engine is Working!</h1>');
+            return $pdf->download('test.pdf');
+
+        } catch (\Throwable $e) {
+            return "Fatal Engine Error: " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine();
         }
     }
 }
