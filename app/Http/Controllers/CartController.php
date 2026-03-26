@@ -911,14 +911,14 @@ class CartController extends Controller
         ]);
 
         foreach ($items as $item) {
-            $product = Product::find($item['product_id']);
+            $product = Product::find($item['product_id'], ['*']);
             if (!$product) continue;
 
             $shippingClassId = null;
             
             // Check variant first if it exists
             if (!empty($item['variant_id'])) {
-                $variant = \App\Models\ProductVariant::find($item['variant_id']);
+                $variant = \App\Models\ProductVariant::find($item['variant_id'], ['*']);
                 if ($variant && $variant->shipping_class_id) {
                     $shippingClassId = $variant->shipping_class_id;
                 }

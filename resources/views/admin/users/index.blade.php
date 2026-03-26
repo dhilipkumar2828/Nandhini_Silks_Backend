@@ -71,13 +71,11 @@
         <table class="w-full text-left">
             <thead>
                 <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-100">
-                    <th class="pb-3 px-2 font-bold">User ID</th>
+                    <th class="pb-3 px-2 font-bold">S.No</th>
                     <th class="pb-3 font-bold">User</th>
                     <th class="pb-3 font-bold">Status</th>
-                    <th class="pb-3 font-bold">Role</th>
                     <th class="pb-3 font-bold">Registration</th>
-                    <th class="pb-3 font-bold">Last Login</th>
-                    <th class="pb-3 font-bold">Orders</th>
+                    <th class="pb-3 font-bold text-center">Orders</th>
                     <th class="pb-3 font-bold">Total Spent</th>
                     <th class="pb-3 font-bold text-right">Actions</th>
                 </tr>
@@ -85,8 +83,8 @@
             <tbody class="text-sm">
                 @forelse($users as $user)
                     <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-all">
-                        <td class="py-3 px-2">
-                            <span class="font-bold text-[#a91b43]">#{{ $user->id }}</span>
+                        <td class="py-3 px-2 text-xs font-bold text-slate-500">
+                            {{ $users->firstItem() + $loop->index }}
                         </td>
                         <td class="py-3">
                             <div class="flex items-center gap-3">
@@ -96,46 +94,46 @@
                                         : null;
                                 @endphp
                                 @if($avatar)
-                                    <img src="{{ $avatar }}" alt="{{ $user->name }}" class="w-9 h-9 rounded-full object-cover border border-slate-200">
+                                    <img src="{{ $avatar }}" alt="{{ $user->name }}" class="w-9 h-9 rounded-full object-cover border border-slate-200 shadow-sm">
                                 @else
-                                    <div class="w-9 h-9 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xs">
+                                    <div class="w-9 h-9 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-black text-[10px] border border-slate-200">
                                         {{ strtoupper(substr($user->name, 0, 1)) }}
                                     </div>
                                 @endif
                                 <div>
-                                    <div class="font-bold text-slate-800">{{ $user->name }}</div>
-                                    <div class="text-[10px] text-slate-400">{{ $user->email }}</div>
-                                    <div class="text-[10px] text-slate-400">{{ $user->phone ?? '-' }}</div>
+                                    <div class="font-bold text-slate-800 text-sm capitalize">{{ $user->name }}</div>
+                                    <div class="text-[10px] text-slate-400 font-medium">{{ $user->email }}</div>
+                                    <div class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{{ $user->phone ?? 'No Phone' }}</div>
                                 </div>
                             </div>
                         </td>
                         <td class="py-3">
-                            <span class="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-tighter {{ $user->account_status === 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }}">
+                            <span class="px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border {{ $user->account_status === 'active' ? 'bg-emerald-100 text-emerald-600 border-emerald-200' : 'bg-rose-100 text-rose-600 border-rose-200' }}">
                                 {{ $user->account_status }}
                             </span>
                         </td>
-                        <td class="py-3 text-[10px] text-slate-500 font-bold uppercase">
-                            {{ $user->role }}
+                        <td class="py-3">
+                            <div class="text-[10px] text-slate-500 font-black uppercase tracking-tighter">{{ $user->created_at ? $user->created_at->format('d M Y') : '-' }}</div>
+                            <div class="text-[9px] text-slate-300 font-bold uppercase">{{ $user->role }}</div>
                         </td>
-                        <td class="py-3 text-[10px] text-slate-500 font-bold">
-                            {{ $user->created_at ? $user->created_at->format('d M Y') : '-' }}
+                        <td class="py-3 text-center">
+                            <span class="w-7 h-7 inline-flex items-center justify-center bg-slate-50 text-slate-700 rounded-lg border border-slate-100 font-black text-xs shadow-sm">
+                                {{ $user->orders_count ?? 0 }}
+                            </span>
                         </td>
-                        <td class="py-3 text-[10px] text-slate-500 font-bold">
-                            {{ $user->last_login_at ? $user->last_login_at->format('d M Y, h:i A') : '-' }}
-                        </td>
-                        <td class="py-3 text-[10px] text-slate-500 font-bold">
-                            {{ $user->orders_count ?? 0 }}
-                        </td>
-                        <td class="py-3 text-[10px] text-slate-700 font-bold">
-                            &#8377;{{ number_format($user->orders_sum_grand_total ?? 0, 2) }}
+                        <td class="py-3">
+                            <div class="text-[11px] text-slate-800 font-black">₹{{ number_format($user->orders_sum_grand_total ?? 0, 2) }}</div>
+                            @if($user->last_login_at)
+                                <div class="text-[8px] text-slate-400 font-bold uppercase">Last Login: {{ $user->last_login_at->format('d/m/y') }}</div>
+                            @endif
                         </td>
                         <td class="py-3 text-right">
-                            <div class="flex justify-end space-x-1">
-                                <a href="{{ route('admin.users.show', $user->id) }}" class="p-1.5 text-indigo-400 hover:bg-indigo-50 rounded-md transition-all" title="View Profile">
-                                    <i class="fas fa-eye text-xs"></i>
+                            <div class="flex justify-end items-center space-x-2">
+                                <a href="{{ route('admin.users.show', $user->id) }}" class="flex items-center justify-center w-8 h-8 text-indigo-500 bg-indigo-50/50 hover:bg-indigo-500 hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-indigo-100" title="View Profile">
+                                    <i class="fas fa-eye text-[10px]"></i>
                                 </a>
-                                <a href="{{ route('admin.users.edit', $user->id) }}" class="p-1.5 text-amber-400 hover:bg-amber-50 rounded-md transition-all" title="Edit User">
-                                    <i class="fas fa-edit text-xs"></i>
+                                <a href="{{ route('admin.users.edit', $user->id) }}" class="flex items-center justify-center w-8 h-8 text-amber-500 bg-amber-50/50 hover:bg-amber-500 hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-amber-100" title="Edit User">
+                                    <i class="fas fa-edit text-[10px]"></i>
                                 </a>
                             </div>
                         </td>

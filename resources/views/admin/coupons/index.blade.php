@@ -74,69 +74,73 @@
         <table class="w-full text-left">
             <thead>
                 <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-100">
+                    <th class="pb-3 px-2 font-bold text-center">S.No</th>
                     <th class="pb-3 px-2">Code</th>
                     <th class="pb-3">Type</th>
                     <th class="pb-3">Discount</th>
                     <th class="pb-3">Min/Max</th>
                     <th class="pb-3">Usage</th>
                     <th class="pb-3">Validity</th>
-                    <th class="pb-3">Status</th>
+                    <th class="pb-3 text-center">Status</th>
                     <th class="pb-3 text-right">Actions</th>
                 </tr>
             </thead>
             <tbody class="text-sm">
                 @foreach($coupons as $coupon)
                 <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-all">
-                    <td class="py-3 px-2 font-bold text-slate-800">{{ $coupon->code }}</td>
-                    <td class="py-3 text-slate-500 text-xs uppercase">{{ $coupon->type }}</td>
-                    <td class="py-3 text-slate-700 text-xs">
+                    <td class="py-3 px-2 text-xs font-bold text-slate-500 text-center">
+                        {{ $coupons->firstItem() + $loop->index }}
+                    </td>
+                    <td class="py-3 px-2 font-black text-slate-800 uppercase tracking-wider text-xs">{{ $coupon->code }}</td>
+                    <td class="py-3 text-slate-500 text-[10px] font-black uppercase tracking-tighter">{{ $coupon->type }}</td>
+                    <td class="py-3 text-slate-700 font-black text-[11px]">
                         @if($coupon->type === 'percentage')
                             {{ rtrim(rtrim(number_format($coupon->discount_value, 2), '0'), '.') }}%
                         @else
                             &#8377;{{ number_format($coupon->discount_value, 2) }}
                         @endif
                     </td>
-                    <td class="py-3 text-slate-500 text-xs">
+                    <td class="py-3 text-slate-400 text-[9px] font-bold uppercase">
                         @if($coupon->min_order_amount)
-                            &#8377;{{ number_format($coupon->min_order_amount, 0) }}
+                            M.O: &#8377;{{ number_format($coupon->min_order_amount, 0) }}
                         @else
                             -
                         @endif
-                        /
+                        <br>
                         @if($coupon->max_discount)
-                            &#8377;{{ number_format($coupon->max_discount, 0) }}
+                            M.D: &#8377;{{ number_format($coupon->max_discount, 0) }}
                         @else
                             -
                         @endif
                     </td>
-                    <td class="py-3 text-slate-500 text-xs">
-                        {{ $coupon->times_used }} / {{ $coupon->usage_limit ?? '∞' }}
+                    <td class="py-3 text-slate-500 text-[10px] font-bold">
+                        <span class="text-indigo-600 font-black">{{ $coupon->times_used }}</span> / <span class="text-slate-400">{{ $coupon->usage_limit ?? '∞' }}</span>
                     </td>
-                    <td class="py-3 text-slate-500 text-xs">
+                    <td class="py-3 text-slate-400 text-[9px] font-bold uppercase tracking-tighter">
                         @if($coupon->valid_from)
                             {{ $coupon->valid_from->format('d M Y') }}
                         @else
-                            -
+                            Open
                         @endif
-                        <span class="text-slate-300">→</span>
+                        <span class="text-slate-200 mx-1">/</span>
                         @if($coupon->expires_at)
                             {{ $coupon->expires_at->format('d M Y') }}
                         @else
-                            -
+                            Forever
                         @endif
                     </td>
-                    <td class="py-3">
-                        <span class="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-tighter {{ $coupon->status ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }}">
+                    <td class="py-3 text-center">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest {{ $coupon->status ? 'bg-emerald-100 text-emerald-600 border border-emerald-200' : 'bg-rose-100 text-rose-600 border border-rose-200' }}">
                             {{ $coupon->status ? 'Active' : 'Inactive' }}
                         </span>
                     </td>
                     <td class="py-3 text-right">
-                        <div class="flex justify-end space-x-1">
-                            <a href="{{ route('admin.coupons.edit', $coupon->id) }}" class="p-1.5 text-indigo-400 hover:bg-indigo-50 rounded-md transition-all">
-                                <i class="fas fa-edit text-xs"></i>
+                        <div class="flex justify-end items-center space-x-2">
+                            <a href="{{ route('admin.coupons.edit', $coupon->id) }}" class="flex items-center justify-center w-8 h-8 text-indigo-500 bg-indigo-50/50 hover:bg-indigo-500 hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-indigo-100" title="Edit">
+                                <i class="fas fa-edit text-[10px]"></i>
                             </a>
-                            <button type="button" onclick="confirmDelete('{{ $coupon->id }}')" class="p-1.5 text-rose-400 hover:bg-rose-50 rounded-md transition-all">
-                                <i class="fas fa-trash text-xs"></i>
+                            <button type="button" onclick="confirmDelete('{{ $coupon->id }}')" class="flex items-center justify-center w-8 h-8 text-rose-500 bg-rose-50/50 hover:bg-rose-500 hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-rose-100" title="Delete">
+                                <i class="fas fa-trash-alt text-[10px]"></i>
                             </button>
                             <form id="delete-form-{{ $coupon->id }}" action="{{ route('admin.coupons.destroy', $coupon->id) }}" method="POST" class="hidden">
                                 @csrf
@@ -148,6 +152,9 @@
                 @endforeach
             </tbody>
         </table>
+    </div>
+    <div class="mt-6">
+        {{ $coupons->appends(request()->query())->links() }}
     </div>
 </div>
 @endsection

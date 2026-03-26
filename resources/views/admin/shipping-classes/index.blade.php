@@ -74,34 +74,38 @@
         <table class="w-full text-left">
             <thead>
                 <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-100">
-                    <th class="pb-3 px-2 font-bold">Name</th>
+                    <th class="pb-3 px-2 font-bold">S.No</th>
+                    <th class="pb-3 font-bold">Name</th>
                     <th class="pb-3">Slug</th>
                     <th class="pb-3">Description</th>
                     <th class="pb-3">Status</th>
-                    <th class="pb-3 text-right">Actions</th>
+                    <th class="pb-3 text-right text-right">Actions</th>
                 </tr>
             </thead>
             <tbody class="text-sm">
                 @foreach($shippingClasses as $class)
                 <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-all">
-                    <td class="py-3 px-2 font-bold text-slate-800">{{ $class->name }}</td>
-                    <td class="py-3 text-slate-500 text-xs">{{ $class->slug }}</td>
-                    <td class="py-3 text-slate-400 text-xs truncate max-w-[200px]">{{ $class->description ?? 'N/A' }}</td>
+                    <td class="py-3 px-2 text-xs font-bold text-slate-500">
+                        {{ $shippingClasses->firstItem() + $loop->index }}
+                    </td>
+                    <td class="py-3 font-bold text-slate-800 text-sm">{{ $class->name }}</td>
+                    <td class="py-3 text-slate-500 font-bold uppercase tracking-tighter text-[10px]">{{ $class->slug }}</td>
+                    <td class="py-3 text-slate-400 font-medium text-[11px] truncate max-w-[200px]">{{ $class->description ?? 'No Description' }}</td>
                     <td class="py-3">
-                        <span class="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-tighter {{ $class->status ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }}">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest {{ $class->status ? 'bg-emerald-100 text-emerald-600 border border-emerald-200' : 'bg-rose-100 text-rose-600 border border-rose-200' }}">
                             {{ $class->status ? 'Active' : 'Inactive' }}
                         </span>
                     </td>
                     <td class="py-3 text-right">
-                        <div class="flex justify-end space-x-1">
-                            <a href="{{ route('admin.shipping-classes.edit', $class->id) }}" class="p-1.5 text-indigo-400 hover:bg-indigo-50 rounded-md transition-all">
-                                <i class="fas fa-edit text-xs"></i>
+                        <div class="flex justify-end items-center space-x-2">
+                            <a href="{{ route('admin.shipping-classes.edit', $class->id) }}" class="flex items-center justify-center w-8 h-8 text-indigo-500 bg-indigo-50/50 hover:bg-indigo-500 hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-indigo-100" title="Edit">
+                                <i class="fas fa-edit text-[10px]"></i>
                             </a>
-                            <form action="{{ route('admin.shipping-classes.destroy', $class->id) }}" method="POST" onsubmit="return confirm('Are you sure?')">
+                            <form action="{{ route('admin.shipping-classes.destroy', $class->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this shipping class? This may affect products linked to it.')" class="inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="p-1.5 text-rose-400 hover:bg-rose-50 rounded-md transition-all">
-                                    <i class="fas fa-trash text-xs"></i>
+                                <button type="submit" class="flex items-center justify-center w-8 h-8 text-rose-500 bg-rose-50/50 hover:bg-rose-500 hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-rose-100" title="Delete">
+                                    <i class="fas fa-trash-alt text-[10px]"></i>
                                 </button>
                             </form>
                         </div>

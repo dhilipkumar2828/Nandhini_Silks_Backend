@@ -71,7 +71,8 @@
         <table class="w-full text-left">
             <thead>
                 <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-100">
-                    <th class="pb-3 px-2 font-bold">Group</th>
+                    <th class="pb-3 px-2 font-bold">S.No</th>
+                    <th class="pb-3 font-bold">Group</th>
                     <th class="pb-3 font-bold">Name</th>
                     <th class="pb-3 font-bold">Values</th>
                     <th class="pb-3 font-bold">Status</th>
@@ -81,28 +82,31 @@
             <tbody class="text-sm">
                 @foreach($attributes as $attribute)
                 <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-all">
-                    <td class="py-2.5 px-2 font-medium text-slate-600">{{ $attribute->group }}</td>
+                    <td class="py-2.5 px-2 text-xs font-bold text-slate-500">
+                        {{ $attributes->firstItem() + $loop->index }}
+                    </td>
+                    <td class="py-2.5 font-bold text-slate-600 uppercase tracking-tighter text-[11px]">{{ $attribute->group }}</td>
                     <td class="py-2.5">
                         <div class="font-bold text-slate-800 text-sm">{{ $attribute->name }}</div>
-                        <div class="text-[10px] text-slate-400 tracking-tight">{{ $attribute->slug }}</div>
+                        <div class="text-[10px] text-slate-400 tracking-tight font-semibold uppercase">Slug: {{ $attribute->slug }}</div>
                     </td>
                     <td class="py-2.5">
-                        <a href="{{ route('admin.attribute-values.index', ['attribute_id' => $attribute->id]) }}" class="inline-flex items-center px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-600 text-[10px] font-bold hover:bg-indigo-100 transition-all">
+                        <a href="{{ route('admin.attribute-values.index', ['attribute_id' => $attribute->id]) }}" class="inline-flex items-center px-2 py-1 rounded-md bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-tighter border border-indigo-100 hover:bg-indigo-500 hover:text-white transition-all">
                             Manage Values ({{ $attribute->values_count }})
                         </a>
                     </td>
                     <td class="py-2.5">
-                        <span class="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-tighter {{ $attribute->status ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }}">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest {{ $attribute->status ? 'bg-emerald-100 text-emerald-600 border border-emerald-200' : 'bg-rose-100 text-rose-600 border border-rose-200' }}">
                             {{ $attribute->status ? 'Active' : 'Inactive' }}
                         </span>
                     </td>
                     <td class="py-2.5 text-right">
-                        <div class="flex justify-end space-x-1">
-                            <a href="{{ route('admin.attributes.edit', $attribute->id) }}" class="p-1.5 text-indigo-400 hover:bg-indigo-50 rounded-md transition-all">
-                                <i class="fas fa-edit text-xs"></i>
+                        <div class="flex justify-end items-center space-x-2">
+                            <a href="{{ route('admin.attributes.edit', $attribute->id) }}" class="flex items-center justify-center w-8 h-8 text-indigo-500 bg-indigo-50/50 hover:bg-indigo-500 hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-indigo-100" title="Edit">
+                                <i class="fas fa-edit text-[10px]"></i>
                             </a>
-                            <button type="button" onclick="confirmDelete('{{ $attribute->id }}')" class="p-1.5 text-rose-400 hover:bg-rose-50 rounded-md transition-all">
-                                <i class="fas fa-trash text-xs"></i>
+                            <button type="button" onclick="confirmDelete('{{ $attribute->id }}')" class="flex items-center justify-center w-8 h-8 text-rose-500 bg-rose-50/50 hover:bg-rose-500 hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-rose-100" title="Delete">
+                                <i class="fas fa-trash-alt text-[10px]"></i>
                             </button>
                             <form id="delete-form-{{ $attribute->id }}" action="{{ route('admin.attributes.destroy', $attribute->id) }}" method="POST" class="hidden">
                                 @csrf

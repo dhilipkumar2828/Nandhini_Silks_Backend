@@ -74,7 +74,8 @@
         <table class="w-full text-left">
             <thead>
                 <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-100">
-                    <th class="pb-3 px-2 font-bold">Name</th>
+                    <th class="pb-3 px-2 font-bold">S.No</th>
+                    <th class="pb-3 font-bold">Name</th>
                     <th class="pb-3">Shipping Class</th>
                     <th class="pb-3">Location</th>
                     <th class="pb-3">Cost</th>
@@ -85,31 +86,34 @@
             <tbody class="text-sm">
                 @foreach($shippingRates as $rate)
                 <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-all">
-                    <td class="py-3 px-2 font-bold text-slate-800">{{ $rate->name }}</td>
+                    <td class="py-3 px-2 text-xs font-bold text-slate-500">
+                        {{ $shippingRates->firstItem() + $loop->index }}
+                    </td>
+                    <td class="py-3 font-bold text-slate-800 text-sm">{{ $rate->name }}</td>
                     <td class="py-3">
-                        <span class="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase">
-                            {{ $rate->shippingClass->name ?? 'N/A' }}
+                        <span class="bg-indigo-50 text-indigo-600 px-2 py-1 rounded text-[10px] font-black uppercase tracking-tighter border border-indigo-100">
+                            {{ $rate->shippingClass->name ?? 'Default' }}
                         </span>
                     </td>
-                    <td class="py-3 text-slate-500 text-xs">
-                        {{ $rate->country ?? 'Global' }} {{ $rate->state ? '/ '.$rate->state : '' }}
+                    <td class="py-3 text-slate-500 text-[11px] font-bold uppercase tracking-tight">
+                        {{ $rate->country ?? 'Global' }} @if($rate->state)<span class="text-slate-300 mx-1">/</span>{{ $rate->state }}@endif
                     </td>
-                    <td class="py-3 font-bold text-slate-800">₹{{ number_format($rate->cost, 2) }}</td>
+                    <td class="py-3 font-black text-slate-800">₹{{ number_format($rate->cost, 2) }}</td>
                     <td class="py-3">
-                        <span class="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-tighter {{ $rate->status ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }}">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest {{ $rate->status ? 'bg-emerald-100 text-emerald-600 border border-emerald-200' : 'bg-rose-100 text-rose-600 border border-rose-200' }}">
                             {{ $rate->status ? 'Active' : 'Inactive' }}
                         </span>
                     </td>
                     <td class="py-3 text-right">
-                        <div class="flex justify-end space-x-1">
-                            <a href="{{ route('admin.shipping-rates.edit', $rate->id) }}" class="p-1.5 text-indigo-400 hover:bg-indigo-50 rounded-md transition-all">
-                                <i class="fas fa-edit text-xs"></i>
+                        <div class="flex justify-end items-center space-x-2">
+                            <a href="{{ route('admin.shipping-rates.edit', $rate->id) }}" class="flex items-center justify-center w-8 h-8 text-indigo-500 bg-indigo-50/50 hover:bg-indigo-500 hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-indigo-100" title="Edit">
+                                <i class="fas fa-edit text-[10px]"></i>
                             </a>
-                            <form action="{{ route('admin.shipping-rates.destroy', $rate->id) }}" method="POST" onsubmit="return confirm('Are you sure?')">
+                            <form action="{{ route('admin.shipping-rates.destroy', $rate->id) }}" method="POST" onsubmit="return confirm('Delete this shipping rate?')" class="inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="p-1.5 text-rose-400 hover:bg-rose-50 rounded-md transition-all">
-                                    <i class="fas fa-trash text-xs"></i>
+                                <button type="submit" class="flex items-center justify-center w-8 h-8 text-rose-500 bg-rose-50/50 hover:bg-rose-500 hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-rose-100" title="Delete">
+                                    <i class="fas fa-trash-alt text-[10px]"></i>
                                 </button>
                             </form>
                         </div>

@@ -195,6 +195,90 @@
             </div>
             
 
+            {{-- 4. Variant Management Matrix --}}
+            <div id="variantConfigurationSection" class="{{ $isVar ? '' : 'hidden' }} space-y-6">
+                <div class="card-glass p-8 rounded-[2.5rem] border-2 border-[#a91b43]/10 shadow-2xl relative overflow-hidden bg-white">
+                    <div class="absolute top-0 right-0 w-96 h-96 bg-[#a91b43]/5 rounded-full -mr-48 -mt-48 blur-3xl"></div>
+                    <div class="flex items-center justify-between mb-8 relative z-10">
+                        <div class="flex items-center gap-5">
+                            <div class="w-14 h-14 bg-rose-50 rounded-2xl flex items-center justify-center text-[#a91b43] shadow-md border border-rose-100">
+                                <i class="fas fa-layer-group text-2xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-black text-slate-800 tracking-tighter">Variant Management Matrix</h3>
+                                <p class="text-xs text-slate-400 mt-0.5 font-medium italic">Synchronized hub for variations.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-10 relative z-10">
+                        {{-- 1. Configuration Suite (Full Width Top) --}}
+                        <div class="w-full">
+                             <div class="p-8 bg-slate-50/80 rounded-[2rem] border-2 border-slate-100/50">
+                                <div class="flex items-center gap-4 mb-6">
+                                    <div class="w-10 h-10 bg-[#a91b43] text-white rounded-xl flex items-center justify-center shadow-lg">
+                                        <i class="fas fa-sliders-h"></i>
+                                    </div>
+                                    <h4 class="text-sm font-black text-slate-800 uppercase tracking-widest">Configuration Suite</h4>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                                    <div class="md:col-span-1">
+                                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2">Select Attribute</label>
+                                        <select id="attributePicker" class="select2-searchable">
+                                            <option value="">+ Add Variant Attribute</option>
+                                            @foreach($attributes as $attribute)
+                                                @php $hasValues = !empty($product->attributes[$attribute->id]); @endphp
+                                                <option value="attr_row_{{ $attribute->id }}" data-attr-name="{{ $attribute->name }}" {{ $hasValues ? 'disabled' : '' }}>
+                                                    {{ $attribute->group ? $attribute->group . ' — ' : '' }}{{ $attribute->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div id="activeAttributeRows" class="md:col-span-3 flex flex-wrap gap-4">
+                                        @foreach($attributes as $attribute)
+                                            @php $hasValues = !empty($product->attributes[$attribute->id]); @endphp
+                                            <div id="attr_row_{{ $attribute->id }}" class="hidden-attr-row {{ $hasValues ? '' : 'hidden' }} p-5 bg-white rounded-3xl border-2 border-slate-100 relative shadow-sm min-w-[250px]">
+                                                <button type="button" class="remove-attr-row absolute -top-3 -right-3 bg-white text-rose-500 w-8 h-8 rounded-full flex items-center justify-center border-2 border-slate-50 shadow-md hover:bg-rose-50 transition-all">
+                                                    <i class="fas fa-times text-xs"></i>
+                                                </button>
+                                                <label class="block text-[10px] font-black text-slate-800 uppercase tracking-widest mb-3 tracking-tight">
+                                                    {{ $attribute->name }}
+                                                </label>
+                                                <select name="attributes[{{ $attribute->id }}][]" multiple class="select2-searchable attr-dropdown-matrix" data-attr-id="{{ $attribute->id }}" data-attr-name="{{ $attribute->name }}">
+                                                    @foreach($attribute->values as $value)
+                                                        @php $isChecked = in_array($value->id, (array)($product->attributes[$attribute->id] ?? [])); @endphp
+                                                        <option value="{{ $value->id }}" data-value-name="{{ $value->name }}" {{ $isChecked ? 'selected' : '' }}>{{ $value->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                             </div>
+                        </div>
+
+                        {{-- 2. Matrix Table (Full Width Bottom) --}}
+                        <div class="w-full">
+                            <div id="variantMatrixWrapper" class="{{ ($product->product_variants && $product->product_variants->count()) ? '' : 'hidden' }}">
+                                <div class="overflow-x-auto rounded-[2rem] border-2 border-slate-100 shadow-2xl bg-white">
+                                    <table class="w-full text-left text-[11px] border-collapse min-w-[1000px]">
+                                        <thead><tr class="bg-slate-50/50 text-slate-500 uppercase font-black border-b border-slate-100"></tr></thead>
+                                        <tbody id="variantMatrixBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div id="matrixPlaceholder" class="{{ ($product->product_variants && $product->product_variants->count()) ? 'hidden' : '' }} flex flex-col items-center justify-center p-20 border-4 border-dashed border-slate-50 rounded-[3rem] text-slate-300">
+                                <i class="fas fa-table-list text-5xl mb-4 text-rose-100"></i>
+                                <h4 class="text-base font-black text-slate-700">Waiting for configuration...</h4>
+                                <p class="text-[10px] mt-2">Select attributes above to build your variant matrix.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
             {{-- 3. Product Settings & Categorization --}}
             <div id="settingsSection" class="card-glass p-6 rounded-2xl shadow-sm bg-white">
                 <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center">
@@ -288,91 +372,6 @@
                     </div>
                 </div>
             </div>
-
-            {{-- 4. Variant Management Matrix --}}
-            <div id="variantConfigurationSection" class="{{ $isVar ? '' : 'hidden' }} space-y-6">
-                <div class="card-glass p-8 rounded-[2.5rem] border-2 border-[#a91b43]/10 shadow-2xl relative overflow-hidden bg-white">
-                    <div class="absolute top-0 right-0 w-96 h-96 bg-[#a91b43]/5 rounded-full -mr-48 -mt-48 blur-3xl"></div>
-                    <div class="flex items-center justify-between mb-8 relative z-10">
-                        <div class="flex items-center gap-5">
-                            <div class="w-14 h-14 bg-rose-50 rounded-2xl flex items-center justify-center text-[#a91b43] shadow-md border border-rose-100">
-                                <i class="fas fa-layer-group text-2xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-2xl font-black text-slate-800 tracking-tighter">Variant Management Matrix</h3>
-                                <p class="text-xs text-slate-400 mt-0.5 font-medium italic">Synchronized hub for variations.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="space-y-10 relative z-10">
-                        {{-- 1. Configuration Suite (Full Width Top) --}}
-                        <div class="w-full">
-                             <div class="p-8 bg-slate-50/80 rounded-[2rem] border-2 border-slate-100/50">
-                                <div class="flex items-center gap-4 mb-6">
-                                    <div class="w-10 h-10 bg-[#a91b43] text-white rounded-xl flex items-center justify-center shadow-lg">
-                                        <i class="fas fa-sliders-h"></i>
-                                    </div>
-                                    <h4 class="text-sm font-black text-slate-800 uppercase tracking-widest">Configuration Suite</h4>
-                                </div>
-                                
-                                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                                    <div class="md:col-span-1">
-                                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2">Select Attribute</label>
-                                        <select id="attributePicker" class="select2-searchable">
-                                            <option value="">+ Add Variant Attribute</option>
-                                            @foreach($attributes as $attribute)
-                                                @php $hasValues = !empty($product->attributes[$attribute->id]); @endphp
-                                                <option value="attr_row_{{ $attribute->id }}" data-attr-name="{{ $attribute->name }}" {{ $hasValues ? 'disabled' : '' }}>
-                                                    {{ $attribute->group ? $attribute->group . ' — ' : '' }}{{ $attribute->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div id="activeAttributeRows" class="md:col-span-3 flex flex-wrap gap-4">
-                                        @foreach($attributes as $attribute)
-                                            @php $hasValues = !empty($product->attributes[$attribute->id]); @endphp
-                                            <div id="attr_row_{{ $attribute->id }}" class="hidden-attr-row {{ $hasValues ? '' : 'hidden' }} p-5 bg-white rounded-3xl border-2 border-slate-100 relative shadow-sm min-w-[250px]">
-                                                <button type="button" class="remove-attr-row absolute -top-3 -right-3 bg-white text-rose-500 w-8 h-8 rounded-full flex items-center justify-center border-2 border-slate-50 shadow-md hover:bg-rose-50 transition-all">
-                                                    <i class="fas fa-times text-xs"></i>
-                                                </button>
-                                                <label class="block text-[10px] font-black text-slate-800 uppercase tracking-widest mb-3 tracking-tight">
-                                                    {{ $attribute->name }}
-                                                </label>
-                                                <select name="attributes[{{ $attribute->id }}][]" multiple class="select2-searchable attr-dropdown-matrix" data-attr-id="{{ $attribute->id }}" data-attr-name="{{ $attribute->name }}">
-                                                    @foreach($attribute->values as $value)
-                                                        @php $isChecked = in_array($value->id, (array)($product->attributes[$attribute->id] ?? [])); @endphp
-                                                        <option value="{{ $value->id }}" data-value-name="{{ $value->name }}" {{ $isChecked ? 'selected' : '' }}>{{ $value->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                             </div>
-                        </div>
-
-                        {{-- 2. Matrix Table (Full Width Bottom) --}}
-                        <div class="w-full">
-                            <div id="variantMatrixWrapper" class="{{ ($product->product_variants && $product->product_variants->count()) ? '' : 'hidden' }}">
-                                <div class="overflow-x-auto rounded-[2rem] border-2 border-slate-100 shadow-2xl bg-white">
-                                    <table class="w-full text-left text-[11px] border-collapse min-w-[1000px]">
-                                        <thead><tr class="bg-slate-50/50 text-slate-500 uppercase font-black border-b border-slate-100"></tr></thead>
-                                        <tbody id="variantMatrixBody"></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div id="matrixPlaceholder" class="{{ ($product->product_variants && $product->product_variants->count()) ? 'hidden' : '' }} flex flex-col items-center justify-center p-20 border-4 border-dashed border-slate-50 rounded-[3rem] text-slate-300">
-                                <i class="fas fa-table-list text-5xl mb-4 text-rose-100"></i>
-                                <h4 class="text-base font-black text-slate-700">Waiting for configuration...</h4>
-                                <p class="text-[10px] mt-2">Select attributes above to build your variant matrix.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            
 
             {{-- 5. SEO Details --}}
             <div id="seoSection" class="card-glass p-6 rounded-2xl shadow-sm bg-white">

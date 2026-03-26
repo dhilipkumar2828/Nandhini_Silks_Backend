@@ -52,6 +52,7 @@
             <table class="w-full text-left">
                 <thead class="bg-slate-50/50 border-b border-slate-100">
                     <tr>
+                        <th class="px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-wider">S.No</th>
                         <th class="px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-wider">Product</th>
                         <th class="px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-wider">Customer</th>
                         <th class="px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-wider text-center">Rating</th>
@@ -64,6 +65,9 @@
                 <tbody class="divide-y divide-slate-50">
                     @forelse($reviews as $review)
                     <tr class="hover:bg-slate-50/50 transition-colors">
+                        <td class="px-6 py-4 text-xs font-bold text-slate-500">
+                            {{ $reviews->firstItem() + $loop->index }}
+                        </td>
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-lg overflow-hidden bg-slate-50 border border-slate-100 flex-shrink-0">

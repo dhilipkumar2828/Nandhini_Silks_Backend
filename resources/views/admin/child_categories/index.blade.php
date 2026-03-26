@@ -71,6 +71,7 @@
         <table class="w-full text-left">
             <thead>
                 <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-100">
+                    <th class="pb-3 px-2 font-bold">S.No</th>
                     <th class="pb-3 px-2 font-bold">Image</th>
                     <th class="pb-3 font-bold">Details</th>
                     <th class="pb-3 font-bold">Category Hierarchy</th>
@@ -82,42 +83,45 @@
             <tbody class="text-sm">
                 @foreach($childCategories as $childCategory)
                 <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-all">
+                    <td class="py-2.5 px-2 text-xs font-bold text-slate-500">
+                        {{ $childCategories->firstItem() + $loop->index }}
+                    </td>
                     <td class="py-2.5 px-2">
                         @if($childCategory->image)
                             <img src="{{ asset('uploads/' . $childCategory->image) }}" class="w-10 h-10 rounded-lg object-cover shadow-sm">
                         @else
-                            <div class="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center text-slate-300">
-                                <i class="fas fa-image text-xs"></i>
+                            <div class="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center text-slate-300 border border-slate-100">
+                                <i class="fas fa-image text-[10px]"></i>
                             </div>
                         @endif
                     </td>
                     <td class="py-2.5">
                         <div class="font-bold text-slate-800 text-sm">{{ $childCategory->name }}</div>
-                        <div class="text-[10px] text-slate-400 tracking-tight">{{ $childCategory->slug }}</div>
+                        <div class="text-[10px] text-slate-400 tracking-tight font-semibold uppercase tracking-widest">Slug: {{ $childCategory->slug }}</div>
                     </td>
                     <td class="py-2.5">
                         <div class="flex flex-col space-y-1">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">
                                 {{ $childCategory->category->name }}
                             </span>
-                            <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md w-fit">
+                            <span class="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded uppercase tracking-tighter border border-indigo-100 w-fit">
                                 <i class="fas fa-chevron-right mr-1 text-[8px]"></i> {{ $childCategory->subCategory->name }}
                             </span>
                         </div>
                     </td>
-                    <td class="py-2.5 text-xs text-slate-500 font-bold">{{ $childCategory->display_order }}</td>
+                    <td class="py-2.5 text-[11px] text-slate-500 font-black">{{ $childCategory->display_order }}</td>
                     <td class="py-2.5">
-                        <span class="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-tighter {{ $childCategory->status ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }}">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest {{ $childCategory->status ? 'bg-emerald-100 text-emerald-600 border border-emerald-200' : 'bg-rose-100 text-rose-600 border border-rose-200' }}">
                             {{ $childCategory->status ? 'Active' : 'Inactive' }}
                         </span>
                     </td>
                     <td class="py-2.5 text-right">
-                        <div class="flex justify-end space-x-1">
-                            <a href="{{ route('admin.child-categories.edit', $childCategory->id) }}" class="p-1.5 text-indigo-400 hover:bg-indigo-50 rounded-md transition-all">
-                                <i class="fas fa-edit text-xs"></i>
+                        <div class="flex justify-end items-center space-x-2">
+                            <a href="{{ route('admin.child-categories.edit', $childCategory->id) }}" class="flex items-center justify-center w-8 h-8 text-indigo-500 bg-indigo-50/50 hover:bg-indigo-500 hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-indigo-100" title="Edit">
+                                <i class="fas fa-edit text-[10px]"></i>
                             </a>
-                            <button type="button" onclick="confirmDelete('{{ $childCategory->id }}')" class="p-1.5 text-rose-400 hover:bg-rose-50 rounded-md transition-all">
-                                <i class="fas fa-trash text-xs"></i>
+                            <button type="button" onclick="confirmDelete('{{ $childCategory->id }}')" class="flex items-center justify-center w-8 h-8 text-rose-500 bg-rose-50/50 hover:bg-rose-500 hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-rose-100" title="Delete">
+                                <i class="fas fa-trash-alt text-[10px]"></i>
                             </button>
                             <form id="delete-form-{{ $childCategory->id }}" action="{{ route('admin.child-categories.destroy', $childCategory->id) }}" method="POST" class="hidden">
                                 @csrf
@@ -129,6 +133,9 @@
                 @endforeach
             </tbody>
         </table>
+    </div>
+    <div class="mt-6">
+        {{ $childCategories->appends(request()->query())->links() }}
     </div>
 </div>
 @endsection

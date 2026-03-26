@@ -75,63 +75,64 @@
         <table class="w-full text-left">
             <thead>
                 <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-100">
-                    <th class="pb-3 px-2 font-bold">Order ID</th>
+                    <th class="pb-3 px-2 font-bold">S.No</th>
+                    <th class="pb-3 font-bold">Order ID</th>
                     <th class="pb-3 font-bold">Customer</th>
                     <th class="pb-3 font-bold">Total</th>
                     <th class="pb-3 font-bold">Payment</th>
                     <th class="pb-3 font-bold">Status</th>
-                    <th class="pb-3 font-bold">Date</th>
                     <th class="pb-3 font-bold text-right">Actions</th>
                 </tr>
             </thead>
             <tbody class="text-sm">
                 @forelse($orders as $order)
                 <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-all">
-                    <td class="py-3 px-2">
-                        <span class="font-bold text-[#a91b43]">#{{ $order->id }}</span>
+                    <td class="py-3 px-2 text-xs font-bold text-slate-500">
+                        {{ $orders->firstItem() + $loop->index }}
+                    </td>
+                    <td class="py-3">
+                        <span class="font-black text-[#a91b43] text-xs">#{{ $order->id }}</span>
+                        <div class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">{{ $order->created_at->format('d M Y, h:i A') }}</div>
                     </td>
                     <td class="py-3">
                         <div class="font-bold text-slate-800">{{ $order->customer_name }}</div>
-                        <div class="text-[10px] text-slate-400">{{ $order->customer_email }}</div>
-                        <div class="text-[10px] text-slate-400">{{ $order->customer_phone }}</div>
+                        <div class="text-[10px] text-slate-400 font-medium">{{ $order->customer_email }}</div>
+                        <div class="text-[10px] text-slate-400 font-medium">{{ $order->customer_phone }}</div>
                     </td>
                     <td class="py-3">
-                        <div class="font-bold text-slate-800">₹{{ number_format($order->grand_total, 2) }}</div>
-                        <div class="text-[10px] text-slate-400">{{ $order->payment_method }}</div>
+                        <div class="font-black text-slate-800">₹{{ number_format($order->grand_total, 2) }}</div>
+                        <div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">{{ $order->payment_method }}</div>
                     </td>
                     <td class="py-3">
-                        <span class="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-tighter 
-                            @if($order->payment_status == 'paid') bg-emerald-50 text-emerald-600 
-                            @elseif($order->payment_status == 'failed') bg-rose-50 text-rose-600
-                            @else bg-amber-50 text-amber-600 @endif">
+                        <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest border 
+                            @if($order->payment_status == 'paid') bg-emerald-50 text-emerald-600 border-emerald-100
+                            @elseif($order->payment_status == 'failed') bg-rose-50 text-rose-600 border-rose-100
+                            @else bg-amber-50 text-amber-600 border-amber-100 @endif">
                             {{ $order->payment_status }}
                         </span>
                     </td>
                     <td class="py-3">
-                        <span class="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-tighter 
-                            @if($order->order_status == 'delivered') bg-emerald-50 text-emerald-600 
-                            @elseif($order->order_status == 'cancelled') bg-rose-50 text-rose-600
-                            @elseif($order->order_status == 'dispatched') bg-blue-50 text-blue-600
-                            @else bg-amber-50 text-amber-600 @endif">
+                        <span class="px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border
+                            @if($order->order_status == 'delivered') bg-emerald-100 text-emerald-600 border-emerald-200
+                            @elseif($order->order_status == 'cancelled') bg-rose-100 text-rose-600 border-rose-200
+                            @elseif($order->order_status == 'dispatched') bg-blue-100 text-blue-600 border-blue-200
+                            @else bg-amber-100 text-amber-600 border-amber-200 @endif">
                             {{ $order->order_status }}
                         </span>
                     </td>
-                    <td class="py-3 text-[10px] text-slate-500 font-bold">
-                        {{ $order->created_at->format('d M Y, h:i A') }}
-                    </td>
                     <td class="py-3 text-right">
-                        <div class="flex justify-end space-x-1">
-                            <a href="{{ route('admin.orders.show', $order->id) }}" class="p-1.5 text-indigo-400 hover:bg-indigo-50 rounded-md transition-all" title="View Details">
-                                <i class="fas fa-eye text-xs"></i>
+                        <div class="flex justify-end items-center space-x-2">
+                            <a href="{{ route('admin.orders.show', $order->id) }}" class="flex items-center justify-center w-8 h-8 text-indigo-500 bg-indigo-50/50 hover:bg-indigo-500 hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-indigo-100" title="View Details">
+                                <i class="fas fa-eye text-[10px]"></i>
                             </a>
-                            <a href="{{ route('admin.orders.edit', $order->id) }}" class="p-1.5 text-amber-400 hover:bg-amber-50 rounded-md transition-all" title="Update Status">
-                                <i class="fas fa-edit text-xs"></i>
+                            <a href="{{ route('admin.orders.edit', $order->id) }}" class="flex items-center justify-center w-8 h-8 text-amber-500 bg-amber-50/50 hover:bg-amber-500 hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-amber-100" title="Update Status">
+                                <i class="fas fa-edit text-[10px]"></i>
                             </a>
-                            <a href="{{ route('admin.orders.invoice', $order->id) }}" class="p-1.5 text-emerald-400 hover:bg-emerald-50 rounded-md transition-all" title="Download Invoice">
-                                <i class="fas fa-file-invoice text-xs"></i>
+                            <a href="{{ route('admin.orders.invoice', $order->id) }}" class="flex items-center justify-center w-8 h-8 text-emerald-500 bg-emerald-50/50 hover:bg-emerald-500 hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-emerald-100" title="Invoice">
+                                <i class="fas fa-file-invoice text-[10px]"></i>
                             </a>
-                            <button type="button" onclick="confirmDelete('{{ $order->id }}')" class="p-1.5 text-rose-400 hover:bg-rose-50 rounded-md transition-all">
-                                <i class="fas fa-trash text-xs"></i>
+                            <button type="button" onclick="confirmDelete('{{ $order->id }}')" class="flex items-center justify-center w-8 h-8 text-rose-500 bg-rose-50/50 hover:bg-rose-500 hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-rose-100" title="Delete">
+                                <i class="fas fa-trash-alt text-[10px]"></i>
                             </button>
                             <form id="delete-form-{{ $order->id }}" action="{{ route('admin.orders.destroy', $order->id) }}" method="POST" class="hidden">
                                 @csrf

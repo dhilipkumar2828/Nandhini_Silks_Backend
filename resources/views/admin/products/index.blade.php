@@ -125,12 +125,12 @@
                         </span>
                     </td>
                     <td class="py-2.5 text-right">
-                        <div class="flex justify-end space-x-1">
-                            <a href="{{ route('admin.products.edit', $product->id) }}" class="p-1.5 text-indigo-400 hover:bg-indigo-50 rounded-md transition-all">
-                                <i class="fas fa-edit text-xs"></i>
+                        <div class="flex justify-end items-center space-x-2">
+                            <a href="{{ route('admin.products.edit', $product->id) }}" class="flex items-center justify-center w-8 h-8 text-indigo-500 bg-indigo-50/50 hover:bg-indigo-500 hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-indigo-100" title="Edit Product">
+                                <i class="fas fa-edit text-[10px]"></i>
                             </a>
-                            <button type="button" onclick="confirmDelete('{{ $product->id }}')" class="p-1.5 text-rose-400 hover:bg-rose-50 rounded-md transition-all">
-                                <i class="fas fa-trash text-xs"></i>
+                            <button type="button" onclick="confirmDelete('{{ $product->id }}')" class="flex items-center justify-center w-8 h-8 text-rose-500 bg-rose-50/50 hover:bg-rose-500 hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-rose-100" title="Delete Product">
+                                <i class="fas fa-trash-alt text-[10px]"></i>
                             </button>
                             <form id="delete-form-{{ $product->id }}" action="{{ route('admin.products.destroy', $product->id) }}" method="POST" class="hidden">
                                 @csrf

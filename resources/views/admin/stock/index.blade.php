@@ -85,6 +85,7 @@
                 <table class="w-full text-left border-separate border-spacing-0">
                     <thead>
                         <tr class="bg-slate-50/50 text-slate-400 text-[10px] font-black uppercase tracking-[0.15em] border-b border-slate-100">
+                            <th class="py-4 px-6 w-16">S.No</th>
                             <th class="py-4 px-6 w-[35%]">Product / Variants</th>
                             <th class="py-4 px-4 text-center w-32">Current Qty</th>
                             <th class="py-4 px-4 text-center w-32">Threshold</th>
@@ -97,6 +98,10 @@
                         @foreach($products as $product)
                         @php $hasVariants = $product->product_variants->count() > 0; @endphp
                         <tr class="group hover:bg-slate-50/30 transition-all border-b border-slate-50">
+                            <!-- S.No -->
+                            <td class="py-5 px-6 text-xs font-bold text-slate-500">
+                                {{ $products->firstItem() + $loop->index }}
+                            </td>
                             <!-- Product Name & Variant Trigger -->
                             <td class="py-5 px-6">
                                 <div class="flex items-center gap-4">
