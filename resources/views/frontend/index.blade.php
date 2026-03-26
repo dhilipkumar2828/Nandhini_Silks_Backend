@@ -1151,7 +1151,7 @@
     @endif
 
      @foreach($offerCollections as $collection)
-        <section class="featured-section offers-section" aria-labelledby="offers-title">
+        <section class="featured-section offers-section" aria-labelledby="offers-title" style="margin-top: 3rem;">
             <div class="featured-inner">
                 <h2 id="offers-title" class="featured-title">Offers</h2>
                 <p class="featured-subtitle">Curated picks from our active offer collections, chosen for extra value</p>
@@ -1212,7 +1212,7 @@
     @endforeach
 
     @if($categories->count() > 0)
-        <section class="category-section" aria-labelledby="browse-categories-title">
+        <section class="category-section" aria-labelledby="browse-categories-title" style="margin-top: 5rem;">
             <h2 id="browse-categories-title" class="category-title">Browse Our Categories</h2>
             <div class="category-swiper-wrap">
                 <div class="swiper category-swiper">
