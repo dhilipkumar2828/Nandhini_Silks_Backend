@@ -122,17 +122,29 @@ class OrderController extends Controller
 
     public function downloadInvoice(Order $order)
     {
-        $order->load('items.product');
-        $filename = 'invoice-' . ($order->order_number ?? $order->id) . '.pdf';
+        try {
+            ini_set('memory_limit', '512M');
+            
+            $order->load(['items.product']);
+            
+            $filename = 'invoice-' . ($order->order_number ?: $order->id) . '.pdf';
 
-        $pdf = Pdf::loadView('admin.orders.invoice', compact('order'))
-            ->setPaper('a4', 'portrait')
-            ->setOptions([
-                'defaultFont'    => 'DejaVu Sans',
-                'isHtml5ParserEnabled' => true,
-                'isRemoteEnabled' => true,
-            ]);
+            // Use simple view rendering to ensure no errors in the view itself
+            $html = view('admin.orders.invoice', compact('order'))->render();
+            
+            $pdf = Pdf::loadHTML($html)
+                ->setPaper('a4', 'portrait')
+                ->setOptions([
+                    'defaultFont' => 'sans-serif',
+                    'isHtml5ParserEnabled' => true,
+                    'isRemoteEnabled' => true,
+                    'chroot' => public_path(),
+                ]);
 
-        return $pdf->download($filename);
+            return $pdf->download($filename);
+        } catch (\Exception $e) {
+            \Log::error('Invoice Generation Error: ' . $e->getMessage());
+            return back()->with('error', 'Could not generate invoice. ' . $e->getMessage());
+        }
     }
 }
