@@ -67,7 +67,7 @@
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-lg overflow-hidden bg-slate-50 border border-slate-100 flex-shrink-0">
-                                    <img src="{{ $review->product->image_path ? asset('images/' . $review->product->image_path) : asset('images/pro.png') }}" class="w-full h-full object-cover">
+                                    <img src="{{ $review->product->primary_image ? asset('uploads/' . $review->product->primary_image) : asset('images/pro.png') }}" class="w-full h-full object-cover">
                                 </div>
                                 <div class="max-w-[200px]">
                                     <p class="text-xs font-black text-slate-800 truncate" title="{{ $review->product->name }}">{{ $review->product->name }}</p>

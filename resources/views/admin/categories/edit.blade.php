@@ -29,14 +29,15 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <label class="block text-xs font-bold text-slate-700">Category Image</label>
+                    <label class="block text-xs font-bold text-slate-700">Category Image <span class="text-rose-500">*</span></label>
                     @if($category->image)
                         <div class="mb-1.5">
                             <img src="{{ asset('uploads/' . $category->image) }}" class="w-16 h-16 rounded-lg object-cover border border-slate-100">
                         </div>
                     @endif
-                    <input type="file" name="image" 
+                    <input type="file" name="image" {{ $category->image ? '' : 'required' }}
                         class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
+                    @error('image') <p class="text-rose-500 text-[10px] mt-1 font-bold">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="space-y-1.5">
