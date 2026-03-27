@@ -29,7 +29,19 @@
             <img src="{{ $displayImage }}" alt="{{ $product->name }}">
         </div>
         <div class="product-info-v2">
-            <div class="product-rating-v2" style="color: #f1c40f; font-size: 14px; margin-bottom: 5px;">★★★★★</div>
+            @if($product->reviews_count > 0)
+            <div class="product-rating-v2" style="color: #f1c40f; font-size: 14px; margin-bottom: 5px;">
+                @php $rating = round($product->average_rating); @endphp
+                @for ($i = 1; $i <= 5; $i++)
+                    @if ($i <= $rating)
+                        <i class="fa-solid fa-star"></i>
+                    @else
+                        <i class="fa-regular fa-star"></i>
+                    @endif
+                @endfor
+                <span style="color: #666; font-size: 11px; margin-left: 4px;">({{ $product->reviews_count }})</span>
+            </div>
+            @endif
             <span class="product-category-v2" style="font-size: 10px; text-transform: uppercase; color: #888; letter-spacing: 1px; font-weight: 700;">{{ $product->category->name ?? 'Collection' }}</span>
             <h3 class="product-name-v2" style="font-size: 15px; font-weight: 700; color: #1a1a1a; margin: 3px 0 8px;">{{ $product->name }}</h3>
             <p class="product-desc-v2" style="font-size: 12px; color: #666; height: 35px; overflow: hidden; margin-bottom: 12px;">{{ Str::limit(strip_tags($product->description), 50) }}</p>

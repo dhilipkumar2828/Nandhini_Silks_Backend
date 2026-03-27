@@ -427,6 +427,16 @@
                 <span class="font-bold ml-2 text-[15px]">Testimonials</span>
             </a>
 
+            <a href="{{ route('admin.inquiries.index') }}"
+                class="nav-link {{ request()->routeIs('admin.inquiries.*') ? 'active' : '' }} flex items-center px-4 py-3 rounded-xl">
+                <div class="w-6 flex justify-center"><i class="fas fa-question-circle text-base"></i></div>
+                <span class="font-bold ml-2 text-[15px]">Inquiries</span>
+                @php $pendingInquiries = \App\Models\Inquiry::where('status', 'pending')->count(); @endphp
+                @if($pendingInquiries > 0)
+                <span class="ml-auto bg-rose-500 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-lg shadow-sm">{{ $pendingInquiries }}</span>
+                @endif
+            </a>
+
             <div class="px-4 py-3 text-[14px] font-bold text-slate-400 uppercase tracking-widest mt-2">System</div>
 
             <!-- Tax & Shipping Settings Dropdown -->

@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\UserAddressController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\InquiryController;
 
 Route::post('/addresses', [UserAddressController::class, 'store'])->name('addresses.store');
 
@@ -117,6 +118,11 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 
+        // Slug Uniqueness Checks (Must be above resources to avoid conflict with show() method)
+        Route::get('/categories/check-slug', [CategoryController::class, 'checkSlug'])->name('admin.categories.check-slug');
+        Route::get('/sub-categories/check-slug', [SubCategoryController::class, 'checkSlug'])->name('admin.sub-categories.check-slug');
+        Route::get('/child-categories/check-slug', [ChildCategoryController::class, 'checkSlug'])->name('admin.child-categories.check-slug');
+
         // Category Management
         Route::resource('categories', CategoryController::class)->names('admin.categories');
 
@@ -178,6 +184,9 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/reviews', [\App\Http\Controllers\Admin\ProductReviewController::class, 'index'])->name('admin.reviews.index');
         Route::post('/reviews/{id}/status', [\App\Http\Controllers\Admin\ProductReviewController::class, 'updateStatus'])->name('admin.reviews.status');
         Route::delete('/reviews/{id}', [\App\Http\Controllers\Admin\ProductReviewController::class, 'destroy'])->name('admin.reviews.destroy');
+
+        // Inquiries Management
+        Route::resource('inquiries', InquiryController::class)->only(['index', 'show', 'update', 'destroy'])->names('admin.inquiries');
 
         // AJAX Helpers
         Route::get('/get-sub-categories/{category_id}', [ChildCategoryController::class, 'getSubCategories']);

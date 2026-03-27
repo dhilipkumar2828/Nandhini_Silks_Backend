@@ -130,7 +130,7 @@ class Product extends Model
 
     public function getAverageRatingAttribute()
     {
-        return round($this->reviews()->avg('stars'), 1) ?: 5.0;
+        return round($this->reviews()->avg('stars'), 1) ?: 0.0;
     }
 
     public function getReviewsCountAttribute()

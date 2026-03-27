@@ -45,7 +45,7 @@
                                     style="filter: brightness(0) invert(1);"></div>
                             <div class="info-text">
                                 <h3>Email Address</h3>
-                                <p>nandhinisilks.arani@gmail.com</p>
+                                <p>noreply@nandhinisilks.com</p>
                             </div>
                         </div>
                     </div>
@@ -58,11 +58,11 @@
                         @csrf
                         <div class="form-group">
                             <label for="name">Full Name</label>
-                            <input type="text" id="name" name="name" placeholder="Your beautiful name" required>
+                            <input type="text" id="name" name="name" placeholder="Enter your name" required>
                         </div>
                         <div class="form-group">
                             <label for="email">Email Address</label>
-                            <input type="email" id="email" name="email" placeholder="example@gmail.com" required>
+                            <input type="email" id="email" name="email" placeholder="Enter your email" required>
                         </div>
                         <div class="form-group">
                             <label for="message">Your Message</label>
@@ -81,4 +81,100 @@
             </div>
         </section>
     </main>
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    // Prevent non-alphabets from being typed
+    $('#name').on('input', function() {
+        this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+    });
+
+    // Add custom validation method for letters only
+    $.validator.addMethod("lettersOnly", function(value, element) {
+        return this.optional(element) || /^[a-zA-Z\s]+$/.test(value);
+    }, "Please enter only alphabets.");
+
+    // Update validation rules for contact form
+    $('.contact-form').validate({
+        rules: {
+            name: {
+                required: true,
+                lettersOnly: true
+            },
+            email: {
+                required: true,
+                email: true
+            },
+            message: {
+                required: true
+            }
+        },
+        errorElement: 'span',
+        errorClass: 'error-text',
+        highlight: function(element) {
+            $(element).addClass('error-border');
+        },
+        unhighlight: function(element) {
+            $(element).removeClass('error-border');
+        }
+    });
+
+    $('.contact-form').on('submit', function(e) {
+        if (!$(this).valid()) return false;
+        e.preventDefault();
+        
+        const $form = $(this);
+        const $btn = $form.find('button[type="submit"]');
+        const originalBtnText = $btn.text();
+        
+        $btn.prop('disabled', true).text('Sending...');
+        
+        $.ajax({
+            url: $form.attr('action'),
+            method: 'POST',
+            data: $form.serialize(),
+            success: function(response) {
+                if (response.success) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: response.message,
+                        icon: 'success',
+                        confirmButtonColor: '#940437'
+                    });
+                    $form[0].reset();
+                } else {
+                    // Show error from server if success is false but didn't throw 422
+                    Swal.fire({
+                        title: 'Error!',
+                        text: response.message || 'Something went wrong.',
+                        icon: 'error',
+                        confirmButtonColor: '#940437'
+                    });
+                }
+            },
+            error: function(xhr) {
+                // Remove popups as requested, errors are shown by jQuery Validate or we can use the response
+                const errors = xhr.responseJSON.errors;
+                if (errors) {
+                    // This will highlight the fields manually if needed, 
+                    // though jQuery Validate often handles this if the server response keys match
+                    $form.validate().showErrors(errors);
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'An error occurred. Please try again later.',
+                        icon: 'error',
+                        confirmButtonColor: '#940437'
+                    });
+                }
+            },
+            complete: function() {
+                $btn.prop('disabled', false).text(originalBtnText);
+            }
+        });
+    });
+});
+</script>
+@endpush
 @endsection

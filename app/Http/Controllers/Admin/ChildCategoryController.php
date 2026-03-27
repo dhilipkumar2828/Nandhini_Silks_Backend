@@ -123,5 +123,24 @@ class ChildCategoryController extends Controller
         $subCategories = SubCategory::where('category_id', '=', $category_id)->where('status', '=', 1)->get();
         return response()->json($subCategories);
     }
+
+    public function checkSlug(Request $request)
+    {
+        $slug = Str::slug($request->name);
+        if ($request->filled('slug')) {
+            $slug = Str::slug($request->slug);
+        }
+
+        $query = ChildCategory::where('slug', $slug);
+        if ($request->filled('id')) {
+            $query->where('id', '!=', $request->id);
+        }
+
+        $exists = $query->exists();
+        return response()->json([
+            'exists' => $exists,
+            'slug' => $slug
+        ]);
+    }
 }
 

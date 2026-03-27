@@ -2234,19 +2234,24 @@
 
                     <div class="product-summary-row flex flex-wrap items-center gap-x-4 gap-y-1 mb-2">
 
+                        @if($product->reviews_count > 0)
                         <div class="product-rating">
                             <div class="stars">
+                                @php $avgRating = round($product->average_rating); @endphp
                                 @for ($i = 1; $i <= 5; $i++)
-                                    <i class="{{ $i <= round($product->average_rating) ? 'fas' : 'far' }} fa-star"></i>
+                                    <i class="{{ $i <= $avgRating ? 'fa-solid' : 'fa-regular' }} fa-star"></i>
                                 @endfor
                             </div>
                             <span>
                                 {{ number_format($product->average_rating, 1) }}
                                 @if ($product->reviews_count > 0)
-                                    ({{ $product->reviews_count }})
+                                    ({{ $product->reviews_count }}) Reviews
                                 @endif
                             </span>
                         </div>
+                        @endif
+
+
                         <div class="product-price-section">
                             <span class="current-price" id="displayPrice">₹{{ number_format($product->price, 0) }}</span>
                             @if ($product->regular_price > $product->price)
@@ -2269,7 +2274,7 @@
                             </span>
                         </div>
                     </div>
-                    <p class="product-tax-note">(Inclusive of all taxes)</p>
+                    {{-- <p class="product-tax-note">(Inclusive of all taxes)</p> --}}
 
                     @if ($product->short_description)
                         <div class="product-description-short">
@@ -2603,36 +2608,9 @@
                     <div class="swiper-wrap-outer">
                         <div class="swiper related-swiper">
                             <div class="swiper-wrapper">
-                                @foreach ($relatedProducts->concat($relatedProducts) as $related)
+                                @foreach ($relatedProducts->concat($relatedProducts) as $product)
                                     <div class="swiper-slide">
-                                        <article class="product-card-v2" style="height: 100%;">
-                                            <a href="{{ route('product.show', $related->slug) }}"
-                                                style="text-decoration: none; color: inherit;">
-                                                <div class="product-image-v2">
-                                                    @php
-                                                        $relatedImage = 'images/pro.png';
-                                                        if ($related->image_path) {
-                                                            if (Str::startsWith($related->image_path, 'products/') || Str::startsWith($related->image_path, 'categories/')) {
-                                                                $relatedImage = 'uploads/' . $related->image_path;
-                                                            } else {
-                                                                $relatedImage = 'images/' . $related->image_path;
-                                                            }
-                                                        } elseif (!empty($related->images)) {
-                                                            $rImages = is_string($related->images) ? json_decode($related->images, true) : $related->images;
-                                                            if (is_array($rImages) && count($rImages) > 0) {
-                                                                $relatedImage = 'uploads/' . $rImages[0];
-                                                            }
-                                                        }
-                                                    @endphp
-                                                    <img src="{{ asset($relatedImage) }}" alt="{{ $related->name }}">
-                                                </div>
-                                                <div class="product-info-v2">
-                                                    <h3 class="product-name-v2">{{ $related->name }}</h3>
-                                                    <p class="product-price-v2">₹{{ number_format($related->price, 0) }}
-                                                    </p>
-                                                </div>
-                                            </a>
-                                        </article>
+                                        @include('frontend.partials.product-card', ['product' => $product])
                                     </div>
                                 @endforeach
                             </div>

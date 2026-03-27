@@ -113,5 +113,24 @@ class SubCategoryController extends Controller
 
         return redirect()->route('admin.sub-categories.index')->with('success', 'Sub Category deleted successfully.');
     }
+
+    public function checkSlug(Request $request)
+    {
+        $slug = Str::slug($request->name);
+        if ($request->filled('slug')) {
+            $slug = Str::slug($request->slug);
+        }
+
+        $query = SubCategory::where('slug', $slug);
+        if ($request->filled('id')) {
+            $query->where('id', '!=', $request->id);
+        }
+
+        $exists = $query->exists();
+        return response()->json([
+            'exists' => $exists,
+            'slug' => $slug
+        ]);
+    }
 }
 

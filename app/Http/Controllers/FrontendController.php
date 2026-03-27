@@ -203,12 +203,46 @@ class FrontendController extends Controller
     public function contact() { return view('frontend.contact'); }
     public function contactSubmit(Request $request)
     {
-        // Simple validation for backend as well
         $request->validate([
-            'name' => 'required',
-            'email' => 'required|email',
-            'message' => 'required'
+            'name' => 'required|string|max:255|regex:/^[a-zA-Z\s]+$/',
+            'email' => 'required|email|max:255',
+            'message' => 'required|string'
+        ], [
+            'name.regex' => 'The name field must only contain alphabets.'
         ]);
+
+        $inquiry = \App\Models\Inquiry::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'message' => $request->message,
+        ]);
+
+        $adminEmail = 'noreply@nandhinisilks.com';
+
+        // 1. Send Email to Admin (Swapped to send first)
+        try {
+            \Illuminate\Support\Facades\Log::info("Sending admin inquiry email to: " . $adminEmail);
+            \Illuminate\Support\Facades\Mail::to($adminEmail)->send(new \App\Mail\InquiryAdminMail($inquiry));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Inquiry Admin Email Error: ' . $e->getMessage());
+        }
+
+        // 2. Send Email to Customer (with BCC to admin as fallback)
+        try {
+            \Illuminate\Support\Facades\Log::info("Sending customer inquiry email to: " . $request->email);
+            \Illuminate\Support\Facades\Mail::to($request->email)
+                ->bcc($adminEmail)
+                ->send(new \App\Mail\InquiryCustomerMail($inquiry));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Inquiry Customer Email Error: ' . $e->getMessage());
+        }
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Thank you for contacting us! We will get back to you soon.'
+            ]);
+        }
 
         return back()->with('success', 'Thank you for contacting us! We will get back to you soon.');
     }

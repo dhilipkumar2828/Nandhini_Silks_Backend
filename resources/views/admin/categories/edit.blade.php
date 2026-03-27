@@ -91,9 +91,46 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        document.getElementById('categoryName').addEventListener('input', function() {
-            document.getElementById('categorySlug').value = slugify(this.value);
+        const nameInput = document.getElementById('categoryName');
+        const slugInput = document.getElementById('categorySlug');
+        const currentId = '{{ $category->id }}';
+        let timer;
+
+        nameInput.addEventListener('input', function() {
+            slugInput.value = slugify(this.value);
+            checkSlug(slugInput.value);
         });
+
+        slugInput.addEventListener('input', function() {
+            this.value = slugify(this.value);
+            checkSlug(this.value);
+        });
+
+        function checkSlug(slug) {
+            clearTimeout(timer);
+            if (!slug) return;
+            
+            timer = setTimeout(() => {
+                $.get('{{ route("admin.categories.check-slug") }}', { slug: slug, id: currentId }, function(data) {
+                    const errorId = 'slug-error';
+                    let errorMsg = document.getElementById(errorId);
+                    
+                    if (data.exists) {
+                        if (!errorMsg) {
+                            errorMsg = document.createElement('p');
+                            errorMsg.id = errorId;
+                            errorMsg.className = 'text-rose-500 text-[10px] mt-1 font-bold';
+                            slugInput.parentNode.appendChild(errorMsg);
+                        }
+                        errorMsg.textContent = 'This slug is already taken!';
+                        slugInput.classList.add('border-rose-500');
+                    } else {
+                        if (errorMsg) errorMsg.remove();
+                        slugInput.classList.remove('border-rose-500');
+                    }
+                });
+            }, 500);
+        }
 
         $("#categoryForm").validate({
             rules: {

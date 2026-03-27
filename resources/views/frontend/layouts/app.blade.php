@@ -536,7 +536,7 @@
             </div>
             <div class="footer-contact-item">
               <span class="footer-extra-box-1" aria-hidden="true"><img src="{{ asset('images/email.svg') }}" alt=""></span>
-              <p class="footer-contact-text">nandhinisilks.arani@gmail.com</p>
+              <p class="footer-contact-text">noreply@nandhinisilks.com</p>
             </div>
           </div>
 
@@ -796,17 +796,32 @@
                 confirmButtonText: 'Yes, remove it!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = "{{ url('cart/remove') }}/" + key;
-                    const csrf = document.createElement('input');
-                    csrf.type = 'hidden';
-                    csrf.name = '_token';
-                    csrf.value = "{{ csrf_token() }}";
-                    form.appendChild(csrf);
-                    document.body.appendChild(form);
-                    notifyCartUpdate(); // Trigger sync before redirect
-                    form.submit();
+                    fetch("{{ url('cart/remove') }}/" + key, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            toastr.success(data.message || 'Item removed.');
+                            notifyCartUpdate(); // Trigger sync
+                            // If on cart page, refresh or remove row surgically
+                            if (window.location.pathname.includes('/cart')) {
+                                // Full reload once is fine for removal, it doesn't pollute history like a form post does
+                                window.location.reload();
+                            } else if (window.updateMiniCart) {
+                                window.updateMiniCart();
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Removal error:', err);
+                        window.location.reload();
+                    });
                 }
             });
         }

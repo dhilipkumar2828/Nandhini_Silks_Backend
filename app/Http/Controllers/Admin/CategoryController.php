@@ -109,5 +109,24 @@ class CategoryController extends Controller
 
         return redirect()->route('admin.categories.index')->with('success', 'Category deleted successfully.');
     }
+
+    public function checkSlug(Request $request)
+    {
+        $slug = Str::slug($request->name);
+        if ($request->filled('slug')) {
+            $slug = Str::slug($request->slug);
+        }
+
+        $query = Category::where('slug', $slug);
+        if ($request->filled('id')) {
+            $query->where('id', '!=', $request->id);
+        }
+
+        $exists = $query->exists();
+        return response()->json([
+            'exists' => $exists,
+            'slug' => $slug
+        ]);
+    }
 }
 

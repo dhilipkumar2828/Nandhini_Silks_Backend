@@ -105,15 +105,25 @@
                 font-size: 15px;
             }
         }
+
+        .back-to-shop:hover {
+            color: #A91B43 !important;
+            transform: translateX(-5px);
+        }
     </style>
     @endpush
     <main class="cart-page">
         <div class="page-shell">
-            <div class="breadcrumb">
-                <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp; <span>Shopping Cart</span>
+            <div style="margin-bottom: 15px;">
+                <a href="{{ route('shop') }}" class="back-to-shop" style="display: inline-flex; align-items: center; gap: 8px; color: #ad8b4e; text-decoration: none; font-weight: 700; transition: all 0.3s ease; font-size: 14px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: -1px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    Continue Shopping
+                </a>
             </div>
 
-            <h1 class="auth-title" style="text-align: left; margin-bottom: 20px;">Your Shopping Cart</h1>
+            <h1 class="auth-title" style="text-align: left; margin-bottom: 25px; display: flex; align-items: center; gap: 15px;">
+               Your Shopping Cart
+            </h1>
 
             @php
                 $hasItems = isset($items) && count($items) > 0;
@@ -154,7 +164,7 @@
                                         <input type="text" class="qty-input" name="quantities[{{ $item['key'] }}]" value="{{ $item['quantity'] }}" readonly>
                                         <button type="button" class="qty-btn" onclick="updateCartQty('{{ $item['key'] }}', 1)">+</button>
                                     </div>
-                                    <button type="button" class="remove-item" onclick="removeItem('{{ $item['key'] }}')" aria-label="Remove item">x</button>
+                                    <button type="button" class="remove-item" onclick="removeItem('{{ $item['key'] }}')" aria-label="Remove item" style="color: #ff3b30; font-size: 24px; font-weight: bold; background: none; border: none; cursor: pointer; transition: transform 0.2s;">&times;</button>
                                 </div>
                             @endforeach
                         </form>
@@ -247,7 +257,11 @@
 
             // Debounce AJAX call
             clearTimeout(window.cartUpdateTimer);
-            window.cartUpdateTimer = setTimeout(() => ajaxUpdateCart(key, current), 500);
+            window.cartUpdateTimer = setTimeout(() => {
+                ajaxUpdateCart(key, current);
+                // SHOW SMALL FEEDEBACK
+                toastr.success('Updating quantity...', '', { timeOut: 1000, progressBar: false });
+            }, 500);
         }
 
         function ajaxUpdateCart(key, qty) {
@@ -269,14 +283,7 @@
                 headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
                 body: formData
             })
-            .then(res => {
-                if (res.redirected || res.status === 302) {
-                    // Fallback: full reload if server doesn't support AJAX
-                    window.location.reload();
-                    return null;
-                }
-                return res.json().catch(() => null);
-            })
+            .then(res => res.json())
             .then(data => {
                 if (!data) return;
 
@@ -301,15 +308,23 @@
                         discEl.style.opacity = '1';
                     }
 
-                    // BROADCAST to other tabs
-                    if (window.notifyCartUpdate) window.notifyCartUpdate();
+                    // toastr.success('Cart updated.');
+                    
+                    // BROADCAST to other tabs (but skip same-tab reload)
+                    if (window.notifyCartUpdate) {
+                        // We use a small flag to skip self-reload if we were to implement it
+                        localStorage.setItem('nandhini_cart_updated', Date.now());
+                    }
 
                 } else {
-                    // Server returned HTML redirect — refresh page to get updated totals
                     window.location.reload();
                 }
             })
-            .catch(() => window.location.reload());
+            .catch(() => {
+                // Silently refresh or show error
+                toastr.error('Connection error. Updating cart...');
+                setTimeout(() => window.location.reload(), 1000);
+            });
         }
 
         window.refreshCartPage = function() {
