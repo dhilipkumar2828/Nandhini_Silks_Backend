@@ -9,7 +9,7 @@
                 <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp; <span>{{ $category->name }}</span>
             </div>
 
-            <button type="button" class="mobile-filter-toggle" id="mobileFilterToggle">
+            <button type="button" class="mobile-filter-toggle" id="mobileFilterToggle" aria-expanded="false" aria-controls="filtersSidebar">
                 <span>Filters</span>
                 <span class="mobile-filter-toggle-icon">+</span>
             </button>
@@ -183,16 +183,14 @@
         if (mobileFilterToggle && filtersSidebar) {
             const closeFilters = () => {
                 filtersSidebar.classList.remove('mobile-open');
-                mobileFilterOverlay?.classList.remove('active');
-                document.body.classList.remove('filter-open');
                 if (mobileFilterToggleIcon) mobileFilterToggleIcon.textContent = '+';
+                mobileFilterToggle.setAttribute('aria-expanded', 'false');
             };
 
             const openFilters = () => {
                 filtersSidebar.classList.add('mobile-open');
-                mobileFilterOverlay?.classList.add('active');
-                document.body.classList.add('filter-open');
                 if (mobileFilterToggleIcon) mobileFilterToggleIcon.textContent = '−';
+                mobileFilterToggle.setAttribute('aria-expanded', 'true');
             };
 
             mobileFilterToggle.addEventListener('click', () => {
@@ -239,37 +237,30 @@
     <style>
         /* Mobile Overlay & Sidebar Refinements */
         .mobile-filter-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.4);
-            backdrop-filter: blur(4px);
-            z-index: 9998;
+            display: none !important;
         }
-        .mobile-filter-overlay.active { display: block; }
+        .mobile-filter-overlay.active { display: none !important; }
         
-        .filter-drawer-header { display: none; }
+        .filter-drawer-header { display: none !important; }
 
         @media (max-width: 1024px) {
             .filters-sidebar {
-                position: fixed;
-                top: 0;
-                right: 0;
-                width: min(380px, 100%);
-                height: 100dvh;
-                z-index: 9999;
+                position: static;
+                width: 100%;
+                height: auto;
                 background: #fff;
-                padding: 20px;
-                box-shadow: -15px 0 40px rgba(0,0,0,0.15);
-                transform: translateX(105%);
-                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                overflow-y: auto;
-                border-radius: 20px 0 0 20px;
-                display: block !important;
+                padding: 16px;
+                margin: 0 0 16px;
+                box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+                border: 1px solid rgba(169, 27, 67, 0.12);
+                border-radius: 14px;
+                overflow: hidden;
+                transform: none;
+                transition: none;
             }
-            .filters-sidebar.mobile-open { transform: translateX(0); }
+            .filters-sidebar.mobile-open { display: block !important; }
             .filter-drawer-header {
-                display: flex;
+                display: none !important;
                 align-items: center;
                 justify-content: space-between;
                 margin-bottom: 25px;
@@ -298,7 +289,6 @@
             .filter-group.is-open .filter-title::after { content: '−'; }
             .filter-group-content { display: none; padding: 5px 0 15px; }
             .filter-group.is-open .filter-group-content { display: block; }
-            body.filter-open { overflow: hidden; }
         }
         .mobile-filter-toggle {
             display: none;
