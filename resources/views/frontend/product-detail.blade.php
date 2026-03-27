@@ -2953,7 +2953,7 @@
                 
                 if (btn) {
                     // Check if the base product (no variant) is in cart
-                    if (initialProductInCart && (cartVariantIds.length === 0 || cartVariantQuantities['base'])) {
+                    if (cartVariantQuantities['base'] || (initialProductInCart && cartVariantIds.length === 0)) {
                         setGoToCartState(btn);
                         const qtyDisp = document.getElementById('qtyDisp');
                         if (qtyDisp) qtyDisp.value = cartVariantQuantities['base'] || 1;
@@ -3211,17 +3211,19 @@
                                 return selectedAttrs.length === vValues.length && selectedAttrs.every(id => vValues.includes(id));
                             });
 
-                            if (matched && !cartVariantIds.includes(matched.id)) {
-                                cartVariantIds.push(matched.id);
-                                // Update quantity too
+                            if (matched) {
+                                if (!cartVariantIds.includes(matched.id) && !cartVariantIds.includes(String(matched.id))) {
+                                    cartVariantIds.push(matched.id);
+                                }
+                                // Update quantity 
                                 const qtyEntered = parseInt(document.getElementById('qtyDisp').value) || 1;
-                                cartVariantQuantities[matched.id] = qtyEntered;
-                            } else if (!matched) {
-                                // Base product
+                                cartVariantQuantities[matched.id] = (cartVariantQuantities[matched.id] || 0) + qtyEntered;
+                            } else {
+                                // Base product (no variant selected or none exist)
                                 const qtyEntered = parseInt(document.getElementById('qtyDisp').value) || 1;
                                 cartVariantQuantities['base'] = (cartVariantQuantities['base'] || 0) + qtyEntered;
                             }
-                            
+
                             checkVariant();
                             if (window.notifyCartUpdate) window.notifyCartUpdate();
                         } else {
