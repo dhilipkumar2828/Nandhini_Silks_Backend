@@ -49,11 +49,11 @@
             <div class="product-price-v2" style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
                 @if($product->sale_price > 0)
                     <span class="price-current">₹{{ number_format($product->sale_price, 0) }}</span>
-                    <span class="product-price-old">₹{{ number_format($product->regular_price ?? $product->price, 0) }}</span>
+                    <span class="product-price-old" style="text-decoration: line-through !important;">₹{{ number_format($product->regular_price ?? $product->price, 0) }}</span>
                 @else
                     <span class="price-current">₹{{ number_format($product->price, 0) }}</span>
                     @if(isset($product->regular_price) && $product->regular_price > $product->price)
-                        <span class="product-price-old">₹{{ number_format($product->regular_price, 0) }}</span>
+                        <span class="product-price-old" style="text-decoration: line-through !important;">₹{{ number_format($product->regular_price, 0) }}</span>
                     @endif
                 @endif
             </div>

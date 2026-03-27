@@ -112,22 +112,19 @@
         }
 
         .home-rail-wishlist {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: #ffffff;
-            border: 1px solid #e7dac2;
+            background: transparent;
+            border: 0;
             cursor: pointer;
             padding: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #A91B43;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+            color: #927541;
         }
 
         .home-rail-wishlist i {
-            font-size: 13px;
+            padding-top: 2px;
+            font-size: 20px;
             line-height: 1;
         }
 
@@ -138,22 +135,28 @@
         }
 
         .featured-cart-btn {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            border: 1px solid #e7dac2;
-            background: #ffffff;
-            color: #A91B43;
+            border: 0;
+            background: transparent;
+            color: #927541;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+            padding: 0;
         }
 
         .featured-cart-btn i {
-            font-size: 13px;
+            font-size: 20px;
             line-height: 1;
+            color: #927541 !important;
+        }
+
+        .featured-cart-btn img {
+            width: 22px;
+            height: 22px;
+            display: block;
+            opacity: 1;
+            filter: brightness(0) saturate(100%) invert(44%) sepia(17%) saturate(1068%) hue-rotate(357deg) brightness(95%) contrast(88%);
         }
 
 
@@ -361,6 +364,10 @@
 
         .featured-progress {
             margin: 24px auto 0;
+        }
+
+        .featured-progress-fill {
+            background: #111 !important;
         }
 
         .collection-card,
@@ -1129,8 +1136,8 @@
             align-items: center;
             justify-content: space-between;
             width: 100%;
-            margin-top: 12px !important;
-            padding: 0 8px;
+            margin-top: 5px !important;
+            padding: 0 10px 0 4px;
             box-sizing: border-box;
         }
 
@@ -1151,11 +1158,26 @@
 
         .featured-actions {
             flex-shrink: 0;
+            gap: 12px;
         }
 
         .featured-name {
-            padding: 0 8px;
+            padding: 0 4px;
             box-sizing: border-box;
+            text-align: left !important;
+            margin-bottom: 0 !important;
+        }
+
+        @media (min-width: 641px) {
+            .featured-section .featured-name,
+            .offers-section .featured-name {
+                margin-bottom: 8px !important;
+            }
+
+            .featured-section .featured-footer,
+            .offers-section .featured-footer {
+                margin-top: 12px !important;
+            }
         }
 
         .featured-card .old-price {
@@ -1204,6 +1226,9 @@
                 line-height: 1.3 !important;
                 min-height: 34px !important;
                 margin-top: 10px !important;
+                text-align: left !important;
+                display: block !important;
+                width: 100% !important;
             }
 
             .featured-subtitle {
@@ -1235,6 +1260,32 @@
 
             .featured-card {
                 max-width: 232px !important;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .featured-section .featured-card,
+            .offers-section .featured-card {
+                align-items: stretch !important;
+                text-align: left !important;
+            }
+
+            .featured-section .featured-name,
+            .offers-section .featured-name {
+                text-align: left !important;
+                width: 100% !important;
+                min-height: 2.2em !important;
+                display: block !important;
+                padding: 0 6px !important;
+                font-size: 16px !important;
+                line-height: 1.35 !important;
+                margin-top: 12px !important;
+                margin-bottom: 0 !important;
+            }
+
+            .featured-section .featured-footer,
+            .offers-section .featured-footer {
+                margin-top: 2px !important;
             }
         }
     </style>
@@ -1330,7 +1381,7 @@
                                                 @endif
                                                 
                                             </div>
-                                            <h3 class="featured-name" style="text-align: center;">{{ $product->name }}</h3>
+                                            <h3 class="featured-name">{{ $product->name }}</h3>
                                         </a>
                                         @php $inWishlist = in_array($product->id, session('wishlist', [])); @endphp
                                         <div class="featured-footer">
@@ -1350,7 +1401,7 @@
                                                 <button class="featured-cart-btn add-to-cart-btn" type="button"
                                                     data-product-id="{{ $product->id }}"
                                                     aria-label="Add to cart">
-                                                    <i class="fa-solid fa-bag-shopping"></i>
+                                                    <img src="{{ asset('images/local_mall.svg') }}" alt="">
                                                 </button>
                                             </div>
                                         </div>
@@ -1403,7 +1454,7 @@
                                                     <span class="featured-badge" style="top: 10px;">{{ round($product->discount_percent) }}% Off</span>
                                                 @endif
                                             </div>
-                                            <h3 class="featured-name" style="text-align: center;">{{ $product->name }}</h3>
+                                            <h3 class="featured-name">{{ $product->name }}</h3>
                                         </a>
                                         @php $offerInWishlist = in_array($product->id, session('wishlist', [])); @endphp
                                         <div class="featured-footer">
@@ -1423,7 +1474,7 @@
                                                 <button class="featured-cart-btn add-to-cart-btn" type="button"
                                                     data-product-id="{{ $product->id }}"
                                                     aria-label="Add to cart">
-                                                    <i class="fa-solid fa-bag-shopping"></i>
+                                                    <img src="{{ asset('images/local_mall.svg') }}" alt="">
                                                 </button>
                                             </div>
                                         </div>
@@ -1740,7 +1791,9 @@
                     }
 
                     const currentIndex = swiper.realIndex;
-                    const progress = totalProducts <= 1 ? 100 : (currentIndex / (totalProducts - 1)) * 100;
+                    const progress = totalProducts <= 1
+                        ? 100
+                        : ((currentIndex + 1) / totalProducts) * 100;
 
                     if (progressFill) progressFill.style.width = `${Math.min(Math.max(progress, 0), 100)}%`;
                     if (currentSlide) currentSlide.textContent = String(currentIndex + 1).padStart(2, '0');
@@ -1875,7 +1928,7 @@
                     'progressFill',
                     'currentSlide',
                     'progressTrack',
-                    5
+                    2
                 );
 
                 @foreach($offerCollections as $collection)

@@ -3396,7 +3396,7 @@ html, body {
 .product-price-old {
   font-size: 14px;
   color: #999;
-  text-decoration: line-through;
+  text-decoration: line-through !important;
   margin-left: 8px;
 }
 
@@ -3573,7 +3573,7 @@ html, body {
 .old-price {
   font-size: 20px;
   color: #999;
-  text-decoration: line-through;
+  text-decoration: line-through !important;
 }
 
 .discount-badge {
@@ -6421,4 +6421,20 @@ body.menu-open {
     font-size: 0.9em !important;
     margin-left: 8px !important;
     font-weight: 500 !important;
+}
+
+@media (max-width: 640px) {
+  .add-to-cart-v2,
+  .recently-viewed-cta {
+    min-height: 36px !important;
+    max-width: 170px !important;
+    padding: 0 14px !important;
+    font-size: 11px !important;
+    letter-spacing: 0 !important;
+    white-space: nowrap !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+  }
 }
