@@ -2664,18 +2664,116 @@
             const hiddenInput = document.getElementById('qtyInput');
             const maxQuantity = 10;
             let current = parseInt(input.value);
-            current += val;
-            if (current < 1) current = 1;
-            if (current > maxQuantity) current = maxQuantity;
-            input.value = current;
-            if (hiddenInput) hiddenInput.value = current;
+            let next = current + val;
+            if (next < 1) next = 1;
+            if (next > maxQuantity) next = maxQuantity;
+
+            if (next === current) return;
+
+            input.value = next;
+            if (hiddenInput) hiddenInput.value = next;
+
+            // If we are in "GO TO CART" state, update the cart immediately
+            const btn = document.getElementById('addToCartBtn');
+            if (btn && btn.classList.contains('go-to-cart-state')) {
+                // Determine what to send to 'cart.add'
+                // Since 'cart.add' ADDS to current quantity, we send 'val' (1 or -1)
+                // BUT only if we can find the variant context.
+                // We'll call the existing AJAX handler but with the specific increment
+                syncCartQuantity(val);
+            }
         }
+
+        function syncCartQuantity(increment) {
+            const form = document.getElementById('pdpForm');
+            const formData = new FormData(form);
+            formData.set('quantity', increment); // Only add/subtract 1
+            formData.append('action', 'cart');
+
+            fetch(form.getAttribute('action'), {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        toastr.success(data.message || 'Cart updated.');
+                        if (window.updateMiniCart) window.updateMiniCart();
+                        if (window.notifyCartUpdate) window.notifyCartUpdate();
+                        
+                        // Update local tracking
+                        updateLocalCartQuantity(increment);
+                    } else {
+                        toastr.error(data.message || 'Error updating cart.');
+                        // Revert local UI if failed? 
+                        // For now we just stay as is.
+                        location.reload(); // Safer to sync from server
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    toastr.error('Something went wrong.');
+                });
+        }
+
+        function updateLocalCartQuantity(increment) {
+            // Find current matched variant and update cartVariantQuantities
+            let selectedAttrs = [];
+            document.querySelectorAll('input[id^="attr_"]').forEach(input => {
+                if (input.value) selectedAttrs.push(parseInt(input.value));
+            });
+            let matched = productVariants.find(v => {
+                if (!v.combination) return false;
+                let vValues = Object.values(v.combination).flat().map(Number);
+                return selectedAttrs.length === vValues.length && selectedAttrs.every(id => vValues.includes(id));
+            });
+
+            if (matched) {
+                cartVariantQuantities[matched.id] = (cartVariantQuantities[matched.id] || 0) + increment;
+            } else {
+                cartVariantQuantities['base'] = (cartVariantQuantities['base'] || 0) + increment;
+            }
+        }
+
         const productVariants = {!! json_encode($product->product_variants) !!};
         const basePrice = {{ $product->price }};
         const baseRegularPrice = {{ $product->regular_price ?: $product->price }};
         const baseSku = "{{ $product->sku }}";
         let cartVariantIds = {!! json_encode($cartVariantIds ?? []) !!};
+        let cartVariantQuantities = {!! json_encode($cartVariantQuantities ?? []) !!};
         const initialProductInCart = @json($inCart);
+
+        // Global Sync Listener for this product
+        window.syncCartStateWithServer = function() {
+            fetch('{{ url("cart/mini-cart") }}', {
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                // Reset local tracking
+                cartVariantIds = [];
+                cartVariantQuantities = {};
+                
+                // Re-populate from mini-cart data for THIS product
+                const thisProductId = {{ $product->id }};
+                data.items.forEach(item => {
+                    if (item.product_id == thisProductId) {
+                        if (item.variant_id) {
+                            cartVariantIds.push(item.variant_id);
+                            cartVariantQuantities[item.variant_id] = item.quantity;
+                        } else {
+                            cartVariantQuantities['base'] = item.quantity;
+                        }
+                    }
+                });
+                // Trigger UI update
+                checkVariant();
+            });
+        };
 
         function selectAttribute(element) {
             const attrId = element.getAttribute('data-attr-id');
@@ -2820,8 +2918,15 @@
                 if (btn) {
                     if (cartVariantIds.includes(matched.id) || cartVariantIds.includes(matched.id.toString())) {
                         setGoToCartState(btn);
+                        // Sync Quantity Picker
+                        const qtyDisp = document.getElementById('qtyDisp');
+                        const cartQty = cartVariantQuantities[matched.id] || cartVariantQuantities[matched.id.toString()] || 1;
+                        if (qtyDisp) qtyDisp.value = cartQty;
                     } else {
                         resetAddToCartState(btn, isInStock);
+                        // Default to 1 for new selection
+                        const qtyDisp = document.getElementById('qtyDisp');
+                        if (qtyDisp) qtyDisp.value = 1;
                     }
                 }
             } else {
@@ -2832,10 +2937,14 @@
                 
                 if (btn) {
                     // Check if the base product (no variant) is in cart
-                    if (initialProductInCart && cartVariantIds.length === 0) {
+                    if (initialProductInCart && (cartVariantIds.length === 0 || cartVariantQuantities['base'])) {
                         setGoToCartState(btn);
+                        const qtyDisp = document.getElementById('qtyDisp');
+                        if (qtyDisp) qtyDisp.value = cartVariantQuantities['base'] || 1;
                     } else {
                         resetAddToCartState(btn, {{ $product->stock_quantity > 0 ? 'true' : 'false' }});
+                        const qtyDisp = document.getElementById('qtyDisp');
+                        if (qtyDisp) qtyDisp.value = 1;
                     }
                 }
             }
@@ -3088,12 +3197,17 @@
 
                             if (matched && !cartVariantIds.includes(matched.id)) {
                                 cartVariantIds.push(matched.id);
+                                // Update quantity too
+                                const qtyEntered = parseInt(document.getElementById('qtyDisp').value) || 1;
+                                cartVariantQuantities[matched.id] = qtyEntered;
                             } else if (!matched) {
-                                // If base product, we could track that too, 
-                                // but the logic usually assumes variants if present.
+                                // Base product
+                                const qtyEntered = parseInt(document.getElementById('qtyDisp').value) || 1;
+                                cartVariantQuantities['base'] = (cartVariantQuantities['base'] || 0) + qtyEntered;
                             }
                             
                             checkVariant();
+                            if (window.notifyCartUpdate) window.notifyCartUpdate();
                         } else {
                             toastr.error(data.message || 'Error adding to cart.');
                         }
