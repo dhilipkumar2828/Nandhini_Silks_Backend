@@ -44,7 +44,7 @@
             @endif
             <span class="product-category-v2" style="font-size: 10px; text-transform: uppercase; color: #888; letter-spacing: 1px; font-weight: 700;">{{ $product->category->name ?? 'Collection' }}</span>
             <h3 class="product-name-v2" style="font-size: 15px; font-weight: 700; color: #1a1a1a; margin: 3px 0 8px;">{{ $product->name }}</h3>
-            <p class="product-desc-v2" style="font-size: 12px; color: #666; height: 35px; overflow: hidden; margin-bottom: 12px;">{{ Str::limit(strip_tags($product->description), 50) }}</p>
+            <p class="product-desc-v2" style="font-size: 12px; color: #666; height: 35px; overflow: hidden; margin-bottom: 12px;">{{ \Illuminate\Support\Str::limit(strip_tags($product->description), 50) }}</p>
             <div class="product-price-v2" style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
                 @if($product->sale_price > 0)
                     <span style="color: #A91B43; font-weight: 800; font-size: 18px;">₹{{ number_format($product->sale_price, 0) }}</span>

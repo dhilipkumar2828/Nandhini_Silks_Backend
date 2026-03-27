@@ -2278,7 +2278,7 @@
 
                     @if ($product->short_description)
                         <div class="product-description-short">
-                            {!! Str::limit(strip_tags($product->short_description), 150) !!}
+                            {!! \Illuminate\Support\Str::limit(strip_tags($product->short_description), 150) !!}
                         </div>
                     @endif
 
