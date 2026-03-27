@@ -16,4 +16,4 @@ class Inquiry extends Model
         'status',
         'admin_note'
     ];
-}
+} 
