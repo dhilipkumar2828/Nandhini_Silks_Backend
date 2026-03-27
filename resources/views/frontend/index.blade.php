@@ -1430,7 +1430,7 @@
      @foreach($offerCollections as $collection)
         <section class="featured-section offers-section" aria-labelledby="offers-title-{{ $collection->id }}">
             <div class="featured-inner">
-                <h2 id="offers-title-{{ $collection->id }}" class="featured-title">Offers</h2>
+                <h2 id="offers-title-{{ $collection->id }}" class="featured-title">{{ $collection->name }}</h2>
                 <p class="featured-subtitle">Curated picks from our active offer collections, chosen for extra value</p>
 
                 <div class="featured-swiper-container offers-swiper-container" style="position: relative;">
@@ -1647,26 +1647,18 @@
                 });
 
                 const categorySlideCount = document.querySelectorAll('.category-swiper .swiper-slide').length;
-                const safeCategoryCount = Math.max(categorySlideCount, 1);
-                const enableCategoryLoop = categorySlideCount > 1;
+                const enableCategoryLoop = categorySlideCount > 6;
 
                 new Swiper('.category-swiper', {
-                    slidesPerView: Math.min(2, safeCategoryCount),
+                    slidesPerView: 2.2, // Show a bit of the 3rd slide to hint at scroll
                     slidesPerGroup: 1,
                     spaceBetween: 10,
                     speed: 500,
-                    centeredSlides: false,
-                    centeredSlidesBounds: false,
-                    centerInsufficientSlides: false,
                     loop: enableCategoryLoop,
-                    loopPreventsSliding: true,
-                    roundLengths: false,
                     watchOverflow: false,
-                    autoplay: enableCategoryLoop ? {
+                    autoplay: categorySlideCount > 2 ? {
                         delay: 3500,
                         disableOnInteraction: false,
-                        pauseOnMouseEnter: false,
-                        waitForTransition: false,
                     } : false,
                     navigation: {
                         nextEl: '.category-next',
@@ -1674,35 +1666,25 @@
                     },
                     breakpoints: {
                         0: {
-                            slidesPerView: Math.min(2, safeCategoryCount),
-                            spaceBetween: 6
-                        },
-                        400: {
-                            slidesPerView: Math.min(2, safeCategoryCount),
+                            slidesPerView: 2.2,
                             spaceBetween: 8
                         },
                         480: {
-                            slidesPerView: Math.min(2, safeCategoryCount),
+                            slidesPerView: 3.2,
                             spaceBetween: 10
                         },
-                        640: {
-                            slidesPerView: Math.min(3, safeCategoryCount),
-                            spaceBetween: 12
-                        },
                         768: {
-                            slidesPerView: Math.min(4, safeCategoryCount),
-                            spaceBetween: 14
+                            slidesPerView: 4.2,
+                            spaceBetween: 12
                         },
                         1024: {
-                            slidesPerView: Math.min(5, safeCategoryCount),
-                            slidesPerGroup: 1,
-                            spaceBetween: 12
+                            slidesPerView: 5,
+                            spaceBetween: 15
                         },
                         1280: {
-                            slidesPerView: Math.min(6, safeCategoryCount),
-                            slidesPerGroup: 1,
-                            spaceBetween: 12
-                        },
+                            slidesPerView: 5, // Show 5 fully to make 6th one scrollable
+                            spaceBetween: 15
+                        }
                     }
                 });
 
