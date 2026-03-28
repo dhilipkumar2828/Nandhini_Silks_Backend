@@ -919,7 +919,7 @@
                 color: #5f5f68;
                 line-height: 1.65;
                 font-size: 14px;
-                max-width: 720px;
+                /* max-width: 720px; */
                 width: 100%;
                 min-width: 0;
                 overflow-wrap: anywhere;

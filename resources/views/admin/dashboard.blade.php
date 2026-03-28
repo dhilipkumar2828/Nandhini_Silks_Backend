@@ -10,14 +10,14 @@
             <div class="space-y-3 text-center md:text-left">
                 <h2 class="text-xl md:text-2xl font-extrabold tracking-tight">Welcome, {{ Auth::guard('admin')->user()->name }} 👋</h2>
                 <p class="text-pink-100/80 text-sm max-w-xl">Overall system performance and registered user overview.</p>
-                <div class="flex flex-wrap justify-center md:justify-start gap-2">
+                {{-- <div class="flex flex-wrap justify-center md:justify-start gap-2">
                     <a href="{{ route('admin.users.index') }}" class="bg-white text-[#a91b43] px-5 py-2 rounded-lg text-xs font-bold hover:scale-105 transition-all shadow-xl shadow-black/10">
                         <i class="fas fa-users mr-1.5"></i> Manage Users
                     </a>
                     <a href="{{ route('admin.categories.create') }}" class="bg-white/20 backdrop-blur-md text-white border border-white/30 px-5 py-2 rounded-lg text-xs font-bold hover:bg-white/30 transition-all">
                         <i class="fas fa-plus mr-1.5"></i> Category
                     </a>
-                </div>
+                </div> --}}
             </div>
             <div class="hidden lg:block">
                 <div class="w-32 h-32 bg-white/10 rounded-full flex items-center justify-center animate-pulse">

@@ -1664,6 +1664,7 @@
                     slidesPerView: 2.2, // Show a bit of the 3rd slide to hint at scroll
                     slidesPerGroup: 1,
                     spaceBetween: 10,
+                    centeredSlides: true,
                     speed: 500,
                     loop: enableCategoryLoop,
                     watchOverflow: false,

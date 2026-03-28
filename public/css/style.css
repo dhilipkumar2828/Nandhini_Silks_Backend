@@ -1,3 +1,7 @@
+* {
+ font-family: 'Plus Jakarta Sans';
+}
+
 :root {
   --pink: #940437;
   --gold-light: #fffbf0;
