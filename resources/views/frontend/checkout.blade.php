@@ -655,12 +655,27 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify({ state: state, zip: zip, country: document.getElementById('field_country')?.value || 'India' })
         })
-        .then(r => r.json())
+        .then(r => {
+            if (r.status === 419) {
+                Swal.fire({
+                    title: 'Session Expired',
+                    text: 'Your session has expired. Please refresh the page to continue.',
+                    icon: 'warning',
+                    confirmButtonText: 'Refresh Page',
+                    confirmButtonColor: '#A91B43'
+                }).then(() => {
+                    window.location.reload();
+                });
+                throw new Error('CSRF token mismatch');
+            }
+            return r.json();
+        })
         .then(response => {
             if (response.success) {
                 document.getElementById('shipping_cost_display').textContent = response.shippingFormatted;
@@ -680,6 +695,11 @@
                     shippingEl.style.color = '#2ecc71';
                     shippingEl.style.fontWeight = '700';
                 }
+            }
+        })
+        .catch(error => {
+            if (error.message !== 'CSRF token mismatch') {
+                console.error('Shipping update error:', error);
             }
         });
     }

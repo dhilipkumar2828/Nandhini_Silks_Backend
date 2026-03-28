@@ -309,7 +309,7 @@
         main tbody td,
         main tbody td div,
         main tbody td span:not(.badge-override) {
-            font-size: 0.92rem !important;
+            font-size: 14px !important;
         }
 
         /* Serial number column */

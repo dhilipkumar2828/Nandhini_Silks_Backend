@@ -614,12 +614,27 @@
                     fetch(url, {
                         method: 'POST',
                         headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
                         }
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        if (response.status === 419) {
+                            // CSRF Token mismatch / Session expired
+                            Swal.fire({
+                                title: 'Session Expired',
+                                text: 'Your session has expired. Please refresh the page to continue.',
+                                icon: 'warning',
+                                confirmButtonText: 'Refresh Page',
+                                confirmButtonColor: '#A91B43'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                            throw new Error('CSRF token mismatch');
+                        }
+                        return response.json();
+                    })
                     .then(data => {
                         if (data.success) {
                             // Update all buttons for this product
@@ -641,6 +656,10 @@
                                     }
                                 }
                             });
+
+                            if (typeof toastr !== 'undefined') {
+                                toastr.success(data.message || (isInWishlist ? 'Removed from wishlist' : 'Added to wishlist'));
+                            }
 
                             // Update Header Count
                             const wishlistCountBadges = document.querySelectorAll('.wishlist-count-badge');
@@ -848,12 +867,26 @@
                     fetch('{{ url("cart/remove") }}/' + key, {
                         method: 'POST',
                         headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
                         }
                     })
-                    .then(res => res.json())
+                    .then(response => {
+                        if (response.status === 419) {
+                            Swal.fire({
+                                title: 'Session Expired',
+                                text: 'Your session has expired. Please refresh the page to continue.',
+                                icon: 'warning',
+                                confirmButtonText: 'Refresh Page',
+                                confirmButtonColor: '#A91B43'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                            throw new Error('CSRF token mismatch');
+                        }
+                        return response.json();
+                    })
                     .then(data => {
                         if(data.success) {
                             toastr.success(data.message || 'Item removed.');
@@ -869,6 +902,29 @@
         }
     </script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        // Global AJAX Setup for jQuery
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        // Global AJAX Error Handling for jQuery (Handle 419 Session Expired)
+        $(document).ajaxError(function(event, xhr, settings, thrownError) {
+            if (xhr.status === 419) {
+                Swal.fire({
+                    title: 'Session Expired',
+                    text: 'Your session has expired. Please refresh the page to continue.',
+                    icon: 'warning',
+                    confirmButtonText: 'Refresh Page',
+                    confirmButtonColor: '#A91B43'
+                }).then(() => {
+                    window.location.reload();
+                });
+            }
+        });
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.20.0/jquery.validate.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>

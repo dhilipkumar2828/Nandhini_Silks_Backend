@@ -501,6 +501,18 @@
                         $('#currentPasswordInput, #newPasswordInput, #confirmPasswordInput').val('');
                     },
                     error: function (xhr) {
+                        if (xhr.status === 419) {
+                            Swal.fire({
+                                title: 'Session Expired',
+                                text: 'Your session has expired. Please refresh the page to continue.',
+                                icon: 'warning',
+                                confirmButtonText: 'Refresh Page',
+                                confirmButtonColor: '#A91B43'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                            return;
+                        }
                         if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
                             const errors = {};
                             Object.keys(xhr.responseJSON.errors).forEach(function (key) {
@@ -538,10 +550,26 @@
                     method: 'POST',
                     body: formData,
                     headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
                     }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 419) {
+                        Swal.fire({
+                            title: 'Session Expired',
+                            text: 'Your session has expired. Please refresh the page to continue.',
+                            icon: 'warning',
+                            confirmButtonText: 'Refresh Page',
+                            confirmButtonColor: '#A91B43'
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                        throw new Error('CSRF token mismatch');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         document.getElementById('profilePicPreview').src = data.url;
@@ -557,8 +585,10 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    toastr.error('An error occurred while uploading.');
+                    if (error.message !== 'CSRF token mismatch') {
+                        console.error('Error:', error);
+                        toastr.error('An error occurred while uploading.');
+                    }
                 })
                 .finally(() => {
                     btn.innerHTML = originalContent;

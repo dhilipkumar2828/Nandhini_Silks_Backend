@@ -283,7 +283,21 @@
                 headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
                 body: formData
             })
-            .then(res => res.json())
+            .then(res => {
+                if (res.status === 419) {
+                    Swal.fire({
+                        title: 'Session Expired',
+                        text: 'Your session has expired. Please refresh the page to continue.',
+                        icon: 'warning',
+                        confirmButtonText: 'Refresh Page',
+                        confirmButtonColor: '#A91B43'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                    throw new Error('CSRF token mismatch');
+                }
+                return res.json();
+            })
             .then(data => {
                 if (!data) return;
 
@@ -320,10 +334,12 @@
                     window.location.reload();
                 }
             })
-            .catch(() => {
-                // Silently refresh or show error
-                toastr.error('Connection error. Updating cart...');
-                setTimeout(() => window.location.reload(), 1000);
+            .catch((error) => {
+                if (error.message !== 'CSRF token mismatch') {
+                    // Silently refresh or show error
+                    toastr.error('Connection error. Updating cart...');
+                    setTimeout(() => window.location.reload(), 1000);
+                }
             });
         }
 

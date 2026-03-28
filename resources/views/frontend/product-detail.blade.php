@@ -3030,11 +3030,26 @@
                     method: 'POST',
                     body: formData,
                     headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                         'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'application/json'
                     }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 419) {
+                        Swal.fire({
+                            title: 'Session Expired',
+                            text: 'Your session has expired. Please refresh the page to continue.',
+                            icon: 'warning',
+                            confirmButtonText: 'Refresh Page',
+                            confirmButtonColor: '#A91B43'
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                        throw new Error('CSRF token mismatch');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         toastr.success(data.message || 'Cart updated.');
@@ -3530,11 +3545,26 @@
                         method: 'POST',
                         body: formData,
                         headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                             'X-Requested-With': 'XMLHttpRequest',
                             'Accept': 'application/json'
                         }
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        if (response.status === 419) {
+                            Swal.fire({
+                                title: 'Session Expired',
+                                text: 'Your session has expired. Please refresh the page to continue.',
+                                icon: 'warning',
+                                confirmButtonText: 'Refresh Page',
+                                confirmButtonColor: '#A91B43'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                            throw new Error('CSRF token mismatch');
+                        }
+                        return response.json();
+                    })
                     .then(data => {
                         if (data.success) {
                             toastr.success(data.message || 'Added to cart.');
@@ -3572,8 +3602,10 @@
                         }
                     })
                     .catch(error => {
-                        console.error('Error:', error);
-                        toastr.error('Something went wrong.');
+                        if (error.message !== 'CSRF token mismatch') {
+                            console.error('Error:', error);
+                            toastr.error('Something went wrong.');
+                        }
                     });
             }
         });
