@@ -66,8 +66,8 @@
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Internal Admin Note</label>
-                        <textarea name="admin_note" rows="4" placeholder="Any internal notes about this inquiry..."
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Customer Response / Admin Note</label>
+                        <textarea name="admin_note" rows="6" placeholder="Write your response to the customer here. This will be sent as an email when status is set to 'Responded'."
                                   class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-700 focus:ring-2 focus:ring-[#a91b43]/20 focus:border-[#a91b43] transition-all outline-none shadow-sm">{{ $inquiry->admin_note }}</textarea>
                     </div>
 

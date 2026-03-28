@@ -34,7 +34,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="{{ url('images/nandhini-logo.png') }}" alt="Nandhini Silks" style="max-height: 80px; width: auto; margin-bottom: 15px; background: white; padding: 10px; border-radius: 12px;" onerror="this.src='https://nandhinisilks.com/demo/images/nandhini-logo.png'; this.onerror=null;">
+            <img src="{{ asset('images/nandhini-logo.png') }}" alt="Nandhini Silks" style="max-height: 80px; width: auto; margin-bottom: 15px; background: white; padding: 10px; border-radius: 12px;">
             <h1>Nandhini Silks</h1>
         </div>
         <div class="content">
@@ -49,59 +49,66 @@
             </div>
 
             <h3 style="color: #111; border-bottom: 2px solid #fdf2f8; padding-bottom: 10px; margin-top: 35px;">Order Summary</h3>
-            <table class="table">
+            <table class="table" style="width: 100%;">
                 <thead>
                     <tr>
-                        <th>Product</th>
-                        <th style="text-align: center;">Qty</th>
-                        <th style="text-align: right;">Price</th>
+                        <th style="text-align: left; padding: 12px; color: #111; border-bottom: 2px solid #f0f0f0;">Product</th>
+                        <th style="text-align: center; padding: 12px; color: #111; border-bottom: 2px solid #f0f0f0;">Qty</th>
+                        <th style="text-align: right; padding: 12px; color: #111; border-bottom: 2px solid #f0f0f0;">Price</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($order->items as $item)
                     <tr>
-                        <td>
+                        <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9;">
                             <span style="font-weight: 700; color: #111; font-size: 15px;">{{ $item->product_name }}</span>
                             @if($item->size || $item->color)
                             <br><span style="color: #999; font-size: 11px;">{{ $item->size }}{{ $item->size && $item->color ? ' | ' : '' }}{{ $item->color }}</span>
                             @endif
                         </td>
-                        <td style="text-align: center; font-weight: 700;">{{ $item->quantity }}</td>
-                        <td style="text-align: right; font-weight: 700; color: #111;">₹{{ number_format($item->total, 0) }}</td>
+                        <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9; text-align: center; font-weight: 700; color: #111;">{{ $item->quantity }}</td>
+                        <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9; text-align: right; font-weight: 700; color: #111;">₹{{ number_format($item->total, 0) }}</td>
                     </tr>
                     @endforeach
                 </tbody>
             </table>
 
-            <div class="totals">
-                <div class="totals-row">
-                    <span class="totals-label">Subtotal:</span>
-                    <span class="totals-value">₹{{ number_format($order->sub_total, 0) }}</span>
-                </div>
-                @if($order->tax > 0)
-                <div class="totals-row">
-                    <span class="totals-label">Tax:</span>
-                    <span class="totals-value">₹{{ number_format($order->tax, 0) }}</span>
-                </div>
-                @endif
-                <div class="totals-row">
-                    <span class="totals-label">Shipping:</span>
-                    <span class="totals-value">₹{{ number_format($order->shipping, 0) }}</span>
-                </div>
-                @if($order->discount > 0)
-                <div class="totals-row">
-                    <span class="totals-label" style="color: #10b981;">Discount:</span>
-                    <span class="totals-value" style="color: #10b981;">-₹{{ number_format($order->discount, 0) }}</span>
-                </div>
-                @endif
-                <div class="totals-row grand-total">
-                    <span class="totals-label" style="font-weight: 800;">TOTAL:</span>
-                    <span class="totals-value" style="font-size: 24px; font-weight: 800;">₹{{ number_format($order->grand_total, 0) }}</span>
-                </div>
-            </div>
+            <!-- Totals Section using Table for better alignment -->
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 30px;">
+                <tr>
+                    <td align="right">
+                        <table border="0" cellspacing="0" cellpadding="0" style="width: 250px;">
+                            <tr>
+                                <td style="padding-bottom: 8px; color: #666; font-size: 14px;">Subtotal:</td>
+                                <td style="padding-bottom: 8px; font-weight: 700; color: #111; text-align: right; font-size: 14px;">₹{{ number_format($order->sub_total, 0) }}</td>
+                            </tr>
+                            @if($order->tax > 0)
+                            <tr>
+                                <td style="padding-bottom: 8px; color: #666; font-size: 14px;">Tax:</td>
+                                <td style="padding-bottom: 8px; font-weight: 700; color: #111; text-align: right; font-size: 14px;">₹{{ number_format($order->tax, 0) }}</td>
+                            </tr>
+                            @endif
+                            <tr>
+                                <td style="padding-bottom: 8px; color: #666; font-size: 14px;">Shipping:</td>
+                                <td style="padding-bottom: 8px; font-weight: 700; color: #111; text-align: right; font-size: 14px;">₹{{ number_format($order->shipping, 0) }}</td>
+                            </tr>
+                            @if($order->discount > 0)
+                            <tr>
+                                <td style="padding-bottom: 8px; color: #10b981; font-size: 14px;">Discount:</td>
+                                <td style="padding-bottom: 8px; font-weight: 700; color: #10b981; text-align: right; font-size: 14px;">-₹{{ number_format($order->discount, 0) }}</td>
+                            </tr>
+                            @endif
+                            <tr>
+                                <td style="padding-top: 15px; border-top: 2px solid #f0f0f0; font-weight: 800; color: #a91b43; font-size: 18px;">TOTAL:</td>
+                                <td style="padding-top: 15px; border-top: 2px solid #f0f0f0; font-weight: 800; color: #a91b43; text-align: right; font-size: 24px;">₹{{ number_format($order->grand_total, 0) }}</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
 
             <center>
-                <a href="{{ route('order-detail', ['id' => $order->id]) }}" class="button">Track Your Order</a>
+                <a href="{{ route('order-detail', ['id' => $order->id]) }}" class="button" style="display: inline-block; padding: 16px 40px; background-color: #a91b43; color: #ffffff !important; text-decoration: none; border-radius: 12px; font-weight: 800; font-size: 16px; margin-top: 35px;">Track Your Order</a>
             </center>
         </div>
         <div class="footer">

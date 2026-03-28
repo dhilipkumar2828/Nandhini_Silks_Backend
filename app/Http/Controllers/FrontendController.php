@@ -251,7 +251,7 @@ class FrontendController extends Controller
             'message' => $request->message,
         ]);
 
-        $adminEmail = 'noreply@nandhinisilks.com';
+        $adminEmail = \App\Models\Setting::getAdminEmail();
 
         // 1. Send Email to Admin (Swapped to send first)
         try {

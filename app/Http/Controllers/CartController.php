@@ -616,7 +616,7 @@ class CartController extends Controller
             \Illuminate\Support\Facades\Mail::to($order->customer_email)->send(new \App\Mail\OrderConfirmation($order));
             
             // Send to admin
-            $adminEmail = \App\Models\Setting::where('key', 'order_notification_email')->value('value') ?? 'orders@nandhinisilks.com';
+            $adminEmail = \App\Models\Setting::getAdminEmail();
             \Illuminate\Support\Facades\Mail::to($adminEmail)->send(new \App\Mail\OrderAdminAlert($order));
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Order Email Failure: ' . $e->getMessage());

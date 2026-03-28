@@ -336,9 +336,9 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Child Category <span class="text-rose-500">*</span></label>
-                            <select name="child_category_id" id="child_category_id" required class="w-full select2-searchable">
-                                <option value="">Select Child Category</option>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Child Category</label>
+                            <select name="child_category_id" id="child_category_id" class="w-full select2-searchable">
+                                <option value="">--- Select Child Category ---</option>
                                 @foreach($childCategories as $child)
                                     <option value="{{ $child->id }}" {{ $product->child_category_id == $child->id ? 'selected' : '' }}>{{ $child->name }}</option>
                                 @endforeach
@@ -1028,7 +1028,7 @@ $(document).ready(function() {
     $('#category_id').on('change', function () {
         var id = $(this).val();
         $('#sub_category_id').html('<option value="">Select Sub Category</option>');
-        $('#child_category_id').html('<option value="">Select Child Category</option>');
+        $('#child_category_id').html('<option value="">--- Select Child Category ---</option>');
         if (id) $.getJSON("{{ url('admin/get-sub-categories') }}/" + id, function (d) {
             $.each(d, function (k, v) { $('#sub_category_id').append('<option value="'+v.id+'">'+v.name+'</option>'); });
         });
@@ -1036,7 +1036,7 @@ $(document).ready(function() {
 
     $('#sub_category_id').on('change', function () {
         var id = $(this).val();
-        $('#child_category_id').html('<option value="">Select Child Category</option>');
+        $('#child_category_id').html('<option value="">--- Select Child Category ---</option>');
         if (id) $.getJSON("{{ url('admin/get-child-categories') }}/" + id, function (d) {
             $.each(d, function (k, v) { $('#child_category_id').append('<option value="'+v.id+'">'+v.name+'</option>'); });
         });

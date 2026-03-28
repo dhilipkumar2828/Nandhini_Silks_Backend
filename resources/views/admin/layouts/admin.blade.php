@@ -126,18 +126,48 @@
             background-color: #a91b43 !important;
         }
 
-        /* Custom Toastr Colors */
+        /* Custom Toastr Styles - Premium & Dynamic */
         #toast-container > .toast {
-            background-image: none !important;
-            padding: 15px 20px 15px 50px !important;
-            box-shadow: 0 5px 15px rgba(169, 27, 67, 0.2) !important;
             opacity: 1 !important;
+            border-radius: 12px !important;
+            padding: 18px 20px 18px 50px !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+            background-image: none !important;
         }
-        #toast-container > .toast-success, 
-        #toast-container > .toast-error, 
-        #toast-container > .toast-info, 
-        #toast-container > .toast-warning {
-            background-color: #a91b43 !important;
+        #toast-container > .toast:before {
+            position: absolute !important;
+            left: 18px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 900 !important;
+            font-size: 20px !important;
+            color: white !important;
+        }
+        #toast-container > .toast-success { 
+            background-color: #10b981 !important; /* Emerald Green */
+        }
+        #toast-container > .toast-success:before { 
+            content: "\f058" !important; /* fa-circle-check */
+        }
+        #toast-container > .toast-error { 
+            background-color: #e11d48 !important; /* Rose Red */
+        }
+        #toast-container > .toast-error:before { 
+            content: "\f06a" !important; /* fa-circle-exclamation */
+        }
+        #toast-container > .toast-info { 
+            background-color: #3b82f6 !important; /* Sky Blue */
+        }
+        #toast-container > .toast-info:before { 
+            content: "\f05a" !important; /* fa-circle-info */
+        }
+        #toast-container > .toast-warning { 
+            background-color: #f59e0b !important; /* Amber */
+        }
+        #toast-container > .toast-warning:before { 
+            content: "\f071" !important; /* fa-triangle-exclamation */
         }
 
         /* Mandatory Field marker */
@@ -815,6 +845,10 @@
 
         @if(Session::has('error'))
             toastr.error("{{ Session::get('error') }}");
+        @endif
+
+        @if(Session::has('warning'))
+            toastr.warning("{{ Session::get('warning') }}");
         @endif
 
         @if($errors->any())

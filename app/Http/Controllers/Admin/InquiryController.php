@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Inquiry;
 use Illuminate\Http\Request;
 
+use App\Mail\InquiryResponseMail;
+use Illuminate\Support\Facades\Mail;
+
 class InquiryController extends Controller
 {
     public function index(Request $request)
@@ -44,6 +47,14 @@ class InquiryController extends Controller
         ]);
 
         $inquiry->update($request->only(['status', 'admin_note']));
+
+        if ($inquiry->status == 'responded') {
+            try {
+                Mail::to($inquiry->email)->send(new InquiryResponseMail($inquiry));
+            } catch (\Exception $e) {
+                return redirect()->route('admin.inquiries.index')->with('warning', 'Inquiry updated, but email failed to send. Check logs.');
+            }
+        }
 
         return redirect()->route('admin.inquiries.index')->with('success', 'Inquiry updated successfully.');
     }

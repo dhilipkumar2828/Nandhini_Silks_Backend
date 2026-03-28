@@ -110,7 +110,7 @@ class UserAuthController extends Controller
             Mail::to($user->email)->send(new VerficationOTP($otp));
             
             // Notify Admin
-            $adminEmail = Setting::where('key', 'order_notification_email')->first()->value ?? 'orders@nandhinisilks.com';
+            $adminEmail = Setting::getAdminEmail();
             Mail::to($adminEmail)->send(new NewRegistrationAdminAlert($user));
         } catch (\Exception $e) {
             Log::error('Registration OTP Failure: ' . $e->getMessage());
