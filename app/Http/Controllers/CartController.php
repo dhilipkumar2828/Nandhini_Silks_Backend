@@ -135,13 +135,15 @@ class CartController extends Controller
             $size = '';
             $color = '';
             $length = '';
+            $age = '';
             foreach ($attributes as $aid => $avid) {
                 $val = \App\Models\AttributeValue::with('attribute')->find($avid);
                 if ($val && $val->attribute) {
                     $attrName = strtolower($val->attribute->name);
                     if (str_contains($attrName, 'size')) $size = $val->name;
-                    elseif (str_contains($attrName, 'color')) $color = $val->name;
+                    elseif (str_contains($attrName, 'color') || str_contains($attrName, 'colour')) $color = $val->name;
                     elseif (str_contains($attrName, 'length')) $length = $val->name;
+                    elseif (str_contains($attrName, 'age')) $age = $val->name;
                 }
             }
 
@@ -158,6 +160,7 @@ class CartController extends Controller
                 'size' => $size,
                 'color' => $color,
                 'length' => $length,
+                'age' => $age,
             ];
         }
 
@@ -704,13 +707,15 @@ class CartController extends Controller
                 $size = '';
                 $color = '';
                 $length = '';
+                $age = '';
                 foreach($attributes as $aid => $avid) {
                     $val = \App\Models\AttributeValue::with('attribute')->find($avid);
                     if($val && $val->attribute) {
                         $attrName = strtolower($val->attribute->name);
                         if(str_contains($attrName, 'size')) $size = $val->name;
-                        elseif(str_contains($attrName, 'color')) $color = $val->name;
+                        elseif(str_contains($attrName, 'color') || str_contains($attrName, 'colour')) $color = $val->name;
                         elseif(str_contains($attrName, 'length')) $length = $val->name;
+                        elseif(str_contains($attrName, 'age')) $age = $val->name;
                     }
                 }
 
@@ -727,6 +732,7 @@ class CartController extends Controller
                     'size' => $size,
                     'color' => $color,
                     'length' => $length,
+                    'age' => $age,
                 ];
             }
             return $cart;

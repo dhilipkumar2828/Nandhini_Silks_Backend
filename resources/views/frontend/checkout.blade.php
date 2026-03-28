@@ -423,8 +423,10 @@
                                     <div style="font-size: 12px; font-weight: 600; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $item['name'] }}</div>
                                     <div style="font-size: 10px; color: #888;">
                                         Qty: {{ $item['quantity'] }}
-                                        @if(!empty($item['color'])) · {{ $item['color'] }} @endif
+                                        @if(!empty($item['age'])) · Age: {{ $item['age'] }} @endif
                                         @if(!empty($item['size'])) · {{ $item['size'] }} @endif
+                                        @if(!empty($item['color'])) · {{ $item['color'] }} @endif
+                                        @if(!empty($item['length'])) · {{ $item['length'] }} @endif
                                     </div>
                                 </div>
                                 <div style="font-size: 12px; font-weight: 700; color: #333; flex-shrink: 0;">&#8377;{{ number_format($item['price'] * $item['quantity'], 0) }}</div>

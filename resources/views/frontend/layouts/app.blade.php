@@ -767,8 +767,10 @@
                                 <div class="cart-item-mini-info">
                                     <a href="/product/${item.slug}" class="cart-item-mini-name">${item.name}</a>
                                     <div class="cart-item-mini-meta">
-                                        ${item.size ? 'Size: ' + item.size : ''} 
-                                        ${item.color ? ' | Color: ' + item.color : ''}
+                                        ${item.age ? 'Age: ' + item.age : ''} 
+                                        ${item.size ? (item.age ? ' | ' : '') + 'Size: ' + item.size : ''} 
+                                        ${item.color ? (item.age || item.size ? ' | ' : '') + 'Color: ' + item.color : ''}
+                                        ${item.length ? (item.age || item.size || item.color ? ' | ' : '') + 'Length: ' + item.length : ''}
                                         <br>Qty: ${item.quantity}
                                     </div>
                                     <div class="cart-item-mini-price">&#8377;${(item.price * item.quantity).toLocaleString('en-IN')}</div>
