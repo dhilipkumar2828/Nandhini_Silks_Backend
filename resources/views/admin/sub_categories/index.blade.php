@@ -101,7 +101,7 @@
                     </td>
                     <td class="py-2.5 text-center">
                         <span class="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded uppercase tracking-tighter border border-indigo-100 mt-1 inline-block">
-                            {{ $subCategory->category->name }}
+                            {{ $subCategory->category->name ?? 'N/A' }}
                         </span>
                     </td>
                     <td class="py-2.5 text-[11px] text-slate-500 font-black text-center">{{ $subCategory->display_order }}</td>

@@ -102,10 +102,10 @@
                     <td class="py-2.5 text-center">
                         <div class="flex flex-col space-y-1 items-center">
                             <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                                {{ $childCategory->category->name }}
+                                {{ $childCategory->category->name ?? 'N/A' }}
                             </span>
                             <span class="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded uppercase tracking-tighter border border-indigo-100 w-fit">
-                                <i class="fas fa-chevron-right mr-1 text-[8px]"></i> {{ $childCategory->subCategory->name }}
+                                <i class="fas fa-chevron-right mr-1 text-[8px]"></i> {{ $childCategory->subCategory->name ?? 'N/A' }}
                             </span>
                         </div>
                     </td>
