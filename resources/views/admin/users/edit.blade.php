@@ -45,8 +45,8 @@
             <div class="space-y-1.5">
                 <label class="block text-xs font-bold text-slate-700">Account Status</label>
                 <select name="account_status" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
-                    <option value="Active" {{ old('account_status', $user->account_status) === 'Active' ? 'selected' : '' }}>Active</option>
-                    <option value="Inactive" {{ old('account_status', $user->account_status) === 'Inactive' ? 'selected' : '' }}>Inactive</option>
+                    <option value="Active" {{ strtolower(old('account_status', $user->account_status)) === 'active' ? 'selected' : '' }}>Active</option>
+                    <option value="Inactive" {{ strtolower(old('account_status', $user->account_status)) === 'inactive' ? 'selected' : '' }}>Inactive</option>
                 </select>
             </div>
             <div class="space-y-1.5">
@@ -86,7 +86,7 @@
         </div>
     </form>
 
-    <div class="mt-10">
+    {{-- <div class="mt-10">
         <h3 class="text-sm font-bold text-slate-800 mb-3">Addresses</h3>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -219,7 +219,7 @@
                 </div>
             </form>
         </div>
-    </div>
+    </div> --}}
 </div>
 @push('scripts')
 <script>

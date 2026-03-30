@@ -45,8 +45,8 @@
                     $currentStatus = request('status', 'all');
                     $statuses = [
                         'all' => 'All Status',
-                        'active' => 'Active',
-                        'inactive' => 'Inactive'
+                        'Active' => 'Active',
+                        'Inactive' => 'Inactive'
                     ];
                 @endphp
                 <div class="relative">
@@ -115,7 +115,7 @@
                             </div>
                         </td>
                         <td class="py-3 text-center">
-                            <span class="px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border {{ $user->account_status === 'active' ? 'bg-emerald-100 text-emerald-600 border-emerald-200' : 'bg-rose-100 text-rose-600 border-rose-200' }}">
+                            <span class="px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border {{ strtolower($user->account_status) === 'active' ? 'bg-emerald-100 text-emerald-600 border-emerald-200' : 'bg-rose-100 text-rose-600 border-rose-200' }}">
                                 {{ $user->account_status }}
                             </span>
                         </td>
