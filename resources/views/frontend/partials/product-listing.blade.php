@@ -6,8 +6,8 @@
 <section class="product-listing">
 
     <div class="product-listing-header">
-        <div class="header-left">
-            <h2 class="category-main-title">{{ $listing_title }}</h2>
+        <div class="header-left" style="display: flex; flex-direction: column; gap: 8px;">
+            <h2 class="category-main-title" style="margin: 0;">{{ $listing_title }}</h2>
             <span class="result-count">Showing {{ $current_products->firstItem() ?? 0 }}-{{ $current_products->lastItem() ?? 0 }} of {{ $current_products->total() ?? 0 }} products</span>
         </div>
 

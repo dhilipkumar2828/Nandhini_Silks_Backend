@@ -374,6 +374,14 @@
                 box-shadow: 0 12px 24px rgba(169, 27, 67, 0.2);
             }
 
+            .review-order-note {
+                width: fit-content !important;
+                max-width: 100%;
+                margin: 0 auto;
+                text-align: center;
+                white-space: normal !important;
+            }
+
             /* Enhanced Swatch Container */
             .swatch-container {
                 display: flex;
@@ -2743,7 +2751,7 @@
                                             {{ $userReview ? 'Update Your Review' : 'Write a Review' }}
                                         </button>
                                     @else
-                                        <div class="mt-3 p-1.5 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 flex items-center justify-center gap-2"
+                                        <div class="review-order-note mt-3 p-1.5 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 flex items-center justify-center gap-2"
                                             style="display: flex; width: 100%; white-space: nowrap; align-items: center; gap: 6px; font-size: 15px; border-radius: 8px;">
                                             <i class="fas fa-info-circle"></i>
                                             Order this product to leave a review
@@ -2771,7 +2779,7 @@
                                                 Write a Review
                                             </button>
                                         @else
-                                            <div class="mt-3 p-1.5 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 flex items-center justify-center gap-2"
+                                            <div class="review-order-note mt-3 p-1.5 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 flex items-center justify-center gap-2"
                                                 style="display: flex; width: 100%; white-space: nowrap; align-items: center; gap: 6px; font-size: 15px; border-radius: 8px;">
                                                 <i class="fas fa-info-circle"></i>
                                                 Order this product to leave a review
