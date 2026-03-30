@@ -25,8 +25,8 @@ class FrontendController extends Controller
     public function index()
     {
         $banners = Banner::where('status', '=', 1, 'and')->orderBy('display_order', 'asc')->get();
-        $testimonials = Testimonial::where('status', '=', 1)->where('display_homepage', '=', true)->latest()->get();
-        $featuredProducts = Product::where('is_featured', '=', true, 'and')->where('status', '=', 1, 'and')->get();
+        $testimonials = Testimonial::where('status', '=', 1)->where('display_homepage', '=', true)->latest()->limit(6)->get();
+        $featuredProducts = Product::where('is_featured', '=', true, 'and')->where('status', '=', 1, 'and')->latest()->limit(8)->get();
         $offerProducts = $featuredProducts->isNotEmpty()
             ? $featuredProducts
             : Product::where('status', '=', 1)->latest()->limit(8)->get();
