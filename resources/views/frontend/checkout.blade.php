@@ -102,7 +102,7 @@
         top: 20px;
     }
     .summary-title-v4 {
-        font-size: 18px;
+        font-size: 19px; /* Increased from 18px */
         font-weight: 700;
         color: #333;
         margin-bottom: 25px;
@@ -111,7 +111,7 @@
         display: flex;
         justify-content: space-between;
         margin-bottom: 12px;
-        font-size: 15px;
+        font-size: 16px; /* Increased from 15px */
         color: #666;
     }
     .grand-total-v4 {
@@ -120,7 +120,7 @@
         padding-top: 20px;
         display: flex;
         justify-content: space-between;
-        font-size: 20px;
+        font-size: 21px; /* Increased from 20px */
         font-weight: 700;
         color: var(--pink-dark);
     }
@@ -458,7 +458,7 @@
                 {{-- SIDEBAR --}}
                 <aside class="checkout-sidebar">
                     <div class="summary-card-v4" style="position: sticky; top: 100px;">
-                        <h3 class="summary-title-v4" style="font-size: 16px; display: flex; align-items: center; gap: 10px;">
+                        <h3 class="summary-title-v4" style="font-size: 18px; display: flex; align-items: center; gap: 10px;">
                             <i class="fa-solid fa-receipt" style="color: #A91B43;"></i>
                             Order Summary
                         </h3>
@@ -469,8 +469,8 @@
                             <div style="display: flex; gap: 10px; margin-bottom: 12px; align-items: center;">
                                 <img src="{{ $item['image_url'] }}" style="width: 34px; height: 44px; object-fit: cover; border-radius: 6px; flex-shrink: 0;">
                                 <div style="flex: 1; min-width: 0;">
-                                    <div style="font-size: 12px; font-weight: 600; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $item['name'] }}</div>
-                                    <div style="font-size: 10px; color: #888;">
+                                    <div style="font-size: 13px; font-weight: 600; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $item['name'] }}</div>
+                                    <div style="font-size: 11px; color: #888;">
                                         Qty: {{ $item['quantity'] }}
                                         @if(!empty($item['display_attributes']))
                                             @foreach($item['display_attributes'] as $attr)
@@ -479,7 +479,7 @@
                                         @endif
                                     </div>
                                 </div>
-                                <div style="font-size: 12px; font-weight: 700; color: #333; flex-shrink: 0;">&#8377;{{ number_format($item['price'] * $item['quantity'], 0) }}</div>
+                                <div style="font-size: 13px; font-weight: 700; color: #333; flex-shrink: 0;">&#8377;{{ number_format($item['price'] * $item['quantity'], 0) }}</div>
                             </div>
                             @endforeach
                         </div>
@@ -517,8 +517,8 @@
                             <label style="cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid #A91B43; border-radius: 12px; transition: all 0.2s ease; background: #fffcfd;" onclick="selectPayment('razorpay', this)">
                                 <input type="radio" name="pay_choice_radio" checked style="accent-color: #A91B43;">
                                 <div style="flex: 1;">
-                                    <div style="font-size: 12px; font-weight: 700; color: #333;">Secure Payment</div>
-                                    <div style="font-size: 10px; color: #888;">UPI, Cards, NetBanking</div>
+                                    <div style="font-size: 13px; font-weight: 700; color: #333;">Secure Payment</div>
+                                    <div style="font-size: 11px; color: #888;">UPI, Cards, NetBanking</div>
                                 </div>
                                 <i class="fa-solid fa-shield-halved" style="color: #2e7d32; font-size: 14px;"></i>
                             </label>
@@ -526,8 +526,8 @@
                             <label style="cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid #f0f0f0; border-radius: 12px; transition: all 0.2s ease; background: #fff;" onclick="selectPayment('cod', this)">
                                 <input type="radio" name="pay_choice_radio" style="accent-color: #A91B43;">
                                 <div style="flex: 1;">
-                                    <div style="font-size: 12px; font-weight: 700; color: #333;">Cash on Delivery</div>
-                                    <div style="font-size: 10px; color: #888;">Pay when you receive</div>
+                                    <div style="font-size: 13px; font-weight: 700; color: #333;">Cash on Delivery</div>
+                                    <div style="font-size: 11px; color: #888;">Pay when you receive</div>
                                 </div>
                                 <i class="fa-solid fa-truck-fast" style="color: #ef6c00; font-size: 14px;"></i>
                             </label>
@@ -539,7 +539,7 @@
 
                         <div style="text-align: center; margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; opacity: 0.5;">
                             <img src="https://razorpay.com/favicon.png" width="14">
-                            <span style="font-size: 10px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 1px;">Razorpay Secured</span>
+                            <span style="font-size: 11px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 1px;">Razorpay Secured</span>
                         </div>
                     </div>
                 </aside>

@@ -280,11 +280,25 @@
                 width: 40px;
                 height: 40px;
                 border: none;
-                border-radius: 999px;
+                border-radius: 50%;
                 background: #f8e8ee;
                 color: #a91b43;
-                font-size: 20px;
+                font-size: 18px;
                 cursor: pointer;
+                display: grid;
+                place-items: center;
+                padding: 0 !important;
+                margin: 0;
+                line-height: 1 !important;
+            }
+
+            .review-modal-close span {
+                margin: 0 !important;
+                padding: 0 !important;
+                display: block;
+                line-height: 1;
+                transform: translate(0, -3px) !important; /* Adjust the second value to move it up or down */
+                font-weight: 400;
             }
 
             .review-form-group {
@@ -1597,7 +1611,7 @@
                 #mainImg {
                     width: 100% !important;
                     height: 100% !important;
-                    object-fit: contain !important;
+                    object-fit: cover !important;
                     object-position: center top !important;
                 }
 
@@ -2705,32 +2719,32 @@
                             @if ($product->reviews()->count() > 0)
                                 <div class="space-y-6">
                                     @foreach ($product->reviews as $review)
-                                        <div class="review-item border-b border-gray-100 pb-6">
-                                            <div class="flex items-center gap-2 mb-2">
-                                                <div class="text-[#FFB800] text-sm">
+                                        <div class="review-item" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; margin-bottom: 16px;">
+                                            <div class="review-header" style="margin-bottom: 12px;">
+                                                <div class="review-stars" style="color: #FFB800; font-size: 14px; margin-bottom: 6px; letter-spacing: 2px;">
                                                     @for ($i = 1; $i <= 5; $i++)
                                                         <i class="{{ $i <= $review->stars ? 'fas' : 'far' }} fa-star"></i>
                                                     @endfor
                                                 </div>
-                                                <span
-                                                    class="font-bold text-sm text-gray-800">{{ $review->user->name ?? 'User' }}</span>
-                                                <span
-                                                    class="text-xs text-gray-400">{{ $review->created_at->format('M d, Y') }}</span>
+                                                <div class="review-meta" style="display: flex; align-items: center; gap: 10px;">
+                                                    <span class="reviewer-name" style="font-weight: 700; font-size: 14px; color: #1f2937;">{{ $review->user->name ?? 'User' }}</span>
+                                                    <span class="review-date" style="font-size: 12px; color: #94a3b8;">{{ $review->created_at->format('M d, Y') }}</span>
+                                                </div>
                                             </div>
-                                            <p class="text-sm text-gray-600 leading-relaxed">{{ $review->review }}</p>
+                                            <p class="review-text" style="font-size: 14px; color: #475569; line-height: 1.6; margin: 0;">{{ $review->review }}</p>
                                         </div>
                                     @endforeach
                                 </div>
                                 @auth
                                     @if ($hasPurchased)
                                         <button type="button" class="review-write-btn" id="openReviewFormBtn"
-                                            style="margin-top: 24px;">
+                                            style="margin-top: 12px;">
                                             <i class="far fa-pen-to-square"></i>
                                             {{ $userReview ? 'Update Your Review' : 'Write a Review' }}
                                         </button>
                                     @else
-                                        <div class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-sm flex items-center gap-2"
-                                            style="display: inline-flex; width: auto; align-items: center; gap: 8px;">
+                                        <div class="mt-3 p-1.5 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 flex items-center justify-center gap-2"
+                                            style="display: flex; width: 100%; white-space: nowrap; align-items: center; gap: 6px; font-size: 15px; border-radius: 8px;">
                                             <i class="fas fa-info-circle"></i>
                                             Order this product to leave a review
                                         </div>
@@ -2757,8 +2771,8 @@
                                                 Write a Review
                                             </button>
                                         @else
-                                            <div class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-sm flex items-center gap-2"
-                                                style="display: inline-flex; width: auto; align-items: center; gap: 8px;">
+                                            <div class="mt-3 p-1.5 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 flex items-center justify-center gap-2"
+                                                style="display: flex; width: 100%; white-space: nowrap; align-items: center; gap: 6px; font-size: 15px; border-radius: 8px;">
                                                 <i class="fas fa-info-circle"></i>
                                                 Order this product to leave a review
                                             </div>
@@ -2781,7 +2795,7 @@
                                     <h3 class="review-modal-title">{{ $userReview ? 'Update Your Review' : 'Write a Review' }}
                                     </h3>
                                     <button type="button" class="review-modal-close" id="closeReviewFormBtn"
-                                        aria-label="Close review form">&times;</button>
+                                        aria-label="Close review form"><span>&times;</span></button>
                                 </div>
                                 <form method="POST" action="{{ route('product.review.store', $product) }}">
                                     @csrf
@@ -2908,74 +2922,67 @@
                         <div class="recently-viewed-accent"></div>
                     </div>
 
-                    <div class="recently-viewed-grid">
-                        @foreach ($recentlyViewed as $recent)
-                            @php
-                                $recentImagePath = $recent->image_path;
-                                if (!$recentImagePath && !empty($recent->images)) {
-                                    $recentImages = is_string($recent->images)
-                                        ? json_decode($recent->images, true)
-                                        : $recent->images;
-                                    $recentImagePath =
-                                        is_array($recentImages) && count($recentImages) > 0 ? $recentImages[0] : null;
-                                }
-
-                                $recentDisplayImage = asset('images/pro.png');
-                                if ($recentImagePath) {
-                                    if (
-                                        Str::startsWith($recentImagePath, 'products/') ||
-                                        Str::startsWith($recentImagePath, 'categories/')
-                                    ) {
-                                        $recentDisplayImage = asset('uploads/' . $recentImagePath);
-                                    } elseif (Str::startsWith($recentImagePath, 'images/')) {
-                                        $recentDisplayImage = asset($recentImagePath);
-                                    } else {
-                                        $recentDisplayImage = asset('images/' . $recentImagePath);
-                                    }
-                                }
-
-                                $recentInWishlist = in_array($recent->id, session('wishlist', []));
-                                $recentPrice = $recent->sale_price > 0 ? $recent->sale_price : $recent->price;
-                                $recentOldPrice = $recent->sale_price > 0
-                                    ? ($recent->regular_price ?? $recent->price)
-                                    : (isset($recent->regular_price) && $recent->regular_price > $recent->price
-                                        ? $recent->regular_price
-                                        : null);
-                            @endphp
-                            <article class="recently-viewed-card" data-product-id="{{ $recent->id }}">
-                                <button type="button" class="btn-wishlist-detail wishlist-btn" id="wishlistBtn_{{ $recent->id }}"
-                                    aria-label="Add to Wishlist" aria-pressed="{{ $recentInWishlist ? 'true' : 'false' }}"
-                                    data-product-id="{{ $recent->id }}"
-                                    style="position: absolute; top: 8px; right: 8px; width: 42px; height: 42px; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.1); z-index: 10;">
-                                    <i class="{{ $recentInWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart" id="wishlistIcon_{{ $recent->id }}"
-                                        style="color: #A91B43; font-size: 18px;"></i>
-                                </button>
-
-                                <a href="{{ route('product.show', $recent->slug) }}" class="recently-viewed-link">
-                                    <div class="recently-viewed-media">
-                                        <img src="{{ $recentDisplayImage }}" alt="{{ $recent->name }}" loading="lazy">
+                    <div class="swiper-wrap-outer">
+                        <div class="swiper recently-swiper">
+                            <div class="swiper-wrapper">
+                                @foreach ($recentlyViewed as $recent)
+                                    <div class="swiper-slide">
+                                        <article class="product-card-v2" style="height: 100%;">
+                                            @php
+                                                $recentImage = 'images/pro.png';
+                                                if ($recent->image_path) {
+                                                    if (
+                                                        Str::startsWith($recent->image_path, 'products/') ||
+                                                        Str::startsWith($recent->image_path, 'categories/')
+                                                    ) {
+                                                        $recentImage = 'uploads/' . $recent->image_path;
+                                                    } else {
+                                                        $recentImage = 'images/' . $recent->image_path;
+                                                    }
+                                                } elseif (!empty($recent->images)) {
+                                                    $rImages = is_string($recent->images)
+                                                        ? json_decode($recent->images, true)
+                                                        : $recent->images;
+                                                    if (is_array($rImages) && count($rImages) > 0) {
+                                                        $recentImage = 'uploads/' . $rImages[0];
+                                                    }
+                                                }
+                                            @endphp
+                                            @php $rInWishlist = in_array($recent->id, session('wishlist', [])); @endphp
+                                            <a href="{{ route('product.show', $recent->slug) }}"
+                                                style="text-decoration: none; color: inherit;">
+                                                <div class="product-image-v2" style="position: relative;">
+                                                    <img src="{{ asset($recentImage) }}" alt="{{ $recent->name }}">
+                                                    <button type="button" class="btn-wishlist-detail wishlist-btn" id="recentWishlistBtn_{{ $recent->id }}"
+                                                        aria-label="Add to Wishlist" data-product-id="{{ $recent->id }}"
+                                                        style="position: absolute; top: 15px; right: 15px; width: 42px; height: 42px; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10;">
+                                                        <i class="{{ $rInWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart" id="recentWishlistIcon_{{ $recent->id }}"
+                                                            style="color: #A91B43; font-size: 18px;"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="product-info-v2" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 15px;">
+                                                    <h3 class="product-name-v2" style="margin: 0 0 8px; font-size: 17px; font-weight: 700; color: #1a1a1a;">{{ \Illuminate\Support\Str::limit($recent->name, 55) }}</h3>
+                                                <div class="product-price-v2" style="margin: 0; font-size: 18px; font-weight: 800; display: flex; align-items: baseline; gap: 8px;">
+                                                    @if($recent->sale_price > 0)
+                                                        <span class="price-current">₹{{ number_format($recent->sale_price, 0) }}</span>
+                                                        <span class="product-price-old" style="color: #98A2B3; font-size: 15px; font-weight: 500;">₹{{ number_format($recent->regular_price ?? $recent->price, 0) }}</span>
+                                                    @else
+                                                        <span class="price-current">₹{{ number_format($recent->price, 0) }}</span>
+                                                        @if(isset($recent->regular_price) && $recent->regular_price > $recent->price)
+                                                            <span class="product-price-old" style="color: #98A2B3; font-size: 15px; font-weight: 500;">₹{{ number_format($recent->regular_price, 0) }}</span>
+                                                        @endif
+                                                    @endif
+                                                </div>
+                                                    <span class="add-to-cart-v2">View Details</span>
+                                                </div>
+                                            </a>
+                                        </article>
                                     </div>
-                                    <div class="recently-viewed-content">
-                                        <span class="recently-viewed-category">
-                                            {{ $recent->category->name ?? 'Collection' }}
-                                        </span>
-                                        <h3 class="recently-viewed-name">{{ \Illuminate\Support\Str::limit($recent->name, 55) }}</h3>
-                                        {{-- <span class="read-more-link" style="font-size: 12px; color: var(--pink); font-weight: 600; text-decoration: underline; margin-bottom: 8px; display: block;">Read More...</span> --}}
-                                        <div class="recently-viewed-price">
-                                            <span class="recently-viewed-price-current">
-                                                ₹{{ number_format($recentPrice, 0) }}
-                                            </span>
-                                            @if($recentOldPrice)
-                                                <span class="recently-viewed-price-old" style="text-decoration: line-through !important;">
-                                                    ₹{{ number_format($recentOldPrice, 0) }}
-                                                </span>
-                                            @endif
-                                        </div>
-                                        <span class="recently-viewed-cta">View Details</span>
-                                    </div>
-                                </a>
-                            </article>
-                        @endforeach
+                                @endforeach
+                            </div>
+                        </div>
+                        <div class="swiper-button-next recently-next"></div>
+                        <div class="swiper-button-prev recently-prev"></div>
                     </div>
                 </section>
             @endif
@@ -3488,46 +3495,40 @@
             const tc = document.getElementById('thumbnailsContainer');
             if (tc) tc.style.display = 'flex';
 
-            const swiperOptions = {
-                slidesPerView: 2,
-                spaceBetween: 20,
-                loop: true,
-                observer: true,
-                observeParents: true,
-                watchOverflow: true,
-                autoplay: {
-                    delay: 3500,
-                    disableOnInteraction: false,
-                },
-                navigation: {
-                    nextEl: '.related-next',
-                    prevEl: '.related-prev',
-                },
-                breakpoints: {
-                    640: {
-                        slidesPerView: 2
-                    },
-                    768: {
-                        slidesPerView: 3
-                    },
-                    1024: {
-                        slidesPerView: 4
-                    },
-                }
-            };
+            function initSwiper(selector, nextEl, prevEl) {
+                const el = document.querySelector(selector);
+                if (!el) return;
+                
+                const slideCount = el.querySelectorAll('.swiper-slide').length;
+                // Only loop if we have enough slides, otherwise centering and sliding misbehaves
+                const shouldLoop = slideCount > 4; 
 
-            if (document.querySelector('.related-swiper')) {
-                new Swiper('.related-swiper', swiperOptions);
-            }
-            if (document.querySelector('.recently-swiper')) {
-                new Swiper('.recently-swiper', {
-                    ...swiperOptions,
+                new Swiper(selector, {
+                    slidesPerView: 2,
+                    spaceBetween: 20,
+                    loop: shouldLoop,
+                    centerInsufficientSlides: true, // Centers when slides are fewer than slidesPerView
+                    observer: true,
+                    observeParents: true,
+                    watchOverflow: true,
+                    autoplay: {
+                        delay: 3500,
+                        disableOnInteraction: false,
+                    },
                     navigation: {
-                        nextEl: '.recently-next',
-                        prevEl: '.recently-prev',
+                        nextEl: nextEl,
+                        prevEl: prevEl,
+                    },
+                    breakpoints: {
+                        640: { slidesPerView: 2 },
+                        768: { slidesPerView: 3 },
+                        1024: { slidesPerView: 4 },
                     }
                 });
             }
+
+            initSwiper('.related-swiper', '.related-next', '.related-prev');
+            initSwiper('.recently-swiper', '.recently-next', '.recently-prev');
 
         });
         // AJAX Add to Cart

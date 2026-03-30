@@ -99,7 +99,7 @@
                                     <p class="product-price-v2">&#8377;{{ number_format($product->price, 0) }}</p>
                                 </div>
                             </a>
-                            <form action="{{ route('cart.add', $product->id) }}" method="POST">
+                            <form action="{{ route('cart.add', $product->id) }}" method="POST" class="wishlist-cart-form">
                                 @csrf
                                 <button type="submit" class="add-to-cart-v2">Add to Cart</button>
                             </form>

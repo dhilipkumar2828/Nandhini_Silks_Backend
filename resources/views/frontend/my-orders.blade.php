@@ -37,8 +37,11 @@
 
     .order-meta {
         display: flex;
-        gap: 30px;
+        justify-content: space-between;
+        flex: 1;
+        gap: 20px;
         flex-wrap: wrap;
+        padding-right: 40px;
     }
 
     .meta-item {
@@ -237,28 +240,19 @@
         }
 
         .order-meta {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            column-gap: 10px;
-            row-gap: 6px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
             align-items: flex-start;
             width: 100%;
+            padding-right: 0;
         }
 
         .meta-item {
             gap: 2px;
             min-width: 0;
-        }
-
-        .meta-item:nth-child(2) {
-            align-items: center;
-            text-align: center;
-        }
-
-        .meta-item:last-child {
-            align-items: flex-end;
-            justify-self: end;
-            text-align: right;
+            text-align: left;
+            align-items: flex-start;
         }
 
         .meta-label {

@@ -90,7 +90,7 @@
 
         .featured-decor-left {
             left: 0;
-            top: 433px;
+            top: 460px;
             bottom: auto !important;
         }
 
@@ -608,6 +608,7 @@
 
         .testimonial-section {
             margin-bottom: 0;
+            padding-bottom: 50px;
         }
 
         .testimonial-swiper {

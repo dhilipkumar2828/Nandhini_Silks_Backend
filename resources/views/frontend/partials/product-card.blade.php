@@ -28,9 +28,8 @@
             </button>
         </div>
         <div class="product-info-v2">
-            @if($product->reviews_count > 0)
-            <div class="product-rating-v2">
-                @php $rating = round($product->average_rating); @endphp
+            <div class="product-rating-v2" style="{{ $product->reviews_count > 0 ? '' : 'visibility: hidden;' }}">
+                @php $rating = round($product->average_rating ?? 0); @endphp
                 @for ($i = 1; $i <= 5; $i++)
                     @if ($i <= $rating)
                         <i class="fa-solid fa-star"></i>
@@ -38,9 +37,8 @@
                         <i class="fa-regular fa-star"></i>
                     @endif
                 @endfor
-                <span class="review-count">({{ $product->reviews_count }})</span>
+                <span class="review-count">({{ $product->reviews_count ?? 0 }})</span>
             </div>
-            @endif
             <span class="product-category-v2">{{ $product->category->name ?? 'Collection' }}</span>
             <h3 class="product-name-v2">{{ \Illuminate\Support\Str::limit($product->name, 55) }}</h3>
             {{-- <span class="read-more-link">Read More...</span> --}}
