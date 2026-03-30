@@ -6494,7 +6494,7 @@ body.menu-open {
 
 /* Button Alignment */
 .add-to-cart-v2, .recently-viewed-cta {
-    margin: 12px auto 0 !important;
+    margin: 12px auto 12px !important;
     align-self: center !important;
 }
 
