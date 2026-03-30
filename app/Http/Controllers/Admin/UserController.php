@@ -119,6 +119,7 @@ class UserController extends Controller
             'recipient_name' => $request->input('recipient_name'),
             'recipient_phone' => $request->input('recipient_phone'),
             'address1' => $request->input('address1'),
+            'address2' => $request->input('address2'),
             'city' => $request->input('city'),
             'state' => $request->input('state'),
             'zip' => $request->input('zip'),
@@ -148,6 +149,7 @@ class UserController extends Controller
             'recipient_name' => $request->input('recipient_name'),
             'recipient_phone' => $request->input('recipient_phone'),
             'address1' => $request->input('address1'),
+            'address2' => $request->input('address2'),
             'city' => $request->input('city'),
             'state' => $request->input('state'),
             'zip' => $request->input('zip'),
@@ -163,22 +165,18 @@ class UserController extends Controller
     {
         return $request->validate([
             'label' => 'nullable|string|max:50',
-            'recipient_name' => 'required|string|max:255|regex:/^[a-zA-Z\s]+$/',
+            'recipient_name' => 'required|string|max:255',
             'recipient_phone' => 'required|string|regex:/^[0-9]{10}$/',
             'address1' => 'required|string|max:255',
             'address2' => 'nullable|string|max:255',
-            'city' => 'required|string|max:100|regex:/^[a-zA-Z\s]+$/',
-            'state' => 'required|string|max:100|regex:/^[a-zA-Z\s]+$/',
+            'city' => 'required|string|max:100',
+            'state' => 'required|string|max:100',
             'zip' => 'nullable|string|regex:/^[0-9]{6}$/',
-            'country' => 'nullable|string|max:100|regex:/^[a-zA-Z\s]+$/',
+            'country' => 'nullable|string|max:100',
             'landmark' => 'nullable|string|max:255',
             'is_default' => 'nullable|boolean',
         ], [
-            'recipient_name.regex' => 'The Recipient Full Name should only contain alphabets and spaces.',
             'recipient_phone.regex' => 'The Recipient Phone number must be exactly 10 digits.',
-            'city.regex' => 'The City field should only contain alphabets and spaces.',
-            'state.regex' => 'The State field should only contain alphabets and spaces.',
-            'country.regex' => 'The Country field should only contain alphabets and spaces.',
             'zip.regex' => 'The ZIP code must be exactly 6 digits.',
         ]);
     }

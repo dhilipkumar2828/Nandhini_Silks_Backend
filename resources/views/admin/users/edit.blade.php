@@ -153,9 +153,13 @@
                     <label class="block text-xs font-bold text-slate-700 mb-1">Landmark</label>
                     <input type="text" name="landmark" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800" placeholder="Near temple">
                 </div>
-                <div class="md:col-span-2">
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Address Line 1</label>
-                    <input type="text" name="address1" required class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
+                <div class="md:col-span-1">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Address Line 1 <span class="text-rose-500">*</span></label>
+                    <input type="text" name="address1" required class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800" placeholder="Street name, Apartment">
+                </div>
+                <div class="md:col-span-1">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Address Line 2 (Optional)</label>
+                    <input type="text" name="address2" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800" placeholder="Suite, unit, etc.">
                 </div>
                
                 <div>
@@ -301,23 +305,11 @@
             this.classList.add('hidden');
         });
 
-        const alphaFields = [
-            'input[name="name"]',
-            'input[name="recipient_name"]',
-            'input[name="city"]',
-            'input[name="country"]'
-        ];
-        
         const numericFields = [
             'input[name="phone"]',
             'input[name="recipient_phone"]',
             'input[name="zip"]'
         ];
-
-        alphaFields.forEach(selector => {
-            const el = document.querySelector(selector);
-            if (el) el.addEventListener('input', restrictToAlphabets);
-        });
 
         numericFields.forEach(selector => {
             const el = document.querySelector(selector);
