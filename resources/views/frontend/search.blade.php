@@ -85,6 +85,7 @@
             position: relative;
             cursor: pointer;
             user-select: none;
+            padding-top: 10px;
         }
 
         .custom-checkbox input {
@@ -470,28 +471,22 @@
             }
 
             .filter-title::after {
-                content: "+";
+                content: '\f078'; /* Font Awesome Chevron Down */
+                font-family: 'Font Awesome 6 Free';
+                font-weight: 900;
+                font-size: 14px;
                 position: absolute;
                 right: 0;
                 top: 50%;
-                transform: translateY(-52%);
-                width: 22px;
-                height: 22px;
-                border-radius: 50%;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
+                transform: translateY(-50%) rotate(0deg);
                 color: #a91b43;
-                font-size: 18px;
                 line-height: 1;
+                transition: transform 0.3s ease;
             }
 
-            .filter-group.is-open .filter-title::after {
-                content: "−";
-            }
-
+            .filter-group.is-open .filter-title::after,
             .filter-group:first-child .filter-title::after {
-                content: "−";
+                transform: translateY(-50%) rotate(180deg);
             }
 
             .filter-group-content {
@@ -552,7 +547,7 @@
 
             <button type="button" class="mobile-filter-toggle" id="mobileFilterToggle" aria-expanded="false" aria-controls="filtersSidebar">
                 <span>Filters</span>
-                <span class="mobile-filter-toggle-icon">+</span>
+                <span class="mobile-filter-toggle-icon"><i class="fa-solid fa-chevron-down"></i></span>
             </button>
 
             <div class="mobile-filter-overlay" id="mobileFilterOverlay"></div>
@@ -695,14 +690,14 @@
                 filtersSidebar.classList.remove('mobile-open');
                 mobileFilterOverlay?.classList.remove('active');
                 mobileFilterToggle.setAttribute('aria-expanded', 'false');
-                if (mobileFilterToggleIcon) mobileFilterToggleIcon.textContent = '+';
+                if (mobileFilterToggleIcon) mobileFilterToggleIcon.style.transform = 'rotate(0deg)';
             };
 
             const openFilters = () => {
                 filtersSidebar.classList.add('mobile-open');
                 mobileFilterOverlay?.classList.remove('active');
                 mobileFilterToggle.setAttribute('aria-expanded', 'true');
-                if (mobileFilterToggleIcon) mobileFilterToggleIcon.textContent = '−';
+                if (mobileFilterToggleIcon) mobileFilterToggleIcon.style.transform = 'rotate(180deg)';
             };
 
             mobileFilterToggle.addEventListener('click', () => {

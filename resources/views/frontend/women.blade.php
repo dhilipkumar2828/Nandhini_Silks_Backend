@@ -170,6 +170,7 @@
             position: relative;
             cursor: pointer;
             user-select: none;
+            padding-top: 10px;
         }
 
         .custom-checkbox input {

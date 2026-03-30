@@ -280,7 +280,7 @@
 
 </head>
 
-<body>
+<body class="{{ request()->routeIs('home') ? 'home-page' : 'inner-page' }}">
     <header class="top-header">
         <div class="page-shell header-row">
             <a href="{{ route('home') }}" class="brand-link">

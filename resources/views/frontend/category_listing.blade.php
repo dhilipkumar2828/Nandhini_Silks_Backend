@@ -11,7 +11,7 @@
 
             <button type="button" class="mobile-filter-toggle" id="mobileFilterToggle" aria-expanded="false" aria-controls="filtersSidebar">
                 <span>Filters</span>
-                <span class="mobile-filter-toggle-icon">+</span>
+                <span class="mobile-filter-toggle-icon"><i class="fa-solid fa-chevron-down"></i></span>
             </button>
 
             <div class="mobile-filter-overlay" id="mobileFilterOverlay"></div>
@@ -201,13 +201,13 @@
         if (mobileFilterToggle && filtersSidebar) {
             const closeFilters = () => {
                 filtersSidebar.classList.remove('mobile-open');
-                if (mobileFilterToggleIcon) mobileFilterToggleIcon.textContent = '+';
+                if (mobileFilterToggleIcon) mobileFilterToggleIcon.style.transform = 'rotate(0deg)';
                 mobileFilterToggle.setAttribute('aria-expanded', 'false');
             };
 
             const openFilters = () => {
                 filtersSidebar.classList.add('mobile-open');
-                if (mobileFilterToggleIcon) mobileFilterToggleIcon.textContent = '−';
+                if (mobileFilterToggleIcon) mobileFilterToggleIcon.style.transform = 'rotate(180deg)';
                 mobileFilterToggle.setAttribute('aria-expanded', 'true');
             };
 
@@ -295,14 +295,20 @@
                 border: none;
             }
             .filter-group .filter-title::after {
-                content: '+';
+                content: '\f078'; /* Font Awesome Chevron Down */
+                font-family: 'Font Awesome 6 Free';
+                font-weight: 900;
+                font-size: 14px;
                 position: absolute;
                 right: 0;
+                top: 50%;
+                transform: translateY(-50%) rotate(0deg);
                 color: #A91B43;
-                font-weight: 400;
-                font-size: 20px;
+                transition: transform 0.3s ease;
             }
-            .filter-group.is-open .filter-title::after { content: '−'; }
+            .filter-group.is-open .filter-title::after {
+                transform: translateY(-50%) rotate(180deg);
+            }
             .filter-group-content { display: none; padding: 5px 0 15px; }
             .filter-group.is-open .filter-group-content { display: block; }
         }
@@ -366,6 +372,7 @@
             position: relative;
             cursor: pointer;
             user-select: none;
+            padding-top: 10px;
         }
 
         .custom-checkbox input {

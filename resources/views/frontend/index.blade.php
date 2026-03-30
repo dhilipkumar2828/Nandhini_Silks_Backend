@@ -11,6 +11,7 @@
             --home-subtitle-space: 24px;
             --category-image-size: 136px;
             --category-arrow-offset: 5px;
+            --hero-banner-ratio: 12 / 5;
         }
 
         .collection-section,
@@ -89,7 +90,7 @@
 
         .featured-decor-left {
             left: 0;
-            top: 433px;
+            top: 460px;
             bottom: auto !important;
         }
 
@@ -215,13 +216,16 @@
 
         .collection-title,
         .featured-title,
-        .category-title,
-        .testimonial-title {
+        .category-title {
             margin-bottom: 30px !important;
             margin-left: auto;
             margin-right: auto;
             text-align: center;
             line-height: 1.15;
+        }
+
+        .testimonial-title {
+            margin-bottom: 10px !important;
         }
 
         .collection-swiper,
@@ -604,6 +608,7 @@
 
         .testimonial-section {
             margin-bottom: 0;
+            padding-bottom: 50px;
         }
 
         .testimonial-swiper {
@@ -1016,13 +1021,13 @@
 
             .promo-prev {
                 left: 5px !important;
-                top: 50%;
+                top: 55%;
                 z-index: 1001;
             }
 
             .promo-next {
                 right: 5px !important;
-                top: 50%;
+                top: 55%;
                 z-index: 1001;
             }
 
@@ -1413,11 +1418,11 @@
             }
 
             .category-prev {
-                left: 6px !important;
+                left: 20px !important;
             }
 
             .category-next {
-                right: 6px !important;
+                right: 20px !important;
             }
 
             .category-prev::after,
@@ -1485,6 +1490,65 @@
 
             .category-next {
                 right: 2px !important;
+            }
+        }
+
+        /* Final alignment + hero banner visibility patch */
+        .testimonial-swiper-wrap .testimonial-prev,
+        .testimonial-swiper-wrap .testimonial-next {
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            .testimonial-swiper-wrap .testimonial-prev,
+            .testimonial-swiper-wrap .testimonial-next {
+                top: 55% !important;
+            }
+
+            .testimonial-swiper-wrap .testimonial-prev {
+                left: 10% !important;
+                transform: translateX(calc(-100% - 8px)) translateY(-50%) !important;
+            }
+
+            .testimonial-swiper-wrap .testimonial-next {
+                left: 90% !important;
+                right: auto !important;
+                transform: translateX(8px) translateY(-50%) !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero,
+            .hero-swiper,
+            .hero-swiper .swiper-slide {
+                width: 100%;
+                height: 200px !important;
+            }
+
+            .hero {
+                padding-bottom: 10px;
+            }
+
+            .hero-swiper .swiper-slide {
+                overflow: hidden;
+            }
+
+            .hero-swiper .swiper-slide img {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: cover !important;
+                object-position: center;
+                display: block;
+            }
+
+            .hero-prev,
+            .hero-next {
+                top: 50% !important;
+                transform: translateY(-50%) !important;
             }
         }
     </style>
@@ -1850,10 +1914,10 @@
                 const enableCategoryLoop = categorySlideCount > 6;
 
                 new Swiper('.category-swiper', {
-                    slidesPerView: 2,
+                    slidesPerView: 1,
                     slidesPerGroup: 1,
                     spaceBetween: 10,
-                    centeredSlides: true,
+                    centeredSlides: false,
                     speed: 500,
                     loop: enableCategoryLoop,
                     watchOverflow: false,
@@ -1867,19 +1931,19 @@
                     },
                     breakpoints: {
                         0: {
-                            slidesPerView: 2,
+                            slidesPerView: 1,
                             spaceBetween: 8
                         },
                         400: {
-                            slidesPerView: 2.4,
+                            slidesPerView: 1,
                             spaceBetween: 8
                         },
                         480: {
-                            slidesPerView: 3,
+                            slidesPerView: 1,
                             spaceBetween: 10
                         },
                         768: {
-                            slidesPerView: 4,
+                            slidesPerView: 1,
                             spaceBetween: 12
                         },
                         1024: {

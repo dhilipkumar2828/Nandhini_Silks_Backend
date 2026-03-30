@@ -656,17 +656,23 @@
                                         <img src="{{ $item->getImageUrl() }}" alt="" class="item-img">
                                         <div>
                                             <div class="item-name">{{ $item->product_name }}</div>
-                                            <div class="item-meta">
+                                            <div class="item-meta" style="font-size: 13px; color: #64748b; margin-top: 4px;">
                                                 @if(!empty($item->attributes))
                                                     @foreach($item->attributes as $attr)
-                                                        {{ $attr['name'] }}: {{ $attr['value'] }} @if(!$loop->last) | @endif
+                                                        <span style="background: #f1f5f9; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 2px;">
+                                                            {{ $attr['name'] }}: {{ $attr['value'] }} 
+                                                        </span>
+                                                        @if(!$loop->last) &nbsp; @endif
                                                     @endforeach
                                                 @else
-                                                    @if($item->color) Color: {{ $item->color }} @endif 
-                                                    @if($item->size) {{ $item->color ? ' | ' : '' }} Size: {{ $item->size }} @endif
-                                                    @if(!$item->color && !$item->size) Regular Type @endif
+                                                    @if($item->color || $item->size)
+                                                        @if($item->color) <span style="background: #f1f5f9; padding: 2px 8px; border-radius: 4px;">Color: {{ $item->color }}</span> @endif 
+                                                        @if($item->size) &nbsp; <span style="background: #f1f5f9; padding: 2px 8px; border-radius: 4px;">Size: {{ $item->size }}</span> @endif
+                                                    @else
+                                                        <span style="color: #94a3b8; font-style: italic;">Standard Unit</span>
+                                                    @endif
                                                 @endif
-                                            </div>
+                                             </div>
                                         </div>
                                     </div>
                                 </td>
