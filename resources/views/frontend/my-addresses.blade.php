@@ -43,7 +43,7 @@
                         @foreach($addresses as $addr)
                         <div class="address-card-v3 {{ $addr->is_default ? 'default' : '' }}" id="addr-{{ $addr->id }}">
                             @if($addr->is_default)<span class="default-badge-v3">Default</span>@endif
-                            <h3 class="address-name-v3">{{ optional(Auth::user())->name }} ({{ $addr->label }})</h3>
+                            <h3 class="address-name-v3">{{ $addr->recipient_name ?? optional(Auth::user())->name }} ({{ $addr->label }})</h3>
                             <div class="address-details-v3">
                                 <span class="addr-street">{{ $addr->address1 }}</span><br>
                                 @if($addr->address2)<span class="addr-street">{{ $addr->address2 }}</span><br>@endif
@@ -61,6 +61,7 @@
                                         state: @js($addr->state),
                                         zip: @js($addr->zip),
                                         country: @js($addr->country ?? 'India'),
+                                        recipient_name: @js($addr->recipient_name ?? optional(Auth::user())->name),
                                         recipient_phone: @js($addr->recipient_phone ?? optional(Auth::user())->phone)
                                     })"
                                     style="padding: 10px 16px; border-radius: 10px; border: 1px solid #940437; background: #fff; color: #940437; font-size: 13px; font-weight: 700; cursor: pointer;">
@@ -104,6 +105,10 @@
                             <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Address Label</label>
                             <input type="text" id="address_label" name="label" required oninput="this.value=this.value.replace(/[^A-Za-z\\s]/g,'')" style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;" placeholder="e.g. Home, Office"
                                 data-msg-required="Please enter an address label.">
+                        </div>
+                        <div class="form-group">
+                            <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Recipient Full Name</label>
+                            <input type="text" id="address_recipient_name" name="recipient_name" required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px;" placeholder="Full Name">
                         </div>
                         <div class="form-group">
                             <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Phone Number</label>
@@ -174,6 +179,7 @@
             state: document.getElementById('address_state'),
             zip: document.getElementById('address_zip'),
             country: document.getElementById('address_country'),
+            recipient_name: document.getElementById('address_recipient_name'),
         };
 
         function clearAddressValidation() {
@@ -199,6 +205,7 @@
             addressFields.state.value = '';
             addressFields.zip.value = '';
             addressFields.country.value = 'India';
+            addressFields.recipient_name.value = @js(optional(Auth::user())->name ?? '');
             clearAddressValidation();
         }
 
@@ -220,6 +227,7 @@
             addressFields.state.value = address.state || '';
             addressFields.zip.value = address.zip || '';
             addressFields.country.value = address.country || 'India';
+            addressFields.recipient_name.value = address.recipient_name || '';
             clearAddressValidation();
             addressModal.style.display = 'flex';
         }

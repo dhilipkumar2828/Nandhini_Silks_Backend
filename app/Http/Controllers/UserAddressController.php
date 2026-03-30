@@ -57,7 +57,7 @@ class UserAddressController extends Controller
             return back()->with('error', 'You must be logged in to update an address.');
         }
 
-        if ($address->user_id !== Auth::id()) {
+        if ($address->user_id != Auth::id()) {
             abort(403);
         }
 
@@ -83,7 +83,7 @@ class UserAddressController extends Controller
             return back()->with('error', 'You must be logged in to delete an address.');
         }
 
-        if ($address->user_id !== Auth::id()) {
+        if ($address->user_id != Auth::id()) {
             abort(403);
         }
 
