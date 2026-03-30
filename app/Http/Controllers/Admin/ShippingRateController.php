@@ -43,6 +43,9 @@ class ShippingRateController extends Controller
         $request->validate([
             'shipping_class_id' => 'required|exists:shipping_classes,id',
             'name' => 'required|string|max:255',
+            'country' => 'nullable|string|max:100',
+            'state' => 'nullable|string|max:100',
+            'zip' => 'nullable|string|max:20',
             'cost' => 'required|numeric|min:0',
             'status' => 'required|boolean',
             'display_order' => 'nullable|integer',
@@ -69,6 +72,9 @@ class ShippingRateController extends Controller
         $request->validate([
             'shipping_class_id' => 'required|exists:shipping_classes,id',
             'name' => 'required|string|max:255',
+            'country' => 'nullable|string|max:100',
+            'state' => 'nullable|string|max:100',
+            'zip' => 'nullable|string|max:20',
             'cost' => 'required|numeric|min:0',
             'status' => 'required|boolean',
             'display_order' => 'nullable|integer',

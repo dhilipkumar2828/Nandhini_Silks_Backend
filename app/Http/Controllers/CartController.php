@@ -1026,25 +1026,31 @@ class CartController extends Controller
 
         $coupon = Coupon::find($couponId);
         if (!$coupon || !$coupon->status) {
+            Log::info('COUPON REJECTED: Not found or inactive.', ['coupon_id' => $couponId]);
             return $this->invalidateCoupon();
         }
 
         $now = now();
         if ($coupon->valid_from && $now->lt($coupon->valid_from)) {
+            Log::info('COUPON REJECTED: Before valid date.', ['code' => $coupon->code, 'now' => $now, 'valid_from' => $coupon->valid_from]);
             return $this->invalidateCoupon();
         }
         if ($coupon->expires_at && $now->gt($coupon->expires_at)) {
+            Log::info('COUPON REJECTED: Expired.', ['code' => $coupon->code, 'now' => $now, 'expires_at' => $coupon->expires_at]);
             return $this->invalidateCoupon();
         }
         if ($coupon->usage_limit && $coupon->times_used >= $coupon->usage_limit) {
+            Log::info('COUPON REJECTED: Usage limit reached.', ['code' => $coupon->code, 'used' => $coupon->times_used, 'limit' => $coupon->usage_limit]);
             return $this->invalidateCoupon();
         }
         if ($coupon->min_order_amount && $subTotal < $coupon->min_order_amount) {
+            Log::info('COUPON REJECTED: Min order amount not met.', ['code' => $coupon->code, 'subtotal' => $subTotal, 'min' => $coupon->min_order_amount]);
             return $this->invalidateCoupon();
         }
 
         $eligibleSubtotal = $this->eligibleSubtotal($items, $coupon);
         if ($eligibleSubtotal <= 0) {
+            Log::info('COUPON REJECTED: No eligible items in cart.', ['code' => $coupon->code, 'applicable_products' => $coupon->applicable_products]);
             return $this->invalidateCoupon();
         }
 
@@ -1071,6 +1077,13 @@ class CartController extends Controller
         $productIds = $coupon->applicable_products ?? [];
         $categoryIds = $coupon->applicable_categories ?? [];
 
+        Log::info('COUPON ELIGIBILITY CHECK:', [
+            'code' => $coupon->code,
+            'applicable_products' => $productIds,
+            'applicable_categories' => $categoryIds,
+            'cart_items_count' => count($items)
+        ]);
+
         $sum = 0;
 
         if (empty($productIds) && empty($categoryIds)) {
@@ -1086,8 +1099,18 @@ class CartController extends Controller
         foreach ($items as $item) {
             $productId = $item['product_id'];
             $categoryId = $productCategories[$productId] ?? null;
+            
+            $isProductEligible = in_array($productId, $productIds);
+            $isCategoryEligible = $categoryId && in_array($categoryId, $categoryIds);
 
-            if (in_array($productId, $productIds, false) || ($categoryId && in_array($categoryId, $categoryIds, false))) {
+            Log::info('Checking Cart Item Eligibility:', [
+                'p_id' => $productId,
+                'c_id' => $categoryId,
+                'p_match' => $isProductEligible,
+                'c_match' => $isCategoryEligible
+            ]);
+
+            if ($isProductEligible || $isCategoryEligible) {
                 $sum += $item['price'] * $item['quantity'];
             }
         }
