@@ -60,7 +60,7 @@ class UserController extends Controller
             'phone' => 'nullable|string|regex:/^[0-9]{10}$/',
             'dob' => 'nullable|date',
             'gender' => 'nullable|string|max:20',
-            'account_status' => 'required|in:active,inactive',
+            'account_status' => 'required|in:Active,Inactive',
             'role' => 'required|string|max:50',
             'password' => 'nullable|string|min:8|confirmed',
             'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',

@@ -45,8 +45,8 @@
             <div class="space-y-1.5">
                 <label class="block text-xs font-bold text-slate-700">Account Status</label>
                 <select name="account_status" class="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm outline-none focus:border-[#a91b43] transition-all text-slate-800">
-                    <option value="active" {{ old('account_status', $user->account_status) === 'active' ? 'selected' : '' }}>Active</option>
-                    <option value="inactive" {{ old('account_status', $user->account_status) === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                    <option value="Active" {{ old('account_status', $user->account_status) === 'Active' ? 'selected' : '' }}>Active</option>
+                    <option value="Inactive" {{ old('account_status', $user->account_status) === 'Inactive' ? 'selected' : '' }}>Inactive</option>
                 </select>
             </div>
             <div class="space-y-1.5">
