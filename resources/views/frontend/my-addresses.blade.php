@@ -215,7 +215,7 @@
         }
 
         function openEditAddressModal(address) {
-            addressForm.action = `/addresses/${address.id}`;
+            addressForm.action = "{{ url('addresses') }}/" + address.id;
             addressFormMethod.value = 'PUT';
             addressModalTitle.textContent = 'Edit Address';
             addressModalSubtitle.textContent = 'Update your saved address details.';
