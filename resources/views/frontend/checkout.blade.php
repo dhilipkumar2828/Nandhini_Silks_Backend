@@ -509,7 +509,7 @@
 
                         <div class="grand-total-v4" style="font-size: 20px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee;">
                             <span>Total</span>
-                            <span id="grand_total_display">&#8377;{{ number_format($grandTotal, 0) }}</span>
+                            <span id="grand_total_display">&#8377;{{ number_format($grandTotal, 2) }}</span>
                         </div>
 
                         {{-- PAYMENT METHOD --}}

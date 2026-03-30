@@ -168,8 +168,8 @@
                     </div>
 
                     <div class="review-tabs">
-                        <div class="review-tab active">Published Reviews ({{ $publishedReviews->count() }})</div>
-                        <div class="review-tab">Pending Reviews ({{ $pendingReviews->count() }})</div>
+                        <div class="review-tab active" data-tab="published">Published Reviews ({{ $publishedReviews->total() }})</div>
+                        <div class="review-tab" data-tab="pending">Pending Reviews ({{ $pendingReviews->total() }})</div>
                     </div>
 
                     <div id="publishedReviews">
@@ -208,6 +208,10 @@
                         @empty
                             <div style="text-align: center; padding: 40px; color: #999;">You haven't published any reviews yet.</div>
                         @endforelse
+
+                        <div class="mt-4">
+                            {{ $publishedReviews->appends(['pending_page' => $pendingReviews->currentPage()])->links() }}
+                        </div>
                     </div>
 
                     <div id="pendingReviews" style="display: none;">
@@ -233,6 +237,10 @@
                         @empty
                             <div style="text-align: center; padding: 40px; color: #999;">No pending reviews.</div>
                         @endforelse
+
+                        <div class="mt-4">
+                            {{ $pendingReviews->appends(['published_page' => $publishedReviews->currentPage()])->links() }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -290,6 +298,15 @@
         const tabs = document.querySelectorAll('.review-tab');
         const published = document.getElementById('publishedReviews');
         const pending = document.getElementById('pendingReviews');
+
+        // Initial tab based on URL param
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('pending_page')) {
+            tabs.forEach(item => item.classList.remove('active'));
+            tabs[1].classList.add('active');
+            published.style.display = 'none';
+            pending.style.display = 'block';
+        }
 
         tabs.forEach((tab, index) => {
             tab.addEventListener('click', () => {

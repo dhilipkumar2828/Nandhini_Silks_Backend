@@ -571,9 +571,9 @@
                                     <input type="range" name="max_price" id="max_price_input" min="{{ $min_price }}" max="{{ $max_price }}" value="{{ request('max_price', $max_price) }}" class="range-slider-modern">
                                 </div>
                                 <div class="range-values-modern">
-                                    <span class="price-val">₹<span id="min_price_val">{{ number_format(request('min_price', $min_price), 0) }}</span></span>
+                                    <span class="price-val">₹<span id="min_price_val">{{ number_format(request('min_price', $min_price), 2) }}</span></span>
                                     <span class="price-separator">-</span>
-                                    <span class="price-val">₹<span id="max_price_val">{{ number_format(request('max_price', $max_price), 0) }}</span></span>
+                                    <span class="price-val">₹<span id="max_price_val">{{ number_format(request('max_price', $max_price), 2) }}</span></span>
                                 </div>
                             </div>
                         </div>
@@ -741,8 +741,8 @@
                 const maxPercent = ((max - minInput.min) / (minInput.max - minInput.min)) * 100;
                 sliderFill.style.left = minPercent + '%';
                 sliderFill.style.width = (maxPercent - minPercent) + '%';
-                minVal.innerText = min.toLocaleString();
-                maxVal.innerText = max.toLocaleString();
+                minVal.innerText = min.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                maxVal.innerText = max.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             }
             minInput.addEventListener('input', updateSlider);
             maxInput.addEventListener('input', updateSlider);

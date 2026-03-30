@@ -676,9 +676,9 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td data-label="Price">&#8377;{{ number_format($item->price, 0) }}</td>
+                                <td data-label="Price">&#8377;{{ number_format($item->price, 2) }}</td>
                                 <td class="item-qty" data-label="Qty">{{ $item->quantity }}</td>
-                                <td data-label="Subtotal">&#8377;{{ number_format($item->price * $item->quantity, 0) }}</td>
+                                <td data-label="Subtotal">&#8377;{{ number_format($item->price * $item->quantity, 2) }}</td>
                                 <td class="item-actions-cell" data-label="Actions">
                                     <a href="javascript:void(0)" class="action-link" onclick="openReviewModal('{{ $item->product_id }}', '{{ e($item->product_name) }}', '{{ $item->getImageUrl() }}')">Write Review</a>
                                     <a href="#" class="action-link" style="color: #999;">Need Help?</a>
@@ -696,25 +696,25 @@
                     <div class="summary-details">
                         <div class="summary-row subtotal-row">
                             <span>Subtotal</span>
-                            <span class="subtotal-val">&#8377;{{ number_format($order->sub_total, 0) }}</span>
+                            <span class="subtotal-val">&#8377;{{ number_format($order->sub_total, 2) }}</span>
                         </div>
                         <div class="summary-row">
                             <span>Shipping</span>
-                            <span style="color: #52c41a;">{{ $order->shipping > 0 ? '₹'.number_format($order->shipping, 0) : 'FREE' }}</span>
+                            <span style="color: #52c41a;">{{ $order->shipping > 0 ? '₹'.number_format($order->shipping, 2) : 'FREE' }}</span>
                         </div>
                         <div class="summary-row tax-row">
                             <span>Tax (GST)</span>
-                            <span class="tax-val">&#8377;{{ number_format($order->tax, 0) }}</span>
+                            <span class="tax-val">&#8377;{{ number_format($order->tax, 2) }}</span>
                         </div>
                         @if($order->discount > 0)
                         <div class="summary-row">
                             <span>Discount</span>
-                            <span style="color: #e74c3c;">-&#8377;{{ number_format($order->discount, 0) }}</span>
+                            <span style="color: #e74c3c;">-&#8377;{{ number_format($order->discount, 2) }}</span>
                         </div>
                         @endif
                         <div class="summary-row total">
                             <span>Total</span>
-                            <span class="total-val">&#8377;{{ number_format($order->grand_total, 0) }}</span>
+                            <span class="total-val">&#8377;{{ number_format($order->grand_total, 2) }}</span>
                         </div>
                     </div>
                 </div>

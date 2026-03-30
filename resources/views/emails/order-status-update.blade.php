@@ -83,6 +83,36 @@
                 </tbody>
             </table>
 
+            <div class="order-summary" style="background-color: #fdfaf0; border: 1px dashed #ad8b4e; padding: 20px; border-radius: 12px; margin: 25px 0;">
+                <h3 style="color: #111; border-bottom: 2px solid #fdf2f8; padding-bottom: 10px; margin-top: 35px;">Order Summary</h3>
+                <table class="table" style="width: 100%;">
+                    <tbody>
+                        <tr>
+                            <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9;">Subtotal</td>
+                            <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9; text-align: right; font-weight: 700; color: #111;">&#8377;{{ number_format($order->sub_total, 2) }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9;">Shipping</td>
+                            <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9; text-align: right; font-weight: 700; color: #111;">{{ $order->shipping > 0 ? '₹'.number_format($order->shipping, 2) : 'FREE' }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9;">Tax (GST)</td>
+                            <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9; text-align: right; font-weight: 700; color: #111;">&#8377;{{ number_format($order->tax, 2) }}</td>
+                        </tr>
+                        @if($order->discount > 0)
+                        <tr>
+                            <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9;">Discount</td>
+                            <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9; text-align: right; font-weight: 700; color: #111;">-&#8377;{{ number_format($order->discount, 2) }}</td>
+                        </tr>
+                        @endif
+                        <tr>
+                            <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9;"><strong>Total</strong></td>
+                            <td style="padding: 15px 12px; border-bottom: 1px solid #f9f9f9; text-align: right; font-weight: 700; color: #111;">&#8377;{{ number_format($order->total, 2) }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
             @if(!$isForAdmin)
             <center>
                 <a href="{{ route('order-detail', ['id' => $order->id]) }}" class="button" style="display: inline-block; padding: 16px 40px; background-color: #a91b43; color: #ffffff !important; text-decoration: none; border-radius: 12px; font-weight: 800; font-size: 16px; margin-top: 35px;">Track Shipment</a>

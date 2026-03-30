@@ -28,7 +28,7 @@
                         <option value="processing" {{ $order->order_status == 'processing' ? 'selected' : '' }}>Processing</option>
                         <option value="dispatched" {{ $order->order_status == 'dispatched' ? 'selected' : '' }}>Dispatched</option>
                         <option value="delivered" {{ $order->order_status == 'delivered' ? 'selected' : '' }}>Delivered</option>
-                        <option value="cancelled" {{ $order->order_status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                        <option value="cancelled" {{ $order->order_status == 'cancelled' ? 'selected' : '' }} {{ $order->order_status == 'delivered' ? 'disabled' : '' }}>Cancelled</option>
                     </select>
                 </div>
 

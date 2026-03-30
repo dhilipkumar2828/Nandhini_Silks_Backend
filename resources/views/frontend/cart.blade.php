@@ -229,7 +229,7 @@
 
                     <div class="summary-total">
                         <span>Total</span>
-                        <span id="totalDisp">&#8377;{{ number_format($grandTotal ?? 0, 0) }}</span>
+                        <span id="totalDisp">&#8377;{{ number_format($grandTotal ?? 0, 2) }}</span>
                     </div>
 
                     <div class="cart-footer-btns">
@@ -357,7 +357,7 @@
         }
 
         function fmt(val) {
-            return Number(val).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+            return Number(val).toLocaleString('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
         }
     </script>
 @endpush

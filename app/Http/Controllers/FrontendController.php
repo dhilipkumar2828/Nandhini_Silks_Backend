@@ -349,7 +349,7 @@ class FrontendController extends Controller
         $orderCount = $user->orders()->count();
         $wishlistCount = count(session('wishlist', []));
         $addressCount = $user->addresses()->count();
-        $recentOrders = $user->orders()->latest()->limit(5)->get();
+        $recentOrders = $user->orders()->latest()->paginate(3);
 
         return view('frontend.my-account', compact('orderCount', 'wishlistCount', 'addressCount', 'recentOrders')); 
     }
@@ -358,7 +358,15 @@ class FrontendController extends Controller
         $addresses = Auth::guard('web')->check() ? Auth::guard('web')->user()->addresses : collect();
         return view('frontend.my-addresses', compact('addresses')); 
     }
-    public function myOrders() { return view('frontend.my-orders'); }
+    public function myOrders() 
+    { 
+        if (!Auth::guard('web')->check()) {
+            return redirect()->route('login');
+        }
+        $user = Auth::guard('web')->user();
+        $orders = $user->orders()->latest()->paginate(3);
+        return view('frontend.my-orders', compact('orders')); 
+    }
     public function myProfile() 
     { 
         if (!Auth::guard('web')->check()) {
@@ -377,12 +385,12 @@ class FrontendController extends Controller
             ->where('user_id', $user->id)
             ->where('status', 1)
             ->latest()
-            ->get();
+            ->paginate(3, ['*'], 'published_page');
         $pendingReviews = \App\Models\ProductReview::with('product')
             ->where('user_id', $user->id)
             ->where('status', 0)
             ->latest()
-            ->get();
+            ->paginate(3, ['*'], 'pending_page');
 
         return view('frontend.my-reviews', compact('publishedReviews', 'pendingReviews')); 
     }

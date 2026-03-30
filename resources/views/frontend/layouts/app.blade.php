@@ -814,14 +814,14 @@
                                             : ''}
                                         <br>Qty: ${item.quantity}
                                     </div>
-                                    <div class="cart-item-mini-price">&#8377;${(item.price * item.quantity).toLocaleString('en-IN')}</div>
+                                    <div class="cart-item-mini-price">&#8377;${(item.price * item.quantity).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                                 </div>
                                 <button onclick="removeMiniCartItem('${item.key}')" style="font-size: 17px; position: absolute; top: 0; right: 0; background: none; border: none; color: #ff4d4d; cursor: pointer; padding: 5px;">&times;</button>
                             </div>
                         `;
                     });
                     content.innerHTML = html;
-                    if(subtotal) subtotal.textContent = '\u20B9' + data.subTotal.toLocaleString('en-IN');
+                    if(subtotal) subtotal.textContent = '\u20B9' + data.subTotal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
                 }
                 
                 // Sync main cart badges
@@ -1073,8 +1073,8 @@
             "closeButton": true,
             "progressBar": true,
             "positionClass": "toast-top-right",
-            "timeOut": "10000",
-            "extendedTimeOut": "2000",
+            "timeOut": "15000",
+            "extendedTimeOut": "5000",
             "preventDuplicates": true,
             "newestOnTop": true
         };

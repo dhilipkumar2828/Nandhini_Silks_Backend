@@ -351,7 +351,7 @@
                     </div>
 
                     <div class="orders-container">
-                        @forelse(Auth::user()->orders()->latest()->get() as $order)
+                        @forelse($orders as $order)
                         @php
                             $paymentStatus = strtolower(trim((string) $order->payment_status));
                             $orderStatus = strtolower(trim((string) $order->order_status));
@@ -388,7 +388,7 @@
                                     </div>
                                     <div class="meta-item">
                                         <span class="meta-label">Total Amount</span>
-                                        <span class="meta-value meta-value-total">&#8377;{{ number_format($order->grand_total, 0) }} 
+                                        <span class="meta-value meta-value-total">&#8377;{{ number_format($order->grand_total, 2) }} 
                                             <span class="payment-status {{ $paymentStatusClass }}">
                                                 {{ ucfirst($paymentStatus) }}
                                             </span>
@@ -414,7 +414,6 @@
                                 </div>
                                 <div class="order-actions">
                                     <a href="{{ url('order-detail') }}?id={{ $order->id }}" class="btn-outline">View Details</a>
-                                    <button class="btn-action">Track Order</button>
                                 </div>
                             </div>
                         </div>
@@ -426,6 +425,10 @@
                                 <a href="{{ url('shop') }}" class="btn-outline" style="display: inline-block; margin-top: 20px;">Start Shopping</a>
                             </div>
                         @endforelse
+
+                        <div class="mt-4">
+                            {{ $orders->links() }}
+                        </div>
                     </div>
                 </div>
             </div>
