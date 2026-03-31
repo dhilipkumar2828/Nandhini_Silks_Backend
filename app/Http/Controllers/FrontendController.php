@@ -305,6 +305,9 @@ class FrontendController extends Controller
             \Illuminate\Support\Facades\Log::error('Inquiry Admin Email Error: ' . $e->getMessage());
         }
 
+        // Small delay to avoid "Too many emails per second" (550 error)
+        sleep(2);
+
         // 2. Send Email to Customer (with BCC to admin as fallback)
         try {
             \Illuminate\Support\Facades\Log::info("Sending customer inquiry email to: " . $request->email);

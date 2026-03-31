@@ -42,7 +42,6 @@
         </div>
         <div style="padding: 20px; text-align: center; color: #9ca3af; font-size: 11px; border-top: 2px solid #f9fafb;">
             &copy; {{ date('Y') }} Nandhini Silks. Arani - 632317, Tamil Nadu. &bull; {{ date('d M Y') }}
-            <span style="display:none !important; font-size:0; line-height:0;">{{ microtime() }}</span>
         </div>
     </div>
 </body>

@@ -628,6 +628,9 @@ class CartController extends Controller
             // Send to customer
             \Illuminate\Support\Facades\Mail::to($order->customer_email)->send(new \App\Mail\OrderConfirmation($order));
             
+            // Small delay to avoid "Too many emails per second" (550 error)
+            sleep(2);
+
             // Send to admin
             $adminEmail = \App\Models\Setting::getAdminEmail();
             \Illuminate\Support\Facades\Mail::to($adminEmail)->send(new \App\Mail\OrderAdminAlert($order));

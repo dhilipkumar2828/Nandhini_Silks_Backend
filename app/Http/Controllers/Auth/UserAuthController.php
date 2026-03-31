@@ -105,15 +105,24 @@ class UserAuthController extends Controller
         // Instead of full login, we'll store basic ID in session for verification
         $request->session()->put('pending_verification_user_id', $user->id);
 
-        // Send OTP email to customer
+        // Send OTP email to customer (separate try-catch so admin alert always fires)
         try {
             Mail::to($user->email)->send(new VerficationOTP($otp));
-            
-            // Notify Admin
+            Log::info('Registration OTP sent successfully to customer: ' . $user->email);
+        } catch (\Exception $e) {
+            Log::error('Registration OTP to CUSTOMER failed [' . $user->email . ']: ' . $e->getMessage());
+        }
+
+        // Small delay to avoid "Too many emails per second" (550 error)
+        sleep(2);
+
+        // Notify Admin (separate block so customer mail failure doesn't block this)
+        try {
             $adminEmail = Setting::getAdminEmail();
             Mail::to($adminEmail)->send(new NewRegistrationAdminAlert($user));
+            Log::info('Admin registration alert sent for user: ' . $user->email);
         } catch (\Exception $e) {
-            Log::error('Registration OTP Failure: ' . $e->getMessage());
+            Log::error('Admin registration alert failed: ' . $e->getMessage());
         }
 
         return redirect()->route('otp.verify.form')->with('success', 'A verification OTP has been sent to your email.');
