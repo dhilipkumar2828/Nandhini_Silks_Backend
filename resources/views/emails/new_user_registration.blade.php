@@ -6,7 +6,7 @@
         body { font-family: 'Inter', sans-serif; line-height: 1.6; color: #334155; max-width: 600px; margin: 0 auto; padding: 20px; }
         .header { text-align: center; margin-bottom: 30px; }
         .logo { font-size: 24px; font-weight: 800; color: #a91b43; }
-        .card { background: #ffffff; border: 1px border #e2e8f0; border-radius: 12px; padding: 30px; }
+        .card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 30px; }
         .btn { display: inline-block; background: #a91b43; color: #ffffff !important; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; margin-top: 20px; }
         .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #64748b; }
     </style>

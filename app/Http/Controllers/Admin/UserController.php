@@ -55,15 +55,18 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|regex:/^[a-zA-Z\s]+$/',
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
-            'phone' => 'nullable|string|max:20',
+            'phone' => 'nullable|string|regex:/^[0-9]{10}$/',
             'dob' => 'nullable|date',
             'gender' => 'nullable|string|max:20',
-            'account_status' => 'required|in:active,blocked,unverified',
+            'account_status' => 'required|in:Active,Inactive',
             'role' => 'required|string|max:50',
             'password' => 'nullable|string|min:8|confirmed',
             'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ], [
+            'name.regex' => 'The Full Name field should only contain alphabets and spaces.',
+            'phone.regex' => 'The Phone number must be exactly 10 digits.',
         ]);
 
         $data = $request->only([
@@ -103,28 +106,79 @@ class UserController extends Controller
 
     public function storeAddress(Request $request, User $user)
     {
-        $request->validate([
-            'label' => 'nullable|string|max:50',
-            'recipient_name' => 'required|string|max:255',
-            'recipient_phone' => 'required|string|max:255',
-            'address1' => 'required|string|max:255',
-            'address2' => 'nullable|string|max:255',
-            'city' => 'required|string|max:100',
-            'state' => 'required|string|max:100',
-            'zip' => 'nullable|string|max:20',
-            'country' => 'nullable|string|max:100',
-            'landmark' => 'nullable|string|max:255',
-            'is_default' => 'nullable|boolean',
+        $this->validateAddress($request);
+
+        $isDefault = $request->boolean('is_default');
+        if ($isDefault || $user->addresses()->count() === 0) {
+            $isDefault = true;
+            $user->addresses()->update(['is_default' => false]);
+        }
+
+        $user->addresses()->create([
+            'label' => $request->input('label'),
+            'recipient_name' => $request->input('recipient_name'),
+            'recipient_phone' => $request->input('recipient_phone'),
+            'address1' => $request->input('address1'),
+            'address2' => $request->input('address2'),
+            'city' => $request->input('city'),
+            'state' => $request->input('state'),
+            'zip' => $request->input('zip'),
+            'country' => $request->input('country'),
+            'landmark' => $request->input('landmark'),
+            'is_default' => $isDefault,
         ]);
+
+        return redirect()->route('admin.users.edit', $user->id)->with('success', 'Address added.');
+    }
+
+    public function updateAddress(Request $request, User $user, UserAddress $address)
+    {
+        if ($address->user_id !== $user->id) {
+            return redirect()->route('admin.users.edit', $user->id)->with('error', 'Address not found.');
+        }
+
+        $this->validateAddress($request);
 
         $isDefault = $request->boolean('is_default');
         if ($isDefault) {
             $user->addresses()->update(['is_default' => false]);
         }
 
-        $user->addresses()->create($request->all());
+        $address->update([
+            'label' => $request->input('label'),
+            'recipient_name' => $request->input('recipient_name'),
+            'recipient_phone' => $request->input('recipient_phone'),
+            'address1' => $request->input('address1'),
+            'address2' => $request->input('address2'),
+            'city' => $request->input('city'),
+            'state' => $request->input('state'),
+            'zip' => $request->input('zip'),
+            'country' => $request->input('country'),
+            'landmark' => $request->input('landmark'),
+            'is_default' => $isDefault,
+        ]);
 
-        return redirect()->route('admin.users.edit', $user->id)->with('success', 'Address added.');
+        return redirect()->route('admin.users.edit', $user->id)->with('success', 'Address updated.');
+    }
+
+    private function validateAddress(Request $request)
+    {
+        return $request->validate([
+            'label' => 'nullable|string|max:50',
+            'recipient_name' => 'required|string|max:255',
+            'recipient_phone' => 'required|string|regex:/^[0-9]{10}$/',
+            'address1' => 'required|string|max:255',
+            'address2' => 'nullable|string|max:255',
+            'city' => 'required|string|max:100',
+            'state' => 'required|string|max:100',
+            'zip' => 'nullable|string|regex:/^[0-9]{6}$/',
+            'country' => 'nullable|string|max:100',
+            'landmark' => 'nullable|string|max:255',
+            'is_default' => 'nullable|boolean',
+        ], [
+            'recipient_phone.regex' => 'The Recipient Phone number must be exactly 10 digits.',
+            'zip.regex' => 'The ZIP code must be exactly 6 digits.',
+        ]);
     }
 
     public function destroyAddress(User $user, UserAddress $address)

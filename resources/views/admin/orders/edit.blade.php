@@ -1,6 +1,6 @@
 @extends('admin.layouts.admin')
 
-@section('title', 'Update Order #' . $order->id)
+@section('title', 'Update Order #' . $order->order_number)
 
 @section('content')
 <div class="max-w-4xl mx-auto">
@@ -8,7 +8,7 @@
         <div class="flex justify-between items-center mb-8">
             <div>
                 <h2 class="text-xl font-bold text-slate-800">Update Order Status</h2>
-                <p class="text-xs text-slate-400 mt-1">Order #{{ $order->id }} for {{ $order->customer_name }}</p>
+                <p class="text-xs text-slate-400 mt-1">Order #{{ $order->order_number }} for {{ $order->customer_name }}</p>
             </div>
             <a href="{{ route('admin.orders.show', $order->id) }}" class="text-xs font-bold text-slate-500 hover:text-slate-700">
                 <i class="fas fa-eye mr-1"></i> View Order
@@ -28,7 +28,7 @@
                         <option value="processing" {{ $order->order_status == 'processing' ? 'selected' : '' }}>Processing</option>
                         <option value="dispatched" {{ $order->order_status == 'dispatched' ? 'selected' : '' }}>Dispatched</option>
                         <option value="delivered" {{ $order->order_status == 'delivered' ? 'selected' : '' }}>Delivered</option>
-                        <option value="cancelled" {{ $order->order_status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                        <option value="cancelled" {{ $order->order_status == 'cancelled' ? 'selected' : '' }} {{ $order->order_status == 'delivered' ? 'disabled' : '' }}>Cancelled</option>
                     </select>
                 </div>
 

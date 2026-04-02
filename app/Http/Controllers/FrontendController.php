@@ -11,6 +11,7 @@ use App\Models\AttributeValue;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use App\Models\Order;
 use App\Models\ProductReview;
 
@@ -24,8 +25,8 @@ class FrontendController extends Controller
     public function index()
     {
         $banners = Banner::where('status', '=', 1, 'and')->orderBy('display_order', 'asc')->get();
-        $testimonials = Testimonial::where('status', '=', 1)->where('display_homepage', '=', true)->latest()->get();
-        $featuredProducts = Product::where('is_featured', '=', true, 'and')->where('status', '=', 1, 'and')->get();
+        $testimonials = Testimonial::where('status', '=', 1)->where('display_homepage', '=', true)->latest()->limit(6)->get();
+        $featuredProducts = Product::where('is_featured', '=', true, 'and')->where('status', '=', 1, 'and')->latest()->limit(8)->get();
         $offerProducts = $featuredProducts->isNotEmpty()
             ? $featuredProducts
             : Product::where('status', '=', 1)->latest()->limit(8)->get();
@@ -54,7 +55,44 @@ class FrontendController extends Controller
 
     public function shop()
     {
-        $products = Product::where('status', '=', 1)->paginate(12);
+        $query = Product::where('status', '=', 1);
+
+        // Filter by categories if selected (Multi-select)
+        if (request('categories')) {
+            $query->whereIn('category_id', (array)request('categories'));
+        }
+
+        // Apply shared sidebar filters
+        if (request('min_price') !== null && request('min_price') !== '') {
+            $query->where('price', '>=', (float) request('min_price'));
+        }
+        if (request('max_price') !== null && request('max_price') !== '') {
+            $query->where('price', '<=', (float) request('max_price'));
+        }
+
+        if (request('attr')) {
+            foreach (request('attr') as $attr_id => $values) {
+                $query->where(function($q) use ($attr_id, $values) {
+                    foreach ($values as $val_id) {
+                        $q->orWhereJsonContains('attributes->' . $attr_id, (int) $val_id)
+                          ->orWhereJsonContains('attributes->' . $attr_id, (string) $val_id);
+                    }
+                });
+            }
+        }
+
+        if (request('in_stock')) {
+            $query->where('stock_quantity', '>', 0);
+        }
+
+        // Sorting
+        $sort = request('sort', 'popularity');
+        if ($sort == 'price_low')  $query->orderBy('price', 'asc');
+        elseif ($sort == 'price_high') $query->orderBy('price', 'desc');
+        elseif ($sort == 'newest')     $query->orderBy('created_at', 'desc');
+        else                           $query->orderBy('id', 'desc');
+
+        $products = $query->paginate(12)->appends(request()->query());
         $category = new Category(['name' => 'Shop']);
         $filterData = $this->getFilterData();
 
@@ -64,10 +102,18 @@ class FrontendController extends Controller
     public function category($slug, $sub_slug = null, $child_slug = null)
     {
         $actualSlug = $child_slug ?: ($sub_slug ?: $slug);
+
+        // Determine what type of page we are on and build the base query
+        $browsingType = null; // 'category', 'sub_category', 'child_category'
+        $browsingId   = null;
+        $parentCategoryId = null;
+
         $category = Category::where('slug', '=', $actualSlug)->where('status', '=', 1)->first();
         $query = Product::where('status', '=', 1);
 
         if ($category) {
+            $browsingType = 'category';
+            $browsingId   = $category->id;
             $query->where('category_id', '=', $category->id);
             $subCategories = SubCategory::where('category_id', '=', $category->id)->where('status', '=', 1)->get();
             $category->setRelation('subCategories', $subCategories);
@@ -75,12 +121,18 @@ class FrontendController extends Controller
             // Try SubCategory
             $subCategory = SubCategory::where('slug', '=', $actualSlug)->where('status', '=', 1)->first();
             if ($subCategory) {
+                $browsingType = 'sub_category';
+                $browsingId   = $subCategory->id;
+                $parentCategoryId = $subCategory->category_id;
                 $category = $subCategory;
                 $query->where('sub_category_id', '=', $subCategory->id);
             } else {
                 // Try ChildCategory
                 $childCategory = ChildCategory::where('slug', '=', $actualSlug)->where('status', '=', 1)->first();
                 if ($childCategory) {
+                    $browsingType = 'child_category';
+                    $browsingId   = $childCategory->id;
+                    $parentCategoryId = $childCategory->sub_category_id ?? null;
                     $category = $childCategory;
                     $query->where('child_category_id', '=', $childCategory->id);
                 } else {
@@ -89,34 +141,53 @@ class FrontendController extends Controller
             }
         }
 
-        // Apply Filters
-        if (request('min_price')) $query->where('price', '>=', request('min_price'));
-        if (request('max_price')) $query->where('price', '<=', request('max_price'));
-        if (request('categories')) $query->whereIn('category_id', request('categories'));
+        // -------------------------------------------------------
+        // Apply Sidebar Filters
+        // -------------------------------------------------------
+
+        // Price range
+        if (request('min_price') !== null && request('min_price') !== '') {
+            $query->where('price', '>=', (float) request('min_price'));
+        }
+        if (request('max_price') !== null && request('max_price') !== '') {
+            $query->where('price', '<=', (float) request('max_price'));
+        }
+
+        // Sub-category filter (shown in sidebar when browsing a top-level category)
+        if (request('sub_categories') && $browsingType === 'category') {
+            $query->whereIn('sub_category_id', request('sub_categories'));
+        }
+
+        // Attribute filters
         if (request('attr')) {
             foreach (request('attr') as $attr_id => $values) {
                 $query->where(function($q) use ($attr_id, $values) {
                     foreach ($values as $val_id) {
-                        $q->orWhereJsonContains('attributes->' . $attr_id, (int)$val_id)
-                          ->orWhereJsonContains('attributes->' . $attr_id, (string)$val_id);
+                        $q->orWhereJsonContains('attributes->' . $attr_id, (int) $val_id)
+                          ->orWhereJsonContains('attributes->' . $attr_id, (string) $val_id);
                     }
                 });
             }
         }
-        if (request('in_stock')) $query->where('stock_quantity', '>', 0);
+
+        // In-stock filter
+        if (request('in_stock')) {
+            $query->where('stock_quantity', '>', 0);
+        }
 
         // Sorting
         $sort = request('sort', 'popularity');
-        if ($sort == 'price_low') $query->orderBy('price', 'asc');
+        if ($sort == 'price_low')  $query->orderBy('price', 'asc');
         elseif ($sort == 'price_high') $query->orderBy('price', 'desc');
-        elseif ($sort == 'newest') $query->orderBy('created_at', 'desc');
-        else $query->orderBy('id', 'desc');
+        elseif ($sort == 'newest')     $query->orderBy('created_at', 'desc');
+        else                           $query->orderBy('id', 'desc');
 
         $products = $query->paginate(12)->appends(request()->query());
-        $filterData = $this->getFilterData();
-        
-        $view = 'frontend.category_listing';
-        return view($view, compact('category', 'products', 'filterData'));
+
+        // Build filter data scoped to the current category context
+        $filterData = $this->getFilterData($browsingType, $browsingId);
+
+        return view('frontend.category_listing', compact('category', 'products', 'filterData', 'browsingType'));
     }
 
     public function productShow($slug)
@@ -134,11 +205,18 @@ class FrontendController extends Controller
         $recentlyViewed = Product::whereIn('id', array_diff($viewedIds, [$product->id]))
             ->where('status', 1)->limit(4)->get();
 
-        $relatedProducts = Product::where('category_id', '=', $product->category_id)
-            ->where('id', '!=', $product->id)
-            ->where('status', '=', 1)
-            ->limit(4)
-            ->get();
+        $relatedProductIds = $product->related_products;
+        if (!empty($relatedProductIds) && is_array($relatedProductIds)) {
+            $relatedProducts = Product::whereIn('id', $relatedProductIds)
+                ->where('status', '=', 1)
+                ->get();
+        } else {
+            $relatedProducts = Product::where('category_id', '=', $product->category_id)
+                ->where('id', '!=', $product->id)
+                ->where('status', '=', 1)
+                ->limit(4)
+                ->get();
+        }
 
         $attributeGroups = $this->buildAttributeGroups($product);
         $inWishlist = in_array($product->id, session()->get('wishlist', []));
@@ -203,12 +281,49 @@ class FrontendController extends Controller
     public function contact() { return view('frontend.contact'); }
     public function contactSubmit(Request $request)
     {
-        // Simple validation for backend as well
         $request->validate([
-            'name' => 'required',
-            'email' => 'required|email',
-            'message' => 'required'
+            'name' => 'required|string|max:255|regex:/^[a-zA-Z\s]+$/',
+            'email' => 'required|email|max:255',
+            'message' => 'required|string'
+        ], [
+            'name.regex' => 'The name field must only contain alphabets.'
         ]);
+
+        $inquiry = \App\Models\Inquiry::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'message' => $request->message,
+        ]);
+
+        $adminEmail = \App\Models\Setting::getAdminEmail();
+
+        // 1. Send Email to Admin (Swapped to send first)
+        try {
+            \Illuminate\Support\Facades\Log::info("Sending admin inquiry email to: " . $adminEmail);
+            \Illuminate\Support\Facades\Mail::to($adminEmail)->send(new \App\Mail\InquiryAdminMail($inquiry));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Inquiry Admin Email Error: ' . $e->getMessage());
+        }
+
+        // Small delay to avoid "Too many emails per second" (550 error)
+        sleep(2);
+
+        // 2. Send Email to Customer (with BCC to admin as fallback)
+        try {
+            \Illuminate\Support\Facades\Log::info("Sending customer inquiry email to: " . $request->email);
+            \Illuminate\Support\Facades\Mail::to($request->email)
+                ->bcc($adminEmail)
+                ->send(new \App\Mail\InquiryCustomerMail($inquiry));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Inquiry Customer Email Error: ' . $e->getMessage());
+        }
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Thank you for contacting us! We will get back to you soon.'
+            ]);
+        }
 
         return back()->with('success', 'Thank you for contacting us! We will get back to you soon.');
     }
@@ -237,7 +352,7 @@ class FrontendController extends Controller
         $orderCount = $user->orders()->count();
         $wishlistCount = count(session('wishlist', []));
         $addressCount = $user->addresses()->count();
-        $recentOrders = $user->orders()->latest()->limit(5)->get();
+        $recentOrders = $user->orders()->latest()->paginate(3);
 
         return view('frontend.my-account', compact('orderCount', 'wishlistCount', 'addressCount', 'recentOrders')); 
     }
@@ -246,7 +361,15 @@ class FrontendController extends Controller
         $addresses = Auth::guard('web')->check() ? Auth::guard('web')->user()->addresses : collect();
         return view('frontend.my-addresses', compact('addresses')); 
     }
-    public function myOrders() { return view('frontend.my-orders'); }
+    public function myOrders() 
+    { 
+        if (!Auth::guard('web')->check()) {
+            return redirect()->route('login');
+        }
+        $user = Auth::guard('web')->user();
+        $orders = $user->orders()->latest()->paginate(3);
+        return view('frontend.my-orders', compact('orders')); 
+    }
     public function myProfile() 
     { 
         if (!Auth::guard('web')->check()) {
@@ -265,12 +388,12 @@ class FrontendController extends Controller
             ->where('user_id', $user->id)
             ->where('status', 1)
             ->latest()
-            ->get();
+            ->paginate(3, ['*'], 'published_page');
         $pendingReviews = \App\Models\ProductReview::with('product')
             ->where('user_id', $user->id)
             ->where('status', 0)
             ->latest()
-            ->get();
+            ->paginate(3, ['*'], 'pending_page');
 
         return view('frontend.my-reviews', compact('publishedReviews', 'pendingReviews')); 
     }
@@ -292,27 +415,44 @@ class FrontendController extends Controller
     {
         $user = Auth::guard('web')->user();
         $data = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|regex:/^[A-Za-z\s]+$/',
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'phone' => 'nullable|string|max:20',
             'gender' => 'nullable|string|in:Male,Female,Other',
             'dob' => 'nullable|date',
             'current_password' => 'nullable|required_with:new_password',
-            'new_password' => 'nullable|min:8|confirmed',
+            'new_password' => 'nullable|min:8|confirmed|required_with:current_password',
         ]);
 
-        if ($request->new_password) {
-            if (Hash::check($request->current_password, $user->password)) {
-                $user->password = Hash::make($request->new_password);
-            } else {
+        if ($request->filled('new_password') || $request->filled('current_password')) {
+            if (!Hash::check((string) $request->current_password, (string) $user->password)) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'message' => 'Validation failed.',
+                        'errors' => [
+                            'current_password' => ['Current password does not match.'],
+                        ],
+                    ], 422);
+                }
+
                 return back()->withErrors(['current_password' => 'Current password does not match.']);
             }
+            $user->password = Hash::make($request->new_password);
         }
 
         $user->name = $data['name'];
-        $user->phone = $data['phone'];
-        $user->gender = $data['gender'];
-        $user->dob = $data['dob'];
+        $user->email = $data['email'];
+        $user->phone = $data['phone'] ?? null;
+        $user->gender = $data['gender'] ?? null;
+        $user->dob = $data['dob'] ?? null;
         $user->save();
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile updated successfully.',
+            ]);
+        }
 
         return back()->with('success', 'Profile updated successfully.');
     }
@@ -349,6 +489,71 @@ class FrontendController extends Controller
 
         return back()->with('success', 'Profile picture updated.');
     }
+
+    public function requestEmailChangeOtp(Request $request)
+    {
+        $user = Auth::guard('web')->user();
+
+        $data = $request->validate([
+            'new_email' => 'required|email|max:255|unique:users,email',
+        ]);
+
+        if (strcasecmp($data['new_email'], $user->email) === 0) {
+            return back()->withErrors(['new_email' => 'New email must be different from your current email.']);
+        }
+
+        $otp = sprintf("%06d", mt_rand(1, 999999));
+        $user->otp = $otp;
+        $user->otp_expires_at = now()->addMinutes(10);
+        $user->save();
+
+        try {
+            \Illuminate\Support\Facades\Mail::to($data['new_email'])->send(new \App\Mail\VerficationOTP($otp));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Email Change OTP Failure: ' . $e->getMessage());
+            return back()->withErrors(['new_email' => 'Unable to send OTP now. Please try again.']);
+        }
+
+        $request->session()->put('pending_email_change_user_id', $user->id);
+        $request->session()->put('pending_new_email', $data['new_email']);
+
+        return back()
+            ->with('success', 'OTP sent to your new email address.')
+            ->with('email_change_otp_sent', true);
+    }
+
+    public function verifyEmailChangeOtp(Request $request)
+    {
+        $request->validate([
+            'email_change_otp' => 'required|string|size:6',
+        ]);
+
+        $user = Auth::guard('web')->user();
+        $pendingUserId = $request->session()->get('pending_email_change_user_id');
+        $pendingNewEmail = $request->session()->get('pending_new_email');
+
+        if (!$pendingUserId || !$pendingNewEmail || (int)$pendingUserId !== (int)$user->id) {
+            return back()->withErrors(['email_change_otp' => 'Email change session expired. Please request OTP again.']);
+        }
+
+        if ($user->otp !== $request->email_change_otp || !$user->otp_expires_at || $user->otp_expires_at->isPast()) {
+            return back()
+                ->withErrors(['email_change_otp' => 'Invalid or expired OTP.'])
+                ->with('email_change_otp_sent', true);
+        }
+
+        $user->email = $pendingNewEmail;
+        $user->email_verified_at = now();
+        $user->is_verified = true;
+        $user->otp = null;
+        $user->otp_expires_at = null;
+        $user->save();
+
+        $request->session()->forget(['pending_email_change_user_id', 'pending_new_email']);
+
+        return back()->with('success', 'Email updated and verified successfully.');
+    }
+
     public function search(Request $request)
     {
         $query = $request->input('q');
@@ -383,6 +588,7 @@ class FrontendController extends Controller
         ]);
 
         $review = \App\Models\ProductReview::where('id', '=', $id)->where('user_id', '=', Auth::id())->firstOrFail();
+        $data['status'] = 0;
         $review->update($data);
         return back()->with('success', 'Review updated successfully.');
     }
@@ -423,18 +629,36 @@ class FrontendController extends Controller
             ]
         );
 
-        return back()->with('success', 'Your review has been submitted and is awaiting approval.');
+        return back()->with('success', 'Your review has been submitted.');
     }
 
-    private function getFilterData(): array
+    private function getFilterData(string $browsingType = null, int $browsingId = null): array
     {
+        // Scope price range to the current category context
+        $priceQuery = Product::where('status', '=', 1);
+        $subCategories = collect();
+
+        if ($browsingType === 'category' && $browsingId) {
+            $priceQuery->where('category_id', $browsingId);
+            // Provide sub-categories of the browsed category for the sidebar
+            $subCategories = SubCategory::where('category_id', $browsingId)
+                ->where('status', 1)
+                ->orderBy('display_order', 'asc')
+                ->get();
+        } elseif ($browsingType === 'sub_category' && $browsingId) {
+            $priceQuery->where('sub_category_id', $browsingId);
+        } elseif ($browsingType === 'child_category' && $browsingId) {
+            $priceQuery->where('child_category_id', $browsingId);
+        }
+
         return [
-            'categories' => Category::where('status', '=', 1)->orderBy('display_order', 'asc')->get(),
-            'attributes' => Attribute::with(['values' => function($q) {
+            'categories'     => Category::where('status', '=', 1)->orderBy('display_order', 'asc')->get(),
+            'sub_categories' => $subCategories,
+            'attributes'     => Attribute::with(['values' => function($q) {
                 $q->where('status', '=', 1)->orderBy('display_order', 'asc');
             }])->where('status', '=', 1)->orderBy('group')->get(),
-            'max_price' => Product::where('status', '=', 1)->max('price') ?? 50000,
-            'min_price' => Product::where('status', '=', 1)->min('price') ?? 0,
+            'max_price' => (clone $priceQuery)->max('price') ?? 50000,
+            'min_price' => (clone $priceQuery)->min('price') ?? 0,
         ];
     }
 

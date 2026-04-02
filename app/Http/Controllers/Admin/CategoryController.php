@@ -37,7 +37,7 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:categories,name',
             'slug' => 'required|string|max:255|unique:categories,slug',
             'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
             'description' => 'nullable|string',
@@ -45,8 +45,10 @@ class CategoryController extends Controller
             'meta_description' => 'nullable|string',
             'meta_keywords' => 'nullable|string',
             'status' => 'required',
-            'display_order' => 'required|integer',
+            'display_order' => 'required|integer|min:0',
+            'show_in_menu' => 'nullable',
         ], [
+            'name.unique' => 'This Category Name is already in use.',
             'slug.unique' => 'This Category Slug is already in use. Please choose a different one.',
         ]);
 
@@ -58,6 +60,7 @@ class CategoryController extends Controller
             $data['image'] = 'categories/'.$imageName;
         }
 
+        $data['show_in_menu'] = $request->has('show_in_menu') ? 1 : 0;
         Category::create($data);
 
         return redirect()->route('admin.categories.index')->with('success', 'Category created successfully.');
@@ -71,7 +74,7 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
             'slug' => 'required|string|max:255|unique:categories,slug,' . $category->id,
             'image' => ($category->image ? 'nullable' : 'required') . '|image|mimes:jpeg,png,jpg,webp|max:2048',
             'description' => 'nullable|string',
@@ -79,8 +82,10 @@ class CategoryController extends Controller
             'meta_description' => 'nullable|string',
             'meta_keywords' => 'nullable|string',
             'status' => 'required',
-            'display_order' => 'required|integer',
+            'display_order' => 'required|integer|min:0',
+            'show_in_menu' => 'nullable',
         ], [
+            'name.unique' => 'This Category Name is already in use.',
             'slug.unique' => 'This Category Slug is already in use. Please choose a different one.',
         ]);
 
@@ -95,6 +100,7 @@ class CategoryController extends Controller
             $data['image'] = 'categories/'.$imageName;
         }
 
+        $data['show_in_menu'] = $request->has('show_in_menu') ? 1 : 0;
         $category->update($data);
 
         return redirect()->route('admin.categories.index')->with('success', 'Category updated successfully.');
@@ -108,6 +114,39 @@ class CategoryController extends Controller
         $category->delete();
 
         return redirect()->route('admin.categories.index')->with('success', 'Category deleted successfully.');
+    }
+
+    public function checkSlug(Request $request)
+    {
+        $slug = Str::slug($request->name);
+        if ($request->filled('slug')) {
+            $slug = Str::slug($request->slug);
+        }
+
+        $query = Category::where('slug', '=', $slug);
+        if ($request->filled('id')) {
+            $query->where('id', '!=', $request->id);
+        }
+
+        $exists = $query->exists();
+        return response()->json([
+            'exists' => $exists,
+            'slug' => $slug
+        ]);
+    }
+
+    public function checkName(Request $request)
+    {
+        $name = $request->name;
+        $query = Category::where('name', '=', $name);
+        if ($request->filled('id')) {
+            $query->where('id', '!=', $request->id);
+        }
+
+        $exists = $query->exists();
+        return response()->json([
+            'exists' => $exists
+        ]);
     }
 }
 

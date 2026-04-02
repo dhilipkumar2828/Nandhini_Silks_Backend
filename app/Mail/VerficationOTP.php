@@ -5,6 +5,7 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -29,7 +30,11 @@ class VerficationOTP extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Account Verification OTP - Nandhini Silks',
+            from: new Address('orders@nandhinisilks.com', 'Nandhini Silks'),
+            replyTo: [
+                new Address('orders@nandhinisilks.com', 'Nandhini Silks'),
+            ],
+            subject: 'Your Verification Code',
         );
     }
 
@@ -39,7 +44,7 @@ class VerficationOTP extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.otp-verification',
+            view: 'emails.otp-verification',
         );
     }
 }

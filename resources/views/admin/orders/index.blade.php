@@ -91,7 +91,7 @@
                         {{ $orders->firstItem() + $loop->index }}
                     </td>
                     <td class="py-3">
-                        <span class="font-black text-[#a91b43] text-xs">#{{ $order->id }}</span>
+                        <span class="font-black text-[#a91b43] text-xs">#{{ $order->order_number }}</span>
                         <div class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">{{ $order->created_at->format('d M Y, h:i A') }}</div>
                     </td>
                     <td class="py-3">

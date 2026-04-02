@@ -45,9 +45,8 @@
                     $currentStatus = request('status', 'all');
                     $statuses = [
                         'all' => 'All Status',
-                        'active' => 'Active',
-                        'blocked' => 'Blocked',
-                        'unverified' => 'Unverified'
+                        'Active' => 'Active',
+                        'Inactive' => 'Inactive'
                     ];
                 @endphp
                 <div class="relative">
@@ -71,27 +70,35 @@
         <table class="w-full text-left">
             <thead>
                 <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-100">
-                    <th class="pb-3 px-2 font-bold">S.No</th>
-                    <th class="pb-3 font-bold">User</th>
-                    <th class="pb-3 font-bold">Status</th>
-                    <th class="pb-3 font-bold">Registration</th>
-                    <th class="pb-3 font-bold text-center">Orders</th>
-                    <th class="pb-3 font-bold">Total Spent</th>
-                    <th class="pb-3 font-bold text-right">Actions</th>
+                    <th class="pb-3 px-2 font-bold text-center w-12">S.No</th>
+                    <th class="pb-3 font-bold px-4  w-32">User</th>
+                    <th class="pb-3 font-bold text-center w-32">Status</th>
+                    <th class="pb-3 font-bold px-4 w-32">Registration</th>
+                    <th class="pb-3 font-bold text-center px-4 w-32">Orders</th>
+                    <th class="pb-3 font-bold px-4 w-32">Total Spent</th>
+                    <th class="pb-3 font-bold text-right pr-6 w-32">Actions</th>
                 </tr>
             </thead>
             <tbody class="text-sm">
                 @forelse($users as $user)
                     <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-all">
-                        <td class="py-3 px-2 text-xs font-bold text-slate-500">
+                        <td class="py-3 px-2 text-xs font-bold text-slate-500 text-center">
                             {{ $users->firstItem() + $loop->index }}
                         </td>
-                        <td class="py-3">
+                        <td class="py-3 px-4">
                             <div class="flex items-center gap-3">
                                 @php
-                                    $avatar = $user->profile_picture
-                                        ? asset('uploads/users/' . $user->profile_picture)
-                                        : null;
+                                    $avatar = null;
+                                    if (!empty($user->profile_picture)) {
+                                        $profilePicture = ltrim((string) $user->profile_picture, '/');
+                                        if (str_starts_with($profilePicture, 'http://') || str_starts_with($profilePicture, 'https://')) {
+                                            $avatar = $profilePicture;
+                                        } elseif (str_starts_with($profilePicture, 'uploads/')) {
+                                            $avatar = asset($profilePicture);
+                                        } else {
+                                            $avatar = asset('uploads/' . $profilePicture);
+                                        }
+                                    }
                                 @endphp
                                 @if($avatar)
                                     <img src="{{ $avatar }}" alt="{{ $user->name }}" class="w-9 h-9 rounded-full object-cover border border-slate-200 shadow-sm">
@@ -107,12 +114,12 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="py-3">
-                            <span class="px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border {{ $user->account_status === 'active' ? 'bg-emerald-100 text-emerald-600 border-emerald-200' : 'bg-rose-100 text-rose-600 border-rose-200' }}">
+                        <td class="py-3 text-center">
+                            <span class="px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border {{ strtolower($user->account_status) === 'active' ? 'bg-emerald-100 text-emerald-600 border-emerald-200' : 'bg-rose-100 text-rose-600 border-rose-200' }}">
                                 {{ $user->account_status }}
                             </span>
                         </td>
-                        <td class="py-3">
+                        <td class="py-3 px-4">
                             <div class="text-[10px] text-slate-500 font-black uppercase tracking-tighter">{{ $user->created_at ? $user->created_at->format('d M Y') : '-' }}</div>
                             <div class="text-[9px] text-slate-300 font-bold uppercase">{{ $user->role }}</div>
                         </td>
@@ -121,13 +128,13 @@
                                 {{ $user->orders_count ?? 0 }}
                             </span>
                         </td>
-                        <td class="py-3">
+                        <td class="py-3 px-4">
                             <div class="text-[11px] text-slate-800 font-black">₹{{ number_format($user->orders_sum_grand_total ?? 0, 2) }}</div>
                             @if($user->last_login_at)
                                 <div class="text-[8px] text-slate-400 font-bold uppercase">Last Login: {{ $user->last_login_at->format('d/m/y') }}</div>
                             @endif
                         </td>
-                        <td class="py-3 text-right">
+                        <td class="py-3 text-right pr-6">
                             <div class="flex justify-end items-center space-x-2">
                                 <a href="{{ route('admin.users.show', $user->id) }}" class="flex items-center justify-center w-8 h-8 text-indigo-500 bg-indigo-50/50 hover:bg-indigo-500 hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-indigo-100" title="View Profile">
                                     <i class="fas fa-eye text-[10px]"></i>

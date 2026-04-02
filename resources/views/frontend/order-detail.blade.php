@@ -121,52 +121,88 @@
     }
 
     .order-items-table {
-        width: 100%;
-        border-collapse: collapse;
+        width: 100% !important;
+        border-collapse: collapse !important;
+        table-layout: auto;
+    }
+
+    .order-items-table tr {
+        border-bottom: 1px solid #e5e7eb; /* Joint line across the whole row */
+    }
+
+    .order-items-table th, 
+    .order-items-table td {
+        padding: 22px 15px;
+        vertical-align: middle;
+        text-align: center !important;
+    }
+
+    /* Product column specific override */
+    .order-items-table th:first-child, 
+    .order-items-table td:first-child {
+        text-align: left !important;
+        width: 45%;
     }
 
     .order-items-table th {
-        text-align: left;
-        font-size: 12px;
-        color: #999;
+        font-size: 11px;
+        color: #888;
+        font-weight: 700;
         text-transform: uppercase;
-        padding: 10px 0;
-        border-bottom: 1px solid #f5f5f5;
-    }
-
-    .order-items-table td {
-        padding: 20px 0;
-        border-bottom: 1px solid #f9f9f9;
-        vertical-align: middle;
+        letter-spacing: 0.05em;
+        background: #fafafa;
+        border-top: 1px solid #f1f1f1;
     }
 
     .item-cell {
         display: flex;
         align-items: center;
         gap: 15px;
+        min-width: 0;
     }
 
     .item-img {
-        width: 60px;
-        height: 60px;
-        border-radius: 6px;
+        width: 76px;
+        height: 76px;
+        border-radius: 10px;
         object-fit: cover;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        border: 1px solid #f1f1f1;
     }
 
     .item-name {
-        font-weight: 600;
+        font-weight: 700;
         font-size: 14px;
-        color: #333;
+        color: #1a202c;
+        word-break: break-word;
+        line-height: 1.5;
+        max-width: 100%;
+        margin-bottom: 6px;
     }
 
     .item-meta {
-        font-size: 12px;
-        color: #999;
+        font-size: 11px;
+        color: #718096;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 6px;
+    }
+
+    .item-meta span {
+        background: #f7fafc;
+        border: 1px solid #edf2f7;
+        padding: 2px 8px;
+        border-radius: 4px;
+        display: inline-block;
+        font-weight: 600;
+        color: #4a5568;
     }
 
     .item-actions-cell {
         display: flex;
         flex-direction: column;
+        align-items: center;
         gap: 5px;
     }
 
@@ -556,7 +592,7 @@
 
         <div class="order-detail-header">
             <div>
-                <h1 class="order-id-badge">Order #NS{{ $order->id }}</h1>
+                <h1 class="order-id-badge">Order #{{ $order->order_number }}</h1>
                 <p style="color: #999; margin-top: 5px;">Placed on {{ $order->created_at->format('M d, Y') }} &middot; {{ $order->created_at->format('h:i A') }}</p>
             </div>
             <div class="order-actions-top">
@@ -610,12 +646,12 @@
                 </div>
                 <div class="timeline-step {{ in_array($order->order_status, ['processing', 'dispatched', 'delivered']) ? 'completed' : ($order->order_status == 'pending' ? 'active' : '') }}">
                     <div class="step-icon">{{ in_array($order->order_status, ['processing', 'dispatched', 'delivered']) ? '✓' : '●' }}</div>
-                    <span class="step-label">Confirmed</span>
+                    <span class="step-label">Processing</span>
                     <span class="step-date">{{ in_array($order->order_status, ['processing', 'dispatched', 'delivered']) ? 'Done' : 'Pending' }}</span>
                 </div>
                 <div class="timeline-step {{ in_array($order->order_status, ['dispatched', 'delivered']) ? 'completed' : ($order->order_status == 'processing' ? 'active' : '') }}">
                     <div class="step-icon">{{ in_array($order->order_status, ['dispatched', 'delivered']) ? '✓' : '●' }}</div>
-                    <span class="step-label">Shipped</span>
+                    <span class="step-label">Dispatched</span>
                     <span class="step-date">{{ $order->order_status == 'dispatched' || $order->order_status == 'delivered' ? 'Done' : 'Processing' }}</span>
                 </div>
                 <div class="timeline-step {{ $order->order_status == 'delivered' ? 'completed' : '' }}">
@@ -654,20 +690,29 @@
                                 <td data-label="Product">
                                     <div class="item-cell">
                                         <img src="{{ $item->getImageUrl() }}" alt="" class="item-img">
-                                        <div>
+                                        <div style="flex: 1; min-width: 0;">
                                             <div class="item-name">{{ $item->product_name }}</div>
                                             <div class="item-meta">
-                                                @if($item->color) Color: {{ $item->color }} | @endif 
-                                                @if($item->size) Size: {{ $item->size }} @endif
-                                                @if(!$item->color && !$item->size) Regular Type @endif
-                                            </div>
+                                                @if(!empty($item->attributes))
+                                                    @foreach($item->attributes as $attr)
+                                                        <span>{{ $attr['name'] }}: {{ $attr['value'] }}</span>
+                                                    @endforeach
+                                                @else
+                                                    @if($item->color || $item->size)
+                                                        @if($item->color) <span>Color: {{ $item->color }}</span> @endif 
+                                                        @if($item->size) <span>Size: {{ $item->size }}</span> @endif
+                                                    @else
+                                                        <span style="background: none; color: #94a3b8; font-style: italic; padding: 0;">Standard Unit</span>
+                                                    @endif
+                                                @endif
+                                             </div>
                                         </div>
                                     </div>
                                 </td>
                                 <td data-label="Price">&#8377;{{ number_format($item->price, 0) }}</td>
                                 <td class="item-qty" data-label="Qty">{{ $item->quantity }}</td>
                                 <td data-label="Subtotal">&#8377;{{ number_format($item->price * $item->quantity, 0) }}</td>
-                                <td class="item-actions-cell" data-label="Actions">
+                                <td class="item-actions-cell" data-label="Actions" style="margin-top: 25px;">
                                     <a href="javascript:void(0)" class="action-link" onclick="openReviewModal('{{ $item->product_id }}', '{{ e($item->product_name) }}', '{{ $item->getImageUrl() }}')">Write Review</a>
                                     <a href="#" class="action-link" style="color: #999;">Need Help?</a>
                                 </td>
@@ -684,25 +729,25 @@
                     <div class="summary-details">
                         <div class="summary-row subtotal-row">
                             <span>Subtotal</span>
-                            <span class="subtotal-val">&#8377;{{ number_format($order->sub_total, 0) }}</span>
+                            <span class="subtotal-val">&#8377;{{ number_format($order->sub_total, 2) }}</span>
                         </div>
                         <div class="summary-row">
                             <span>Shipping</span>
-                            <span style="color: #52c41a;">{{ $order->shipping > 0 ? '₹'.number_format($order->shipping, 0) : 'FREE' }}</span>
+                            <span style="color: #52c41a;">{{ $order->shipping > 0 ? '₹'.number_format($order->shipping, 2) : 'FREE' }}</span>
                         </div>
                         <div class="summary-row tax-row">
                             <span>Tax (GST)</span>
-                            <span class="tax-val">&#8377;{{ number_format($order->tax, 0) }}</span>
+                            <span class="tax-val">&#8377;{{ number_format($order->tax, 2) }}</span>
                         </div>
                         @if($order->discount > 0)
                         <div class="summary-row">
                             <span>Discount</span>
-                            <span style="color: #e74c3c;">-&#8377;{{ number_format($order->discount, 0) }}</span>
+                            <span style="color: #e74c3c;">-&#8377;{{ number_format($order->discount, 2) }}</span>
                         </div>
                         @endif
                         <div class="summary-row total">
                             <span>Total</span>
-                            <span class="total-val">&#8377;{{ number_format($order->grand_total, 0) }}</span>
+                            <span class="total-val">&#8377;{{ number_format($order->grand_total, 2) }}</span>
                         </div>
                     </div>
                 </div>

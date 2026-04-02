@@ -51,7 +51,7 @@
         background: #fff;
     }
     .address-tag-v4 {
-        font-size: 10px;
+        font-size: 11px;
         font-weight: 700;
         text-transform: uppercase;
         color: #1e88e5;
@@ -68,12 +68,12 @@
         margin-bottom: 8px;
     }
     .address-text-v4 {
-        font-size: 13px;
+        font-size: 14px;
         color: #666;
         line-height: 1.6;
     }
     .address-phone-v4 {
-        font-size: 13px;
+        font-size: 14px;
         color: #666;
         margin-top: 10px;
     }
@@ -102,7 +102,7 @@
         top: 20px;
     }
     .summary-title-v4 {
-        font-size: 18px;
+        font-size: 19px; /* Increased from 18px */
         font-weight: 700;
         color: #333;
         margin-bottom: 25px;
@@ -111,7 +111,7 @@
         display: flex;
         justify-content: space-between;
         margin-bottom: 12px;
-        font-size: 14px;
+        font-size: 16px; /* Increased from 15px */
         color: #666;
     }
     .grand-total-v4 {
@@ -120,7 +120,7 @@
         padding-top: 20px;
         display: flex;
         justify-content: space-between;
-        font-size: 20px;
+        font-size: 21px; /* Increased from 20px */
         font-weight: 700;
         color: var(--pink-dark);
     }
@@ -149,7 +149,7 @@
         padding: 12px 15px;
         border: 1px solid #e0e0e0;
         border-radius: 10px;
-        font-size: 14px;
+        font-size: 15px;
         outline: none;
         font-family: 'Outfit', sans-serif;
         background: #fff;
@@ -168,6 +168,22 @@
     }
 
     @media (max-width: 768px) {
+        .checkout-grid {
+            grid-template-columns: 1fr !important;
+            gap: 18px !important;
+        }
+        .checkout-main,
+        .checkout-sidebar {
+            width: 100% !important;
+            min-width: 0 !important;
+        }
+        .checkout-sidebar {
+            order: 2;
+        }
+        .checkout-sidebar .summary-card-v4 {
+            position: static !important;
+            top: auto !important;
+        }
         .checkout-section-header {
             align-items: center;
             justify-content: center;
@@ -180,7 +196,7 @@
         }
         .checkout-saved-address-btn {
             padding: 6px 12px !important;
-            font-size: 10px !important;
+            font-size: 11px !important;
         }
         .summary-title-v4 {
             justify-content: center;
@@ -194,17 +210,50 @@
     }
     .saved-address-card:hover { border-color: var(--pink-dark) !important; }
     .saved-address-card .check-icon {
-        position: absolute; top: 10px; right: 10px; font-size: 16px;
+        position: absolute; top: 10px; right: 10px; font-size: 17px;
         animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
+
+    @media (max-width: 768px) {
+        #savedAddressesSection {
+            max-height: 52vh !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            padding-right: 2px !important;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 10px;
+        }
+
+        #savedAddressesSection > div {
+            display: grid !important;
+            grid-template-columns: 1fr !important;
+            gap: 10px !important;
+            min-width: 0 !important;
+        }
+
+        #savedAddressesSection .saved-address-card {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
+        #checkoutAddressForm > div,
+        #billingAddressForm > div {
+            grid-template-columns: 1fr !important;
+        }
+
+        #checkoutAddressForm .form-group[style*="grid-column: span 2"],
+        #billingAddressForm .form-group[style*="grid-column: span 2"] {
+            grid-column: auto !important;
+        }
+    }
 </style>
 @endpush
 
 @section('content')
 <main class="checkout-page-container">
     <div class="page-shell">
-        <form id="singleCheckoutForm" class="validate-form" action="{{ route('checkout.place') }}" method="POST">
+        <form id="singleCheckoutForm" class="validate-form" action="{{ route('checkout.place') }}" method="POST" novalidate>
             @csrf
             <input type="hidden" name="payment_method" id="payment_method_input" value="razorpay">
             <input type="hidden" name="customer_email" value="{{ Auth::user()?->email }}">
@@ -238,6 +287,7 @@
                                              data-addr="{{ $addr->address1 }}"
                                              data-city="{{ $addr->city }}"
                                              data-state="{{ $addr->state }}"
+                                             data-country="{{ $addr->country ?? 'India' }}"
                                              data-zip="{{ $addr->zip }}"
                                              style="border: 2px solid #eee; border-radius: 12px; padding: 12px; width: 220px; cursor: pointer; transition: all 0.2s ease; background: #fff; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
                                             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
@@ -274,23 +324,32 @@
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">FULL NAME</label>
-                                    <input type="text" name="customer_name" id="field_name" placeholder="Full Name" class="form-input-v4" value="{{ Auth::user()?->name }}" required>
+                                    <input type="text" name="customer_name" id="field_name" placeholder="Full Name" class="form-input-v4" value="{{ Auth::user()?->name }}" required
+                                        data-msg-required="Please enter full name.">
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">PHONE NUMBER</label>
-                                    <input type="tel" name="customer_phone" id="field_phone" placeholder="Phone Number" class="form-input-v4" value="{{ Auth::user()?->phone }}" required>
+                                    <input type="tel" name="customer_phone" id="field_phone" placeholder="Phone Number" class="form-input-v4" value="{{ Auth::user()?->phone }}" required minlength="10" maxlength="10" data-rule-digits="true"
+                                        data-msg-required="Please enter phone number."
+                                        data-msg-digits="Please enter a valid 10-digit phone number."
+                                        data-msg-minlength="Please enter a valid 10-digit phone number."
+                                        data-msg-maxlength="Please enter a valid 10-digit phone number.">
                                 </div>
                                 <div class="form-group" style="grid-column: span 2;">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">DELIVERY ADDRESS</label>
-                                    <input type="text" name="delivery_address" id="field_address" placeholder="Flat No, Street, Area" class="form-input-v4" required>
+                                    <input type="text" name="delivery_address" id="field_address" placeholder="Flat No, Street, Area" class="form-input-v4" required
+                                        data-msg-required="Please enter delivery address.">
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">CITY</label>
-                                    <input type="text" name="city" id="field_city" placeholder="City" class="form-input-v4" required>
+                                    <input type="text" name="city" id="field_city" placeholder="City" class="form-input-v4" required
+                                        oninput="this.value=this.value.replace(/[^A-Za-z\\s]/g,'')"
+                                        data-msg-required="Please enter city.">
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">STATE</label>
-                                    <select name="state" id="field_state" class="form-input-v4" required>
+                                    <select name="state" id="field_state" class="form-input-v4" required
+                                        data-msg-required="Please select state.">
                                         <option value="">— Select State —</option>
                                         @foreach($indianStates as $state)
                                             <option value="{{ $state }}">{{ $state }}</option>
@@ -299,7 +358,18 @@
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">PINCODE</label>
-                                    <input type="text" name="pincode" id="field_zip" placeholder="Pincode" class="form-input-v4" required>
+                                    <input type="text" name="pincode" id="field_zip" placeholder="Pincode" class="form-input-v4" required minlength="6" maxlength="6" data-rule-digits="true"
+                                        inputmode="numeric"
+                                        data-msg-required="Please enter pincode."
+                                        data-msg-digits="Please enter a valid 6-digit pincode."
+                                        data-msg-minlength="Please enter a valid 6-digit pincode."
+                                        data-msg-maxlength="Please enter a valid 6-digit pincode.">
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">COUNTRY</label>
+                                    <input type="text" name="country" id="field_country" placeholder="Country" class="form-input-v4" value="India" required
+                                        oninput="this.value=this.value.replace(/[^A-Za-z\\s]/g,'')"
+                                        data-msg-required="Please enter country.">
                                 </div>
                             </div>
                             @if(Auth::check())
@@ -339,7 +409,11 @@
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">PHONE NUMBER</label>
-                                    <input type="tel" name="billing_phone" id="billing_phone" placeholder="Billing Phone" class="form-input-v4">
+                                    <input type="tel" name="billing_phone" id="billing_phone" placeholder="Billing Phone" class="form-input-v4" minlength="10" maxlength="10" data-rule-digits="true"
+                                        inputmode="numeric"
+                                        data-msg-digits="Please enter a valid 10-digit billing phone number."
+                                        data-msg-minlength="Please enter a valid 10-digit billing phone number."
+                                        data-msg-maxlength="Please enter a valid 10-digit billing phone number.">
                                 </div>
                                 <div class="form-group" style="grid-column: span 2;">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">BILLING ADDRESS</label>
@@ -347,7 +421,8 @@
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">CITY</label>
-                                    <input type="text" name="billing_city" id="billing_city" placeholder="City" class="form-input-v4">
+                                    <input type="text" name="billing_city" id="billing_city" placeholder="City" class="form-input-v4"
+                                        oninput="this.value=this.value.replace(/[^A-Za-z\\s]/g,'')">
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">STATE</label>
@@ -360,7 +435,16 @@
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">PINCODE</label>
-                                    <input type="text" name="billing_pincode" id="billing_pincode" placeholder="Pincode" class="form-input-v4">
+                                    <input type="text" name="billing_pincode" id="billing_pincode" placeholder="Pincode" class="form-input-v4" minlength="6" maxlength="6" data-rule-digits="true"
+                                        inputmode="numeric"
+                                        data-msg-digits="Please enter a valid 6-digit billing pincode."
+                                        data-msg-minlength="Please enter a valid 6-digit billing pincode."
+                                        data-msg-maxlength="Please enter a valid 6-digit billing pincode.">
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">COUNTRY</label>
+                                    <input type="text" name="billing_country" id="billing_country" placeholder="Country" class="form-input-v4" value="India"
+                                        oninput="this.value=this.value.replace(/[^A-Za-z\\s]/g,'')">
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">EMAIL</label>
@@ -374,7 +458,7 @@
                 {{-- SIDEBAR --}}
                 <aside class="checkout-sidebar">
                     <div class="summary-card-v4" style="position: sticky; top: 100px;">
-                        <h3 class="summary-title-v4" style="font-size: 16px; display: flex; align-items: center; gap: 10px;">
+                        <h3 class="summary-title-v4" style="font-size: 18px; display: flex; align-items: center; gap: 10px;">
                             <i class="fa-solid fa-receipt" style="color: #A91B43;"></i>
                             Order Summary
                         </h3>
@@ -385,14 +469,17 @@
                             <div style="display: flex; gap: 10px; margin-bottom: 12px; align-items: center;">
                                 <img src="{{ $item['image_url'] }}" style="width: 34px; height: 44px; object-fit: cover; border-radius: 6px; flex-shrink: 0;">
                                 <div style="flex: 1; min-width: 0;">
-                                    <div style="font-size: 12px; font-weight: 600; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $item['name'] }}</div>
-                                    <div style="font-size: 10px; color: #888;">
+                                    <div style="font-size: 13px; font-weight: 600; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $item['name'] }}</div>
+                                    <div style="font-size: 11px; color: #888;">
                                         Qty: {{ $item['quantity'] }}
-                                        @if(!empty($item['color'])) · {{ $item['color'] }} @endif
-                                        @if(!empty($item['size'])) · {{ $item['size'] }} @endif
+                                        @if(!empty($item['display_attributes']))
+                                            @foreach($item['display_attributes'] as $attr)
+                                                · {{ $attr['name'] }}: {{ $attr['value'] }}
+                                            @endforeach
+                                        @endif
                                     </div>
                                 </div>
-                                <div style="font-size: 12px; font-weight: 700; color: #333; flex-shrink: 0;">&#8377;{{ number_format($item['price'] * $item['quantity'], 0) }}</div>
+                                <div style="font-size: 13px; font-weight: 700; color: #333; flex-shrink: 0;">&#8377;{{ number_format($item['price'] * $item['quantity'], 2) }}</div>
                             </div>
                             @endforeach
                         </div>
@@ -400,29 +487,29 @@
                         <div style="border-top: 1px dashed #eee; padding-top: 16px; margin-bottom: 4px;">
                             <div class="summary-row-v4">
                                 <span>Subtotal</span>
-                                <span>&#8377;{{ number_format($subTotal, 0) }}</span>
+                                <span>&#8377;{{ number_format($subTotal, 2) }}</span>
                             </div>
                             <div class="summary-row-v4">
                                 <span>Delivery Charges</span>
                                 <span id="shipping_cost_display" style="{{ $shipping > 0 ? '' : 'color: #2ecc71; font-weight: 700;' }} font-size: 12px;">
-                                    {{ $shipping > 0 ? '₹' . number_format($shipping, 0) : 'FREE' }}
+                                    {{ $shipping > 0 ? '₹' . number_format($shipping, 2) : 'FREE' }}
                                 </span>
                             </div>
                             <div class="summary-row-v4">
                                 <span>GST (<span id="tax_rate_label">{{ $taxPercentage ?? 5 }}</span>%)</span>
-                                <span id="tax_cost_display">&#8377;{{ number_format($tax, 0) }}</span>
+                                <span id="tax_cost_display">&#8377;{{ number_format($tax, 2) }}</span>
                             </div>
                             @if($discount > 0)
                             <div class="summary-row-v4" style="color: #2ecc71; font-weight: 600;">
                                 <span>Discount</span>
-                                <span>-&#8377;{{ number_format($discount, 0) }}</span>
+                                <span>-&#8377;{{ number_format($discount, 2) }}</span>
                             </div>
                             @endif
                         </div>
 
                         <div class="grand-total-v4" style="font-size: 20px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee;">
                             <span>Total</span>
-                            <span id="grand_total_display">&#8377;{{ number_format($grandTotal, 0) }}</span>
+                            <span id="grand_total_display">&#8377;{{ number_format($grandTotal, 2) }}</span>
                         </div>
 
                         {{-- PAYMENT METHOD --}}
@@ -430,8 +517,8 @@
                             <label style="cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid #A91B43; border-radius: 12px; transition: all 0.2s ease; background: #fffcfd;" onclick="selectPayment('razorpay', this)">
                                 <input type="radio" name="pay_choice_radio" checked style="accent-color: #A91B43;">
                                 <div style="flex: 1;">
-                                    <div style="font-size: 12px; font-weight: 700; color: #333;">Secure Payment</div>
-                                    <div style="font-size: 10px; color: #888;">UPI, Cards, NetBanking</div>
+                                    <div style="font-size: 13px; font-weight: 700; color: #333;">Secure Payment</div>
+                                    <div style="font-size: 11px; color: #888;">UPI, Cards, NetBanking</div>
                                 </div>
                                 <i class="fa-solid fa-shield-halved" style="color: #2e7d32; font-size: 14px;"></i>
                             </label>
@@ -439,20 +526,20 @@
                             <label style="cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid #f0f0f0; border-radius: 12px; transition: all 0.2s ease; background: #fff;" onclick="selectPayment('cod', this)">
                                 <input type="radio" name="pay_choice_radio" style="accent-color: #A91B43;">
                                 <div style="flex: 1;">
-                                    <div style="font-size: 12px; font-weight: 700; color: #333;">Cash on Delivery</div>
-                                    <div style="font-size: 10px; color: #888;">Pay when you receive</div>
+                                    <div style="font-size: 13px; font-weight: 700; color: #333;">Cash on Delivery</div>
+                                    <div style="font-size: 11px; color: #888;">Pay when you receive</div>
                                 </div>
                                 <i class="fa-solid fa-truck-fast" style="color: #ef6c00; font-size: 14px;"></i>
                             </label>
                         </div>
 
-                        <button type="submit" class="btn-review-v4" style="width: 100%; margin-top: 20px; height: 50px; font-size: 16px; letter-spacing: 0.5px; border-radius: 12px;">
+                        <button type="submit" class="btn-review-v4" style="width: 100%; margin-top: 20px; height: 50px; font-size: 15px; letter-spacing: 0.5px; border-radius: 12px;">
                             Pay &amp; Place Order
                         </button>
 
                         <div style="text-align: center; margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; opacity: 0.5;">
                             <img src="https://razorpay.com/favicon.png" width="14">
-                            <span style="font-size: 10px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 1px;">Razorpay Secured</span>
+                            <span style="font-size: 11px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 1px;">Razorpay Secured</span>
                         </div>
                     </div>
                 </aside>
@@ -464,6 +551,34 @@
 
 @push('scripts')
 <script>
+    function applyBillingValidation() {
+        if (!window.jQuery) return;
+        const $checkoutForm = $('#singleCheckoutForm');
+        if (!$checkoutForm.data('validator')) return;
+
+        const shouldRequireBilling = !document.getElementById('sameAsShipping').checked;
+        const $billingFields = $('#billing_name, #billing_phone, #billing_address_field, #billing_city, #billing_state, #billing_pincode, #billing_country, #billing_email');
+
+        if (shouldRequireBilling) {
+            $('#billing_name').rules('add', { required: true, messages: { required: 'Please enter billing name.' } });
+            $('#billing_phone').rules('add', { required: true, digits: true, minlength: 10, maxlength: 10, messages: { required: 'Please enter billing phone number.' } });
+            $('#billing_address_field').rules('add', { required: true, messages: { required: 'Please enter billing address.' } });
+            $('#billing_city').rules('add', { required: true, messages: { required: 'Please enter billing city.' } });
+            $('#billing_state').rules('add', { required: true, messages: { required: 'Please select billing state.' } });
+            $('#billing_pincode').rules('add', { required: true, digits: true, minlength: 6, maxlength: 6, messages: { required: 'Please enter billing pincode.' } });
+            $('#billing_country').rules('add', { required: true, messages: { required: 'Please enter billing country.' } });
+            $('#billing_email').rules('add', { required: true, email: true, messages: { required: 'Please enter billing email.' } });
+        } else {
+            $billingFields.each(function() {
+                const $field = $(this);
+                $field.rules('remove', 'required');
+                $field.removeClass('error-border');
+                const $error = $field.siblings('span.error-text');
+                if ($error.length) $error.remove();
+            });
+        }
+    }
+
     function toggleBillingForm(checkbox) {
         const form = document.getElementById('billingAddressForm');
         const summary = document.getElementById('billingAddressSummary');
@@ -474,6 +589,7 @@
             form.style.display = 'block';
             summary.style.display = 'none';
         }
+        applyBillingValidation();
     }
 
     function selectPayment(method, element) {
@@ -513,6 +629,8 @@
         
         const stateSelect = document.getElementById('field_state');
         stateSelect.value = element.getAttribute('data-state');
+        const countryInput = document.getElementById('field_country');
+        if (countryInput) countryInput.value = element.getAttribute('data-country') || 'India';
         
         document.getElementById('field_zip').value = element.getAttribute('data-zip');
         
@@ -524,6 +642,10 @@
     document.getElementById('field_state').addEventListener('change', updateShipping);
     document.getElementById('field_zip').addEventListener('change', updateShipping);
 
+    document.addEventListener('DOMContentLoaded', function() {
+        applyBillingValidation();
+    });
+
     function updateShipping() {
         const state = document.getElementById('field_state').value;
         const zip = document.getElementById('field_zip').value;
@@ -533,12 +655,27 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             },
-            body: JSON.stringify({ state: state, zip: zip, country: 'India' })
+            body: JSON.stringify({ state: state, zip: zip, country: document.getElementById('field_country')?.value || 'India' })
         })
-        .then(r => r.json())
+        .then(r => {
+            if (r.status === 419) {
+                Swal.fire({
+                    title: 'Session Expired',
+                    text: 'Your session has expired. Please refresh the page to continue.',
+                    icon: 'warning',
+                    confirmButtonText: 'Refresh Page',
+                    confirmButtonColor: '#A91B43'
+                }).then(() => {
+                    window.location.reload();
+                });
+                throw new Error('CSRF token mismatch');
+            }
+            return r.json();
+        })
         .then(response => {
             if (response.success) {
                 document.getElementById('shipping_cost_display').textContent = response.shippingFormatted;
@@ -558,6 +695,11 @@
                     shippingEl.style.color = '#2ecc71';
                     shippingEl.style.fontWeight = '700';
                 }
+            }
+        })
+        .catch(error => {
+            if (error.message !== 'CSRF token mismatch') {
+                console.error('Shipping update error:', error);
             }
         });
     }

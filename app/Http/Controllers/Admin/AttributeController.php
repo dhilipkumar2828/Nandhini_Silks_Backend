@@ -39,11 +39,12 @@ class AttributeController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'group' => 'required|string|max:255',
-            'name' => 'required|string|max:255',
+            'group' => 'nullable|string|max:255',
+            'name' => 'required|string|max:255|unique:attributes,name',
             'slug' => 'required|string|max:255|unique:attributes,slug',
             'status' => 'required|boolean',
         ], [
+            'name.unique' => 'This Attribute Name is already in use.',
             'slug.unique' => 'This Attribute Slug is already in use. Please choose a different one.',
         ]);
 
@@ -62,11 +63,12 @@ class AttributeController extends Controller
     public function update(Request $request, Attribute $attribute)
     {
         $request->validate([
-            'group' => 'required|string|max:255',
-            'name' => 'required|string|max:255',
+            'group' => 'nullable|string|max:255',
+            'name' => 'required|string|max:255|unique:attributes,name,' . $attribute->id,
             'slug' => 'required|string|max:255|unique:attributes,slug,' . $attribute->id,
             'status' => 'required|boolean',
         ], [
+            'name.unique' => 'This Attribute Name is already in use.',
             'slug.unique' => 'This Attribute Slug is already in use. Please choose a different one.',
         ]);
 
@@ -81,5 +83,38 @@ class AttributeController extends Controller
     {
         $attribute->delete();
         return redirect()->route('admin.attributes.index')->with('success', 'Attribute deleted successfully.');
+    }
+
+    public function checkSlug(Request $request)
+    {
+        $slug = Str::slug($request->name);
+        if ($request->filled('slug')) {
+            $slug = Str::slug($request->slug);
+        }
+
+        $query = Attribute::where('slug', '=', $slug);
+        if ($request->filled('id')) {
+            $query->where('id', '!=', $request->id);
+        }
+
+        $exists = $query->exists();
+        return response()->json([
+            'exists' => $exists,
+            'slug' => $slug
+        ]);
+    }
+
+    public function checkName(Request $request)
+    {
+        $name = $request->name;
+        $query = Attribute::where('name', '=', $name);
+        if ($request->filled('id')) {
+            $query->where('id', '!=', $request->id);
+        }
+
+        $exists = $query->exists();
+        return response()->json([
+            'exists' => $exists
+        ]);
     }
 }

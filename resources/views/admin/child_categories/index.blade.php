@@ -71,51 +71,51 @@
         <table class="w-full text-left">
             <thead>
                 <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-100">
-                    <th class="pb-3 px-2 font-bold">S.No</th>
-                    <th class="pb-3 px-2 font-bold">Image</th>
-                    <th class="pb-3 font-bold">Details</th>
-                    <th class="pb-3 font-bold">Category Hierarchy</th>
-                    <th class="pb-3 font-bold">Order</th>
-                    <th class="pb-3 font-bold">Status</th>
-                    <th class="pb-3 font-bold text-right">Actions</th>
+                    <th class="pb-3 px-2 font-bold text-center w-16">S.No</th>
+                    <th class="pb-3 px-2 font-bold text-center w-20">Image</th>
+                    <th class="pb-3 font-bold text-center w-40">Child Category</th>
+                    <th class="pb-3 font-bold text-center w-40">Category Hierarchy</th>
+                    <th class="pb-3 font-bold text-center w-16">Order</th>
+                    <th class="pb-3 font-bold text-center w-16">Status</th>
+                    <th class="pb-3 font-bold text-right pr-4 w-16">Actions</th>
                 </tr>
             </thead>
             <tbody class="text-sm">
                 @foreach($childCategories as $childCategory)
                 <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-all">
-                    <td class="py-2.5 px-2 text-xs font-bold text-slate-500">
+                    <td class="py-2.5 px-2 text-xs font-bold text-slate-500 text-center">
                         {{ $childCategories->firstItem() + $loop->index }}
                     </td>
-                    <td class="py-2.5 px-2">
+                    <td class="py-2.5 px-2 text-center">
                         @if($childCategory->image)
-                            <img src="{{ asset('uploads/' . $childCategory->image) }}" class="w-10 h-10 rounded-lg object-cover shadow-sm">
+                            <img src="{{ asset('uploads/' . $childCategory->image) }}" class="w-10 h-10 rounded-lg object-cover shadow-sm mx-auto">
                         @else
-                            <div class="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center text-slate-300 border border-slate-100">
+                            <div class="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center text-slate-300 border border-slate-100 mx-auto">
                                 <i class="fas fa-image text-[10px]"></i>
                             </div>
                         @endif
                     </td>
-                    <td class="py-2.5">
+                    <td class="py-2.5 text-center w-16">
                         <div class="font-bold text-slate-800 text-sm">{{ $childCategory->name }}</div>
                         <div class="text-[10px] text-slate-400 tracking-tight font-semibold uppercase tracking-widest">Slug: {{ $childCategory->slug }}</div>
                     </td>
-                    <td class="py-2.5">
-                        <div class="flex flex-col space-y-1">
+                    <td class="py-2.5 text-center">
+                        <div class="flex flex-col space-y-1 items-center">
                             <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                                {{ $childCategory->category->name }}
+                                {{ $childCategory->category->name ?? 'N/A' }}
                             </span>
                             <span class="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded uppercase tracking-tighter border border-indigo-100 w-fit">
-                                <i class="fas fa-chevron-right mr-1 text-[8px]"></i> {{ $childCategory->subCategory->name }}
+                                <i class="fas fa-chevron-right mr-1 text-[8px]"></i> {{ $childCategory->subCategory->name ?? 'N/A' }}
                             </span>
                         </div>
                     </td>
-                    <td class="py-2.5 text-[11px] text-slate-500 font-black">{{ $childCategory->display_order }}</td>
-                    <td class="py-2.5">
+                    <td class="py-2.5 text-[11px] text-slate-500 font-black text-center">{{ $childCategory->display_order }}</td>
+                    <td class="py-2.5 text-center">
                         <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest {{ $childCategory->status ? 'bg-emerald-100 text-emerald-600 border border-emerald-200' : 'bg-rose-100 text-rose-600 border border-rose-200' }}">
                             {{ $childCategory->status ? 'Active' : 'Inactive' }}
                         </span>
                     </td>
-                    <td class="py-2.5 text-right">
+                    <td class="py-2.5 text-right pr-4">
                         <div class="flex justify-end items-center space-x-2">
                             <a href="{{ route('admin.child-categories.edit', $childCategory->id) }}" class="flex items-center justify-center w-8 h-8 text-indigo-500 bg-indigo-50/50 hover:bg-indigo-500 hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-indigo-100" title="Edit">
                                 <i class="fas fa-edit text-[10px]"></i>

@@ -9,9 +9,9 @@
                 <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp; <span>{{ $category->name }}</span>
             </div>
 
-            <button type="button" class="mobile-filter-toggle" id="mobileFilterToggle">
+            <button type="button" class="mobile-filter-toggle" id="mobileFilterToggle" aria-expanded="false" aria-controls="filtersSidebar">
                 <span>Filters</span>
-                <span class="mobile-filter-toggle-icon">+</span>
+                <span class="mobile-filter-toggle-icon"><i class="fa-solid fa-chevron-down"></i></span>
             </button>
 
             <div class="mobile-filter-overlay" id="mobileFilterOverlay"></div>
@@ -39,22 +39,40 @@
                                 </div>
                             </div>
                         </div>
-
+                        @if(request()->routeIs('shop') && isset($filterData['categories']) && $filterData['categories']->isNotEmpty())
+                            <div class="filter-group">
+                                <h3 class="filter-title">Categories</h3>
+                                <ul class="filter-group-content filter-list">
+                                    @foreach($filterData['categories'] as $cat)
+                                        <li class="filter-item">
+                                            <label class="custom-checkbox">
+                                                <input type="checkbox" name="categories[]" value="{{ $cat->id }}"
+                                                    {{ in_array($cat->id, (array)request('categories', [])) ? 'checked' : '' }} onchange="this.form.submit()">
+                                                <span class="checkmark"></span>
+                                                <span class="label-text">{{ $cat->name }}</span>
+                                            </label>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        @if(isset($filterData['sub_categories']) && $filterData['sub_categories']->isNotEmpty())
                         <div class="filter-group">
-                            <h3 class="filter-title">Category</h3>
+                            <h3 class="filter-title">Sub-Category</h3>
                             <ul class="filter-group-content filter-list">
-                                @foreach($filterData['categories'] as $cat)
+                                @foreach($filterData['sub_categories'] as $subCat)
                                     <li class="filter-item">
                                         <label class="custom-checkbox">
-                                            <input type="checkbox" name="categories[]" value="{{ $cat->id }}" 
-                                                {{ in_array($cat->id, (array)request('categories', [])) ? 'checked' : '' }} onchange="this.form.submit()">
+                                            <input type="checkbox" name="sub_categories[]" value="{{ $subCat->id }}"
+                                                {{ in_array($subCat->id, (array)request('sub_categories', [])) ? 'checked' : '' }} onchange="this.form.submit()">
                                             <span class="checkmark"></span>
-                                            <span class="label-text">{{ $cat->name }}</span>
+                                            <span class="label-text">{{ $subCat->name }}</span>
                                         </label>
                                     </li>
                                 @endforeach
                             </ul>
                         </div>
+                        @endif
 
                         @foreach($filterData['attributes'] as $attr)
                             @if($attr->values->isNotEmpty())
@@ -120,156 +138,7 @@
                 </aside>
 
                 <!-- Product Listing -->
-                <section class="product-listing">
-                    <!-- Filter Chips -->
-                    <div class="filter-chips-section">
-                        <div class="chips-container">
-                            @php 
-                                $mainLabel = "All " . $category->name;
-                                if ($category instanceof \App\Models\Category) $mainLabel .= " Wear";
-                            @endphp
-                            <span class="chip active">{{ $mainLabel }}</span>
-
-                            @if($category instanceof \App\Models\Category && $category->subCategories->count() > 0)
-                                @foreach($category->subCategories as $sub)
-                                    <a href="{{ url('category/'.$category->slug.'/'.$sub->slug) }}" style="text-decoration: none;">
-                                        <span class="chip">{{ $sub->name }}</span>
-                                    </a>
-                                @endforeach
-                            @elseif($category instanceof \App\Models\SubCategory)
-                                @foreach($category->category->subCategories as $sibling)
-                                    @if($sibling->id != $category->id)
-                                        <a href="{{ url('category/'.$category->category->slug.'/'.$sibling->slug) }}" style="text-decoration: none;">
-                                            <span class="chip">{{ $sibling->name }}</span>
-                                        </a>
-                                    @endif
-                                @endforeach
-                            @elseif($category instanceof \App\Models\ChildCategory)
-                                @foreach($category->subCategory->childCategories as $sibling)
-                                    @if($sibling->id != $category->id)
-                                        <a href="{{ url('category/'.$category->category->slug.'/'.$category->subCategory->slug.'/'.$sibling->slug) }}" style="text-decoration: none;">
-                                            <span class="chip">{{ $sibling->name }}</span>
-                                        </a>
-                                    @endif
-                                @endforeach
-                            @endif
-
-                            {{-- Dynamic Sorting Chips --}}
-                            <a href="{{ request()->fullUrlWithQuery(['sort' => 'newest']) }}" style="text-decoration: none;">
-                                <span class="chip {{ request('sort') == 'newest' ? 'active' : '' }}">New Arrivals</span>
-                            </a>
-                            <a href="{{ request()->fullUrlWithQuery(['sort' => 'popularity']) }}" style="text-decoration: none;">
-                                <span class="chip {{ request('sort') == 'popularity' ? 'selected' : '' }}">Best Sellers</span>
-                            </a>
-                            <a href="{{ request()->fullUrlWithQuery(['sort' => 'trending']) }}" style="text-decoration: none;">
-                                <span class="chip">Trending</span>
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="product-listing-header">
-                        <div class="header-left">
-                            <h2 class="category-main-title">{{ $category->name }}</h2>
-                            <span class="result-count">Showing {{ $products->firstItem() ?? 0 }}-{{ $products->lastItem() ?? 0 }} of {{ $products->total() ?? 0 }} products</span>
-                        </div>
-
-                        <div style="display: flex; align-items: center;">
-                            <div class="view-toggle">
-                                <button class="view-btn active" title="Grid View">
-                                    <svg width="18" height="18" viewBox="0 0 24 24">
-                                        <path d="M4 4h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 10h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 16h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4z" />
-                                    </svg>
-                                </button>
-                                <button class="view-btn" title="List View">
-                                    <svg width="18" height="18" viewBox="0 0 24 24">
-                                        <path d="M4 14h4v-4H4v4zm0 5h4v-4H4v4zM4 9h4V5H4v4zm5 5h12v-4H9v4zm0 5h12v-4H9v4zM9 5v4h12V5H9z" />
-                                    </svg>
-                                </button>
-                            </div>
-
-                            <form action="{{ request()->fullUrl() }}" method="GET" style="margin-left: 15px;">
-                                @foreach(request()->except('sort') as $key => $val)
-                                    @if(is_array($val))
-                                        @foreach($val as $subKey => $subVal)
-                                            @if(is_array($subVal))
-                                                @foreach($subVal as $innerVal)
-                                                    <input type="hidden" name="{{ $key }}[{{ $subKey }}][]" value="{{ $innerVal }}">
-                                                @endforeach
-                                            @else
-                                                <input type="hidden" name="{{ $key }}[]" value="{{ $subVal }}">
-                                            @endif
-                                        @endforeach
-                                    @else
-                                        <input type="hidden" name="{{ $key }}" value="{{ $val }}">
-                                    @endif
-                                @endforeach
-                                <select class="sort-select" name="sort" onchange="this.form.submit()">
-                                    <option value="popularity" {{ request('sort') == 'popularity' ? 'selected' : '' }}>Sort By: Popularity</option>
-                                    <option value="price_low" {{ request('sort') == 'price_low' ? 'selected' : '' }}>Price: Low to High</option>
-                                    <option value="price_high" {{ request('sort') == 'price_high' ? 'selected' : '' }}>Price: High to Low</option>
-                                    <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Newest First</option>
-                                </select>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div class="product-grid-main">
-                        @if ($products->count() > 0)
-                            @foreach ($products as $product)
-                            <article class="product-card-v2">
-                                <div class="card-actions-overlay">
-                                    @php $inWishlist = in_array($product->id, session('wishlist', [])); @endphp
-                                    <button class="overlay-btn wishlist-btn" aria-label="Add to Wishlist" data-product-id="{{ $product->id }}">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="{{ $inWishlist ? '#A91B43' : '#666' }}">
-                                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                                        </svg>
-                                    </button>
-                                </div>
-                                 <a href="{{ route('product.show', $product->slug) }}" style="text-decoration: none; color: inherit;">
-                                    <div class="product-image-v2">
-                                        @php
-                                            $productImage = 'images/pro.png';
-                                            if ($product->images && is_array($product->images) && count($product->images) > 0) {
-                                                $productImage = 'uploads/' . $product->images[0];
-                                            } elseif ($product->image_path) {
-                                                $productImage = 'images/' . $product->image_path;
-                                            }
-                                        @endphp
-                                        <img src="{{ asset($productImage) }}" alt="{{ $product->name }}">
-                                    </div>
-                                    <div class="product-info-v2">
-                                        <div class="product-rating-v2">★★★★★</div>
-                                        <span class="product-category-v2">{{ $product->category->name ?? 'Collection' }}</span>
-                                        <h3 class="product-name-v2">{{ $product->name }}</h3>
-                                        <p class="product-desc-v2">{{ Str::limit(strip_tags($product->description), 80) }}</p>
-                                        <p class="product-price-v2">
-                                            ₹{{ number_format($product->price, 0) }}
-                                            @if($product->regular_price > $product->price)
-                                                <span class="product-price-old">₹{{ number_format($product->regular_price, 0) }}</span>
-                                            @endif
-                                        </p>
-                                    </div>
-                                </a>
-                                <a href="{{ route('product.show', $product->slug) }}" class="add-to-cart-v2" style="text-decoration: none; display: block; text-align: center;">View Details</a>
-                            </article>
-                            @endforeach
-                        @else
-                            <div class="no-results-v2" style="grid-column: 1/-1; text-align: center; padding: 100px 0;">
-                                <div style="font-size: 64px; color: #eee; margin-bottom: 20px;">
-                                    <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                                        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
-                                    </svg>
-                                </div>
-                                <h3 style="color: #333; margin-bottom: 10px;">No Products Found</h3>
-                                <p style="color: #999;">Try adjusting your filters or checking another category.</p>
-                            </div>
-                        @endif
-                    </div>
-
-                    <div class="pagination-container" style="margin-top: 50px;">
-                        {{ $products->appends(request()->query())->links() }}
-                    </div>
-                </section>
+                @include('frontend.partials.product-listing', ['products' => $products, 'category' => $category])
             </div>
         </div>
     </main>
@@ -279,13 +148,14 @@
     <script>
         // Grid/List View Toggle Logic
         const viewBtns = document.querySelectorAll('.view-btn');
-        const productContainer = document.querySelector('.product-grid-main');
+        const productContainer = document.getElementById('productListingGrid');
 
         viewBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 viewBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                if (btn.title === 'List View') {
+
+                if (btn.getAttribute('data-view') === 'list' || btn.title === 'List View') {
                     productContainer.classList.add('view-list');
                 } else {
                     productContainer.classList.remove('view-list');
@@ -331,16 +201,14 @@
         if (mobileFilterToggle && filtersSidebar) {
             const closeFilters = () => {
                 filtersSidebar.classList.remove('mobile-open');
-                mobileFilterOverlay?.classList.remove('active');
-                document.body.classList.remove('filter-open');
-                if (mobileFilterToggleIcon) mobileFilterToggleIcon.textContent = '+';
+                if (mobileFilterToggleIcon) mobileFilterToggleIcon.style.transform = 'rotate(0deg)';
+                mobileFilterToggle.setAttribute('aria-expanded', 'false');
             };
 
             const openFilters = () => {
                 filtersSidebar.classList.add('mobile-open');
-                mobileFilterOverlay?.classList.add('active');
-                document.body.classList.add('filter-open');
-                if (mobileFilterToggleIcon) mobileFilterToggleIcon.textContent = '−';
+                if (mobileFilterToggleIcon) mobileFilterToggleIcon.style.transform = 'rotate(180deg)';
+                mobileFilterToggle.setAttribute('aria-expanded', 'true');
             };
 
             mobileFilterToggle.addEventListener('click', () => {
@@ -387,37 +255,30 @@
     <style>
         /* Mobile Overlay & Sidebar Refinements */
         .mobile-filter-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.4);
-            backdrop-filter: blur(4px);
-            z-index: 9998;
+            display: none !important;
         }
-        .mobile-filter-overlay.active { display: block; }
+        .mobile-filter-overlay.active { display: none !important; }
         
-        .filter-drawer-header { display: none; }
+        .filter-drawer-header { display: none !important; }
 
         @media (max-width: 1024px) {
             .filters-sidebar {
-                position: fixed;
-                top: 0;
-                right: 0;
-                width: min(380px, 100%);
-                height: 100dvh;
-                z-index: 9999;
+                position: static;
+                width: 100%;
+                height: auto;
                 background: #fff;
-                padding: 20px;
-                box-shadow: -15px 0 40px rgba(0,0,0,0.15);
-                transform: translateX(105%);
-                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                overflow-y: auto;
-                border-radius: 20px 0 0 20px;
-                display: block !important;
+                padding: 16px;
+                margin: 0 0 16px;
+                box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+                border: 1px solid rgba(169, 27, 67, 0.12);
+                border-radius: 14px;
+                overflow: hidden;
+                transform: none;
+                transition: none;
             }
-            .filters-sidebar.mobile-open { transform: translateX(0); }
+            .filters-sidebar.mobile-open { display: block !important; }
             .filter-drawer-header {
-                display: flex;
+                display: none !important;
                 align-items: center;
                 justify-content: space-between;
                 margin-bottom: 25px;
@@ -429,24 +290,27 @@
             
             .filter-group .filter-title {
                 position: relative;
-                cursor: pointer;
-                padding: 12px 0;
-                margin-bottom: 0 !important;
+                cursor: pointer;                margin-bottom: 0 !important;
                 font-size: 16px;
                 border: none;
             }
             .filter-group .filter-title::after {
-                content: '+';
+                content: '\f078'; /* Font Awesome Chevron Down */
+                font-family: 'Font Awesome 6 Free';
+                font-weight: 900;
+                font-size: 14px;
                 position: absolute;
                 right: 0;
+                top: 50%;
+                transform: translateY(-50%) rotate(0deg);
                 color: #A91B43;
-                font-weight: 400;
-                font-size: 20px;
+                transition: transform 0.3s ease;
             }
-            .filter-group.is-open .filter-title::after { content: '−'; }
+            .filter-group.is-open .filter-title::after {
+                transform: translateY(-50%) rotate(180deg);
+            }
             .filter-group-content { display: none; padding: 5px 0 15px; }
             .filter-group.is-open .filter-group-content { display: block; }
-            body.filter-open { overflow: hidden; }
         }
         .mobile-filter-toggle {
             display: none;
@@ -471,18 +335,6 @@
         }
         .mobile-filter-toggle[aria-expanded="true"] .mobile-filter-toggle-icon {
             transform: rotate(45deg);
-        }
-        .chip { 
-            display: inline-flex; 
-            align-items: center; 
-            justify-content: center; 
-            min-height: 40px; 
-            padding: 0 20px; 
-            border-radius: 20px; 
-            font-size: 14px; 
-            font-weight: 500;
-            vertical-align: middle;
-            margin-bottom: 5px;
         }
         .filter-group {
             margin-bottom: 30px;
@@ -520,6 +372,7 @@
             position: relative;
             cursor: pointer;
             user-select: none;
+            padding-top: 10px;
         }
 
         .custom-checkbox input {
@@ -765,6 +618,35 @@
             display: inline-block;
         }
 
+        .category-filter-link {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            color: #666;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .category-filter-link:hover {
+            color: #A91B43;
+            transform: translateX(3px);
+        }
+
+        .category-filter-link.active .label-text {
+            color: #A91B43;
+            font-weight: 700;
+        }
+
+        .category-filter-link i {
+            transition: all 0.2s ease;
+        }
+
+        .category-filter-link:hover i {
+            opacity: 1;
+            transform: translateX(4px);
+        }
+
         /* Actions */
         .apply-filters-btn-modern {
             width: 100%;
@@ -853,7 +735,7 @@
                 margin-bottom: 0 !important;
             }
             .product-grid-main:not(.view-list) {
-                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
                 gap: 25px !important;
             }
             .product-grid-main:not(.view-list) .product-card-v2 {
@@ -866,14 +748,8 @@
             .product-grid-main:not(.view-list) .product-name-v2 {
                 font-size: inherit !important;
             }
-            .product-grid-main.view-list .product-card-v2 {
-                grid-template-columns: 160px 1fr 180px !important;
-                grid-template-areas: "image info actions" !important;
-                gap: 25px !important;
-                padding: 20px !important;
-            }
-            .product-grid-main.view-list .product-image-v2 {
-                height: 200px !important;
+            .product-grid-main:last-child {
+                margin-bottom: 0 !important;
             }
         }
     </style>

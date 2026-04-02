@@ -70,23 +70,21 @@
     <div class="overflow-x-auto">
         <table class="w-full text-left">
             <thead>
-                <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-100">
-                    <th class="pb-3 px-2 font-bold">S.No</th>
-                    <th class="pb-3 font-bold">Group</th>
-                    <th class="pb-3 font-bold">Name</th>
+                <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-100 text-center">
+                    <th class="pb-3 px-2 font-bold w-16">S.No</th>
+                    <th class="pb-3 font-bold text-left">Name</th>
                     <th class="pb-3 font-bold">Values</th>
                     <th class="pb-3 font-bold">Status</th>
-                    <th class="pb-3 font-bold text-right">Actions</th>
+                    <th class="pb-3 font-bold text-right pr-4">Actions</th>
                 </tr>
             </thead>
             <tbody class="text-sm">
                 @foreach($attributes as $attribute)
-                <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-all">
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-all text-center">
                     <td class="py-2.5 px-2 text-xs font-bold text-slate-500">
                         {{ $attributes->firstItem() + $loop->index }}
                     </td>
-                    <td class="py-2.5 font-bold text-slate-600 uppercase tracking-tighter text-[11px]">{{ $attribute->group }}</td>
-                    <td class="py-2.5">
+                    <td class="py-2.5 text-left">
                         <div class="font-bold text-slate-800 text-sm">{{ $attribute->name }}</div>
                         <div class="text-[10px] text-slate-400 tracking-tight font-semibold uppercase">Slug: {{ $attribute->slug }}</div>
                     </td>
@@ -100,7 +98,7 @@
                             {{ $attribute->status ? 'Active' : 'Inactive' }}
                         </span>
                     </td>
-                    <td class="py-2.5 text-right">
+                    <td class="py-2.5 text-right pr-4">
                         <div class="flex justify-end items-center space-x-2">
                             <a href="{{ route('admin.attributes.edit', $attribute->id) }}" class="flex items-center justify-center w-8 h-8 text-indigo-500 bg-indigo-50/50 hover:bg-indigo-500 hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-indigo-100" title="Edit">
                                 <i class="fas fa-edit text-[10px]"></i>

@@ -57,7 +57,7 @@
 
             .attribute-option.active.color-swatch {
                 box-shadow: 0 0 0 2px #fff, 0 0 0 4px #A91B43 !important;
-                transform: scale(1.15);
+                transform: scale(0.8);
                 z-index: 2;
             }
 
@@ -208,7 +208,7 @@
             .review-empty-text {
                 margin: 0 0 24px;
                 color: #6b7280;
-                font-size: 14px;
+                font-size: 15px;
                 line-height: 1.6;
             }
 
@@ -223,7 +223,7 @@
                 border-radius: 999px;
                 background: linear-gradient(90deg, #a91b43 0%, #c62355 100%);
                 color: #fff;
-                font-size: 12px;
+                font-size: 13px;
                 font-weight: 800;
                 letter-spacing: 0.12em;
                 text-transform: uppercase;
@@ -280,11 +280,25 @@
                 width: 40px;
                 height: 40px;
                 border: none;
-                border-radius: 999px;
+                border-radius: 50%;
                 background: #f8e8ee;
                 color: #a91b43;
-                font-size: 20px;
+                font-size: 18px;
                 cursor: pointer;
+                display: grid;
+                place-items: center;
+                padding: 0 !important;
+                margin: 0;
+                line-height: 1 !important;
+            }
+
+            .review-modal-close span {
+                margin: 0 !important;
+                padding: 0 !important;
+                display: block;
+                line-height: 1;
+                transform: translate(0, -3px) !important; /* Adjust the second value to move it up or down */
+                font-weight: 400;
             }
 
             .review-form-group {
@@ -295,7 +309,7 @@
                 display: block;
                 margin-bottom: 8px;
                 color: #374151;
-                font-size: 14px;
+                font-size: 15px;
                 font-weight: 600;
             }
 
@@ -306,7 +320,7 @@
                 border-radius: 14px;
                 background: #fff;
                 color: #111827;
-                font-size: 14px;
+                font-size: 15px;
                 outline: none;
                 transition: border-color 0.2s ease, box-shadow 0.2s ease;
             }
@@ -341,7 +355,7 @@
                 min-height: 46px;
                 padding: 0 22px;
                 border-radius: 999px;
-                font-size: 13px;
+                font-size: 14px;
                 font-weight: 700;
                 cursor: pointer;
                 transition: all 0.2s ease;
@@ -358,6 +372,14 @@
                 background: linear-gradient(90deg, #a91b43 0%, #c62355 100%);
                 color: #fff;
                 box-shadow: 0 12px 24px rgba(169, 27, 67, 0.2);
+            }
+
+            .review-order-note {
+                width: fit-content !important;
+                max-width: 100%;
+                margin: 0 auto;
+                text-align: center;
+                white-space: normal !important;
             }
 
             /* Enhanced Swatch Container */
@@ -440,7 +462,7 @@
             .size-btn {
                 padding: 6px 14px !important;
                 border-radius: 9px !important;
-                font-size: 11px !important;
+                font-size: 13px !important;
                 min-width: 44px !important;
                 min-height: 36px !important;
                 line-height: 1 !important;
@@ -471,26 +493,37 @@
             }
 
             .product-actions-group {
+                display: flex !important;
+                flex-direction: row !important;
                 margin-top: 0 !important;
                 align-items: stretch;
                 gap: 12px !important;
+                width: 100%;
             }
 
             .btn-add-cart,
             .btn-buy-now {
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
                 height: 46px !important;
                 border-radius: 10px !important;
-                font-size: 15px !important;
-                font-weight: 5  00 !important;
+                font-size: 16px !important;
+                font-weight: 600 !important;
                 font-family: "Plus Jakarta Sans", "Outfit", "Instrument Sans", "Segoe UI", "Times New Roman", sans-serif !important;
                 letter-spacing: 0.5px !important;
-                gap: 7px !important;
+                gap: 8px !important;
                 padding: 0 16px !important;
+                flex: 1;
+                border: none;
             }
 
             .btn-add-cart i,
             .btn-buy-now i {
-                font-size: 13px !important;
+                font-size: 14px !important;
+                display: inline-flex;
+                align-items: center;
+                vertical-align: middle;
             }
 
             .quantity-picker {
@@ -548,7 +581,7 @@
                 border: none;
                 border-left: 1px solid #e5e7eb;
                 border-right: 1px solid #e5e7eb;
-                font-size: 15px !important;
+                font-size: 16px !important;
                 font-weight: 700;
                 color: #1a1a1a;
             }
@@ -640,7 +673,7 @@
                 padding: 0 0px;
                 background: none;
                 color: #a91b43 !important;
-                font-size: 11px !important;
+                font-size: 16px !important;
                 font-weight: 800 !important;
                 letter-spacing: 0.1em !important;
                 text-transform: uppercase;
@@ -653,8 +686,9 @@
                 padding: 0 0px;
                 background: none;
                 color: #667085 !important;
-                font-size: 11px !important;
+                font-size: 16px !important;
                 font-weight: 700 !important;
+                margin-bottom: 4px !important;
             }
 
             .product-title-detail {
@@ -678,7 +712,7 @@
             .stars {
                 display: inline-flex;
                 gap: 2px;
-                font-size: 13px;
+                font-size: 14px;
             }
 
             .product-price-section {
@@ -702,13 +736,13 @@
                 border-radius: 3px !important;
                 background: #a91b43 !important;
                 color: #fff !important;
-                font-size: 9px !important;
+                font-size: 13px !important;
                 font-weight: 800;
                 letter-spacing: 0.04em;
             }
 
             .product-tax-note {
-                font-size: 11px !important;
+                font-size: 15px !important;
                 color: #999 !important;
                 margin-top: -6px !important;
             }
@@ -719,7 +753,7 @@
                 min-height: 26px;
                 padding: 0 10px !important;
                 border-radius: 4px !important;
-                font-size: 9px !important;
+                font-size: 12px !important;
                 font-weight: 800 !important;
                 letter-spacing: 0.05em;
                 text-transform: uppercase;
@@ -739,7 +773,7 @@
 
             .product-description-short {
                 max-width: 58ch !important;
-                font-size: 15px !important;
+                font-size: 16px !important;
                 line-height: 1.75 !important;
                 color: #5f5f68 !important;
             }
@@ -762,7 +796,7 @@
             }
 
             .attribute-title {
-                font-size: 11px !important;
+                font-size: 14px !important;
                 letter-spacing: 0.1em !important;
                 color: #667085 !important;
                 text-transform: uppercase;
@@ -792,7 +826,7 @@
                 min-height: 34px !important;
                 padding: 4px 14px !important;
                 border-radius: 4px !important;
-                font-size: 11.5px !important;
+                font-size: 13.5px !important;
                 background: #fff !important;
                 border: 1px solid #e2e8f0 !important;
                 box-shadow: none !important;
@@ -805,7 +839,7 @@
             }
 
             .quantity-title {
-                font-size: 12px !important;
+                font-size: 16px !important;
                 letter-spacing: 0.14em !important;
             }
 
@@ -826,7 +860,7 @@
                 min-height: 42px !important;
                 height: 42px !important;
                 border-radius: 6px !important;
-                font-size: 12px !important;
+                font-size: 13px !important;
                 font-family: "Plus Jakarta Sans", "Outfit", "Instrument Sans", "Segoe UI", "Times New Roman", sans-serif !important;
                 font-weight: 600 !important;
                 letter-spacing: 0.06em !important;
@@ -858,7 +892,7 @@
                 background: none;
                 border: none;
                 padding: 16px 0;
-                font-size: 13px;
+                font-size: 14px;
                 font-weight: 700;
                 color: #667085;
                 cursor: pointer;
@@ -884,7 +918,6 @@
 
             .tab-pane {
                 display: none;
-                padding: 32px 0;
                 animation: fadeIn 0.4s ease;
             }
 
@@ -908,7 +941,7 @@
                 color: #5f5f68;
                 line-height: 1.65;
                 font-size: 14px;
-                max-width: 720px;
+                /* max-width: 720px; */
                 width: 100%;
                 min-width: 0;
                 overflow-wrap: anywhere;
@@ -968,7 +1001,7 @@
                 vertical-align: top;
                 white-space: normal;
                 word-break: break-word;
-                font-size: 13px;
+                font-size: 14px;
             }
 
             .tab-content-text a {
@@ -992,7 +1025,7 @@
             .specs-table td {
                 padding: 10px 14px;
                 border-bottom: 1px solid #f5f5f5;
-                font-size: 13px;
+                font-size: 14px;
             }
 
             .specs-label {
@@ -1008,7 +1041,6 @@
             }
 
             .related-products {
-                margin-top: 64px;
                 padding-top: 48px;
                 border-top: 1px solid #eee;
             }
@@ -1021,6 +1053,238 @@
                 text-align: center;
             }
 
+            .recently-viewed {
+                margin-top: 64px;
+                padding-top: 48px;
+                border-top: 1px solid #eee;
+            }
+
+            .recently-viewed-header {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 32px;
+                text-align: center;
+            }
+
+            .recently-viewed-title {
+                margin: 0;
+                font-size: 24px;
+                font-weight: 800;
+                color: #1a1a1a;
+                line-height: 1.2;
+            }
+
+            .recently-viewed-accent {
+                width: 46px;
+                height: 3px;
+                border-radius: 999px;
+                background: #a91b43;
+            }
+
+            .recently-viewed-grid {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 24px;
+            }
+
+            .recently-viewed-card {
+                position: relative;
+                height: 100%;
+                border-radius: 22px;
+                overflow: hidden;
+                background: #fff;
+                border: 1px solid rgba(169, 27, 67, 0.08);
+                box-shadow: 0 14px 34px rgba(17, 24, 39, 0.06);
+                transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+            }
+
+            .recently-viewed-card:hover {
+                transform: translateY(-4px);
+                border-color: rgba(169, 27, 67, 0.2);
+                box-shadow: 0 18px 38px rgba(17, 24, 39, 0.1);
+            }
+
+            .recently-viewed-link,
+            .recently-viewed-link:hover,
+            .recently-viewed-link * {
+                text-decoration: none !important;
+                outline: none !important;
+            }
+
+            .recently-viewed-media {
+                position: relative;
+                aspect-ratio: 4 / 5;
+                padding: 14px;
+            }
+
+            .recently-viewed-media img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 10px;
+                display: block;
+                background: #fff;
+            }
+
+            .recently-viewed-content {
+                display: flex;
+                flex-direction: column;
+                align-items: center !important;
+                text-align: center !important;
+                width: 100% !important;
+                gap: 10px;
+                flex: 1;
+                padding: 20px 20px 22px;
+            }
+
+            .recently-viewed-category {
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: #a91b43;
+            }
+
+            .recently-viewed-name {
+                margin: 0;
+                font-size: 17px;
+                font-weight: 700;
+                line-height: 1.4;
+                color: #1a1a1a;
+            }
+
+            .recently-viewed-desc {
+                margin: 0;
+                font-size: 14px;
+                line-height: 1.7;
+                color: #667085;
+                min-height: 44px;
+            }
+
+            .recently-viewed-price {
+                display: flex;
+                align-items: baseline;
+                justify-content: center;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+
+            .recently-viewed-price-current {
+                font-size: 20px;
+                font-weight: 800;
+                color: var(--pink);
+            }
+
+            .recently-viewed-price-old {
+                font-size: 15px;
+                color: #98a2b3;
+                text-decoration: line-through;
+            }
+
+            .related-products .product-price-v2 .price-current {
+                color: var(--pink) !important;
+            }
+
+            .related-products .product-price-v2 .product-price-old,
+            .recently-viewed-price-old,
+            .product-detail-page .old-price {
+                text-decoration: line-through !important;
+            }
+
+            /* Wishlist buttons in Related Products & Recently Viewed
+               must match the shop page (42px, not the main PDP 52px) */
+            .related-products .btn-wishlist-detail,
+            .recently-viewed .btn-wishlist-detail {
+                width: 42px !important;
+                height: 42px !important;
+                top: 15px !important;
+                right: 15px !important;
+            }
+            .related-products .btn-wishlist-detail i,
+            .recently-viewed .btn-wishlist-detail i {
+                font-size: 18px !important;
+            }
+
+            .recently-viewed-cta {
+                margin: 15px auto 0 !important;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 46px;
+                padding: 0 24px;
+                border-radius: 8px;
+                background: #A91B43 !important;
+                color: #fff !important;
+                font-size: 14px;
+                font-weight: 700;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
+                text-decoration: none !important;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+                width: 100%;
+                max-width: 240px;
+                align-self: center;
+            }
+
+            .recently-viewed-cta:hover {
+                transform: scale(1.05);
+                box-shadow: 0 4px 12px rgba(169, 27, 67, 0.2);
+            }
+
+            @media (max-width: 1200px) {
+                .recently-viewed-grid {
+                    grid-template-columns: repeat(3, minmax(0, 1fr));
+                }
+            }
+
+            @media (max-width: 900px) {
+                .recently-viewed-grid {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+            }
+
+            @media (max-width: 576px) {
+                .recently-viewed {
+                    margin-top: 48px;
+                    padding-top: 36px;
+                }
+
+                .recently-viewed-grid {
+                    display: flex;
+                    gap: 14px;
+                    overflow-x: auto;
+                    overflow-y: hidden;
+                    padding-bottom: 6px;
+                    scroll-snap-type: x mandatory;
+                    -webkit-overflow-scrolling: touch;
+                }
+
+                .recently-viewed-grid::-webkit-scrollbar {
+                    height: 4px;
+                }
+
+                .recently-viewed-grid::-webkit-scrollbar-thumb {
+                    background: rgba(169, 27, 67, 0.28);
+                    border-radius: 999px;
+                }
+
+                .recently-viewed-card {
+                    flex: 0 0 min(82vw, 320px);
+                    width: min(82vw, 320px);
+                    scroll-snap-align: start;
+                }
+
+                .recently-viewed-content {
+                    padding: 18px;
+                }
+
+                .recently-viewed-name {
+                    font-size: 17px;
+                }
+            }
+
             .share-section {
                 margin-top: 18px !important;
                 padding-top: 18px !important;
@@ -1028,7 +1292,7 @@
             }
 
             .share-title {
-                font-size: 11px !important;
+                font-size: 15px !important;
                 font-weight: 700;
                 color: #667085 !important;
                 text-transform: uppercase;
@@ -1062,7 +1326,7 @@
             }
 
             .delivery-title {
-                font-size: 11px !important;
+                font-size: 14px !important;
                 font-weight: 700;
                 color: #667085 !important;
                 text-transform: uppercase;
@@ -1081,7 +1345,7 @@
                 height: 38px;
                 border: 1px solid #e5e7eb;
                 border-radius: 8px;
-                font-size: 12.5px;
+                font-size: 14px;
             }
 
             .btn-pincode {
@@ -1091,7 +1355,7 @@
                 padding: 0 16px;
                 height: 38px;
                 border-radius: 8px;
-                font-size: 11.5px;
+                font-size: 14px;
                 font-weight: 700;
                 cursor: pointer;
                 transition: background 0.2s;
@@ -1102,7 +1366,7 @@
             }
 
             .delivery-note {
-                font-size: 10px !important;
+                font-size: 13px !important;
                 color: #667085 !important;
                 margin-top: 6px !important;
                 margin-bottom: 0 !important;
@@ -1135,7 +1399,7 @@
                 border-radius: 999px !important;
                 background: #fff !important;
                 color: #374151 !important;
-                font-size: 13px !important;
+                font-size: 14px !important;
                 font-weight: 700 !important;
                 transition: all 0.25s ease;
             }
@@ -1149,10 +1413,6 @@
 
             .tab-btn.active::after {
                 display: none !important;
-            }
-
-            .tab-pane {
-                padding-top: 26px !important;
             }
 
             /* Hero Section Alignment Refinement */
@@ -1301,7 +1561,7 @@
 
                 .breadcrumb {
                     margin-bottom: 10px;
-                    font-size: 12px;
+                    font-size: 13px;
                     line-height: 1.5;
                     white-space: normal;
                     padding-left: 2px;
@@ -1359,7 +1619,7 @@
                 #mainImg {
                     width: 100% !important;
                     height: 100% !important;
-                    object-fit: contain !important;
+                    object-fit: cover !important;
                     object-position: center top !important;
                 }
 
@@ -1431,7 +1691,7 @@
 
                 .product-description-short {
                     max-width: 100% !important;
-                    font-size: 12px !important;
+                    font-size: 13px !important;
                     line-height: 1.5 !important;
                 }
 
@@ -1481,7 +1741,7 @@
                     height: 46px !important;
                     min-height: 46px !important;
                     border-radius: 10px !important;
-                    font-size: 11px !important;
+                    font-size: 12px !important;
                     letter-spacing: 0.4px !important;
                     gap: 6px !important;
                     padding: 0 16px !important;
@@ -1538,19 +1798,15 @@
                     min-width: 0;
                     justify-content: center;
                     padding: 10px 12px;
-                    font-size: 11px;
+                    font-size: 12px;
                     flex-shrink: 1;
                     text-align: center;
                     white-space: normal;
                     line-height: 1.25;
                 }
 
-                .tab-pane {
-                    padding-top: 18px !important;
-                }
-
                 .tab-content-text {
-                    font-size: 13px !important;
+                    font-size: 14px !important;
                     line-height: 1.6 !important;
                 }
 
@@ -1583,7 +1839,7 @@
 
                 .specs-table td {
                     padding: 8px 10px !important;
-                    font-size: 12px !important;
+                    font-size: 13px !important;
                     white-space: normal;
                 }
 
@@ -1593,11 +1849,11 @@
                 }
 
                 .review-empty-title {
-                    font-size: 16px;
+                    font-size: 17px;
                 }
 
                 .review-empty-text {
-                    font-size: 13px;
+                    font-size: 14px;
                 }
 
                 .review-write-btn {
@@ -1784,7 +2040,7 @@
             .product-detail-page .product-brand,
             .product-detail-page .product-meta-item {
                 min-height: auto !important;
-                font-size: clamp(10px, 2.7vw, 12px) !important;
+                font-size: clamp(11px, 2.7vw, 13px) !important;
                 letter-spacing: 0.08em !important;
                 line-height: 1.4 !important;
             }
@@ -1817,11 +2073,11 @@
 
             .product-detail-page .product-rating {
                 gap: 8px !important;
-                font-size: clamp(12px, 3.2vw, 14px) !important;
+                font-size: clamp(13px, 3.2vw, 15px) !important;
             }
 
             .product-detail-page .stars {
-                font-size: clamp(12px, 3vw, 14px) !important;
+                font-size: clamp(13px, 3vw, 15px) !important;
             }
 
             .product-detail-page .product-price-section {
@@ -1842,19 +2098,19 @@
 
             .product-detail-page .discount-badge,
             .product-detail-page .stock-badge {
-                font-size: clamp(9px, 2.2vw, 11px) !important;
+                font-size: clamp(10px, 2.2vw, 12px) !important;
             }
 
             .product-detail-page .product-tax-note {
                 margin: -4px 0 0 !important;
-                font-size: clamp(10px, 2.8vw, 12px) !important;
+                font-size: clamp(11px, 2.8vw, 13px) !important;
                 line-height: 1.45 !important;
             }
 
             .product-detail-page .product-description-short {
                 max-width: 100% !important;
                 margin: 0 !important;
-                font-size: clamp(12px, 3.25vw, 14px) !important;
+                font-size: clamp(13px, 3.25vw, 15px) !important;
                 line-height: 1.65 !important;
                 color: #5f5f68 !important;
             }
@@ -1882,7 +2138,7 @@
             .product-detail-page .quantity-title,
             .product-detail-page .share-title,
             .product-detail-page .delivery-title {
-                font-size: clamp(10px, 2.7vw, 12px) !important;
+                font-size: clamp(11px, 2.7vw, 13px) !important;
                 letter-spacing: 0.08em !important;
                 line-height: 1.45 !important;
             }
@@ -1917,8 +2173,6 @@
             }
 
             .product-detail-page .color-swatch {
-                width: clamp(30px, 8.5vw, 36px) !important;
-                height: clamp(30px, 8.5vw, 36px) !important;
                 flex: 0 0 auto !important;
                 display: inline-flex !important;
             }
@@ -1926,7 +2180,7 @@
             .product-detail-page .size-btn {
                 min-height: clamp(34px, 9vw, 38px) !important;
                 padding: 6px 12px !important;
-                font-size: clamp(11px, 2.9vw, 12px) !important;
+                font-size: clamp(12px, 2.9vw, 13px) !important;
                 border-radius: 10px !important;
             }
 
@@ -1975,7 +2229,7 @@
                 height: auto !important;
                 padding: 0 16px !important;
                 border-radius: 12px !important;
-                font-size: clamp(11px, 3vw, 12.5px) !important;
+                font-size: clamp(12px, 3vw, 13.5px) !important;
                 font-family: "Plus Jakarta Sans", "Outfit", "Instrument Sans", "Segoe UI", "Times New Roman", sans-serif !important;
                 letter-spacing: 0.08em !important;
                 justify-content: center !important;
@@ -2046,7 +2300,7 @@
                 min-height: 42px !important;
                 padding: 10px 12px !important;
                 border-radius: 999px !important;
-                font-size: clamp(10px, 2.8vw, 12px) !important;
+                font-size: clamp(11px, 2.8vw, 13px) !important;
                 line-height: 1.25 !important;
                 letter-spacing: 0.08em !important;
                 text-align: center !important;
@@ -2068,13 +2322,9 @@
                 display: none !important;
             }
 
-            .product-detail-page .tab-pane {
-                padding-top: clamp(16px, 4vw, 24px) !important;
-            }
-
             .product-detail-page .tab-content-text {
                 max-width: min(100%, 72ch) !important;
-                font-size: clamp(13px, 3.2vw, 14px) !important;
+                font-size: clamp(14px, 3.2vw, 15px) !important;
                 line-height: 1.65 !important;
             }
 
@@ -2089,7 +2339,7 @@
 
             .product-detail-page .specs-table td {
                 padding: 10px 12px !important;
-                font-size: clamp(12px, 3vw, 13px) !important;
+                font-size: clamp(13px, 3vw, 14px) !important;
             }
 
             .product-detail-page .reviews-container,
@@ -2108,7 +2358,7 @@
                 }
 
                 .product-detail-page .tab-btn {
-                    font-size: 10px !important;
+                    font-size: 11px !important;
                     padding-inline: 8px !important;
                 }
 
@@ -2132,7 +2382,6 @@
         <div class="page-shell">
             <div class="breadcrumb">
                 <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp;
-                <a href="{{ url('sarees') }}">Sarees</a> &nbsp; / &nbsp;
                 <span>{{ $product->name }}</span>
             </div>
 
@@ -2234,6 +2483,7 @@
 
                     <div class="product-summary-row flex flex-wrap items-center gap-x-4 gap-y-1 mb-2">
 
+                        @if($product->reviews_count > 0)
                         <div class="product-rating">
                             <div class="stars">
                                 @for ($i = 1; $i <= 5; $i++)
@@ -2247,6 +2497,7 @@
                                 @endif
                             </span>
                         </div>
+                        @endif
                         <div class="product-price-section">
                             <span class="current-price" id="displayPrice">₹{{ number_format($product->price, 0) }}</span>
                             @if ($product->regular_price > $product->price)
@@ -2399,12 +2650,12 @@
                         <!-- Action Buttons -->
                         <div class="product-actions-group">
                             <button type="submit" name="action" value="cart" id="addToCartBtn"
-                                class="btn-add-cart {{ !$isInStock ? 'disabled' : '' }}">
+                                class="btn-add-cart {{ !$isInStock ? 'disabled' : '' }}" {{ !$isInStock ? 'disabled' : '' }}>
                                 <i class="fas fa-shopping-bag"></i>
                                 {{ $isInStock ? 'ADD TO CART' : 'OUT OF STOCK' }}
                             </button>
                             
-                            <button type="submit" name="action" value="checkout" class="btn-buy-now"
+                            <button type="submit" name="action" value="checkout" class="btn-buy-now {{ !$isInStock ? 'disabled' : '' }}" id="buyNowBtn"
                                 {{ !$isInStock ? 'disabled' : '' }}>
                                 <i class="fas fa-bolt"></i>
                                 BUY IT NOW
@@ -2475,32 +2726,32 @@
                             @if ($product->reviews()->count() > 0)
                                 <div class="space-y-6">
                                     @foreach ($product->reviews as $review)
-                                        <div class="review-item border-b border-gray-100 pb-6">
-                                            <div class="flex items-center gap-2 mb-2">
-                                                <div class="text-[#FFB800] text-sm">
+                                        <div class="review-item" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; margin-bottom: 16px;">
+                                            <div class="review-header" style="margin-bottom: 12px;">
+                                                <div class="review-stars" style="color: #FFB800; font-size: 14px; margin-bottom: 6px; letter-spacing: 2px;">
                                                     @for ($i = 1; $i <= 5; $i++)
                                                         <i class="{{ $i <= $review->stars ? 'fas' : 'far' }} fa-star"></i>
                                                     @endfor
                                                 </div>
-                                                <span
-                                                    class="font-bold text-sm text-gray-800">{{ $review->user->name ?? 'User' }}</span>
-                                                <span
-                                                    class="text-xs text-gray-400">{{ $review->created_at->format('M d, Y') }}</span>
+                                                <div class="review-meta" style="display: flex; align-items: center; gap: 10px;">
+                                                    <span class="reviewer-name" style="font-weight: 700; font-size: 14px; color: #1f2937;">{{ $review->user->name ?? 'User' }}</span>
+                                                    <span class="review-date" style="font-size: 12px; color: #94a3b8;">{{ $review->created_at->format('M d, Y') }}</span>
+                                                </div>
                                             </div>
-                                            <p class="text-sm text-gray-600 leading-relaxed">{{ $review->review }}</p>
+                                            <p class="review-text" style="font-size: 14px; color: #475569; line-height: 1.6; margin: 0;">{{ $review->review }}</p>
                                         </div>
                                     @endforeach
                                 </div>
                                 @auth
                                     @if ($hasPurchased)
                                         <button type="button" class="review-write-btn" id="openReviewFormBtn"
-                                            style="margin-top: 24px;">
+                                            style="margin-top: 12px;">
                                             <i class="far fa-pen-to-square"></i>
                                             {{ $userReview ? 'Update Your Review' : 'Write a Review' }}
                                         </button>
                                     @else
-                                        <div class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-sm flex items-center gap-2"
-                                            style="display: inline-flex; width: auto; align-items: center; gap: 8px;">
+                                        <div class="review-order-note mt-3 p-1.5 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 flex items-center justify-center gap-2"
+                                            style="display: flex; width: 100%; white-space: nowrap; align-items: center; gap: 6px; font-size: 15px; border-radius: 8px;">
                                             <i class="fas fa-info-circle"></i>
                                             Order this product to leave a review
                                         </div>
@@ -2527,8 +2778,8 @@
                                                 Write a Review
                                             </button>
                                         @else
-                                            <div class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-sm flex items-center gap-2"
-                                                style="display: inline-flex; width: auto; align-items: center; gap: 8px;">
+                                            <div class="review-order-note mt-3 p-1.5 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 flex items-center justify-center gap-2"
+                                                style="display: flex; width: 100%; white-space: nowrap; align-items: center; gap: 6px; font-size: 15px; border-radius: 8px;">
                                                 <i class="fas fa-info-circle"></i>
                                                 Order this product to leave a review
                                             </div>
@@ -2551,13 +2802,14 @@
                                     <h3 class="review-modal-title">{{ $userReview ? 'Update Your Review' : 'Write a Review' }}
                                     </h3>
                                     <button type="button" class="review-modal-close" id="closeReviewFormBtn"
-                                        aria-label="Close review form">&times;</button>
+                                        aria-label="Close review form"><span>&times;</span></button>
                                 </div>
-                                <form method="POST" action="{{ route('product.review.store', $product) }}">
+                                <form class="validate-form" method="POST" action="{{ route('product.review.store', $product) }}" novalidate>
                                     @csrf
                                     <div class="review-form-group">
                                         <label class="review-form-label" for="reviewStars">Your Rating</label>
-                                        <select class="review-form-select" name="stars" id="reviewStars" required>
+                                        <select class="review-form-select" name="stars" id="reviewStars" required
+                                            data-msg-required="Please select a rating.">
                                             <option value="">Select rating</option>
                                             @for ($i = 5; $i >= 1; $i--)
                                                 <option value="{{ $i }}"
@@ -2569,7 +2821,9 @@
                                     <div class="review-form-group">
                                         <label class="review-form-label" for="reviewText">Your Review</label>
                                         <textarea class="review-form-textarea" name="review" id="reviewText" required minlength="10"
-                                            placeholder="Share your experience with this product...">{{ old('review', $userReview->review ?? '') }}</textarea>
+                                            placeholder="Share your experience with this product..."
+                                            data-msg-required="Please enter your review."
+                                            data-msg-minlength="Review must be at least 10 characters.">{{ old('review', $userReview->review ?? '') }}</textarea>
                                     </div>
                                     <div class="review-form-actions">
                                         <button type="button" class="review-form-cancel"
@@ -2599,37 +2853,63 @@
             <!-- Related Products Section -->
             @if (isset($relatedProducts) && $relatedProducts->count() > 0)
                 <section class="related-products">
-                    <h2 class="related-title">Related Collections</h2>
+                    <div class="recently-viewed-header" style="margin-bottom: 40px;">
+                        <h2 class="recently-viewed-title">Related Products</h2>
+                        <div class="recently-viewed-accent"></div>
+                    </div>
                     <div class="swiper-wrap-outer">
                         <div class="swiper related-swiper">
                             <div class="swiper-wrapper">
-                                @foreach ($relatedProducts->concat($relatedProducts) as $related)
+                                @foreach ($relatedProducts as $related)
                                     <div class="swiper-slide">
                                         <article class="product-card-v2" style="height: 100%;">
+                                            @php
+                                                $relatedImage = 'images/pro.png';
+                                                if ($related->image_path) {
+                                                    if (
+                                                        Str::startsWith($related->image_path, 'products/') ||
+                                                        Str::startsWith($related->image_path, 'categories/')
+                                                    ) {
+                                                        $relatedImage = 'uploads/' . $related->image_path;
+                                                    } else {
+                                                        $relatedImage = 'images/' . $related->image_path;
+                                                    }
+                                                } elseif (!empty($related->images)) {
+                                                    $rImages = is_string($related->images)
+                                                        ? json_decode($related->images, true)
+                                                        : $related->images;
+                                                    if (is_array($rImages) && count($rImages) > 0) {
+                                                        $relatedImage = 'uploads/' . $rImages[0];
+                                                    }
+                                                }
+                                            @endphp
+                                            @php $rInWishlist = in_array($related->id, session('wishlist', [])); @endphp
                                             <a href="{{ route('product.show', $related->slug) }}"
                                                 style="text-decoration: none; color: inherit;">
-                                                <div class="product-image-v2">
-                                                    @php
-                                                        $relatedImage = 'images/pro.png';
-                                                        if ($related->image_path) {
-                                                            if (Str::startsWith($related->image_path, 'products/') || Str::startsWith($related->image_path, 'categories/')) {
-                                                                $relatedImage = 'uploads/' . $related->image_path;
-                                                            } else {
-                                                                $relatedImage = 'images/' . $related->image_path;
-                                                            }
-                                                        } elseif (!empty($related->images)) {
-                                                            $rImages = is_string($related->images) ? json_decode($related->images, true) : $related->images;
-                                                            if (is_array($rImages) && count($rImages) > 0) {
-                                                                $relatedImage = 'uploads/' . $rImages[0];
-                                                            }
-                                                        }
-                                                    @endphp
+                                                <div class="product-image-v2" style="position: relative;">
                                                     <img src="{{ asset($relatedImage) }}" alt="{{ $related->name }}">
+                                                    <button type="button" class="btn-wishlist-detail wishlist-btn" id="relatedWishlistBtn_{{ $related->id }}"
+                                                        aria-label="Add to Wishlist" data-product-id="{{ $related->id }}"
+                                                        style="position: absolute; top: 15px; right: 15px; width: 42px; height: 42px; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10;">
+                                                        <i class="{{ $rInWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart" id="relatedWishlistIcon_{{ $related->id }}"
+                                                            style="color: #A91B43; font-size: 18px;"></i>
+                                                    </button>
                                                 </div>
-                                                <div class="product-info-v2">
-                                                    <h3 class="product-name-v2">{{ $related->name }}</h3>
-                                                    <p class="product-price-v2">₹{{ number_format($related->price, 0) }}
-                                                    </p>
+                                                <div class="product-info-v2" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 15px;">
+                                                    <h3 class="product-name-v2" style="margin: 0 0 8px; font-size: 17px; font-weight: 700; color: #1a1a1a;">{{ \Illuminate\Support\Str::limit($related->name, 55) }}</h3>
+                                                    {{-- <span class="read-more-link" style="font-size: 12px; color: var(--pink); font-weight: 600; text-decoration: underline; margin-bottom: 8px; display: block;">Read More...</span> --}}
+                                                <div class="product-price-v2" style="margin: 0; font-size: 18px; font-weight: 800; display: flex; align-items: baseline; gap: 8px;">
+                                                    @if($related->sale_price > 0)
+                                                        <span class="price-current">₹{{ number_format($related->sale_price, 0) }}</span>
+                                                        <span class="product-price-old" style="color: #98A2B3; font-size: 15px; font-weight: 500;">₹{{ number_format($related->regular_price ?? $related->price, 0) }}</span>
+                                                    @else
+                                                        <span class="price-current">₹{{ number_format($related->price, 0) }}</span>
+                                                        @if(isset($related->regular_price) && $related->regular_price > $related->price)
+                                                            <span class="product-price-old" style="color: #98A2B3; font-size: 15px; font-weight: 500;">₹{{ number_format($related->regular_price, 0) }}</span>
+                                                        @endif
+                                                    @endif
+                                                </div>
+                                                    <span class="add-to-cart-v2">View Details</span>
                                                 </div>
                                             </a>
                                         </article>
@@ -2646,17 +2926,73 @@
 
             {{-- Recently Viewed Section --}}
             @if (isset($recentlyViewed) && count($recentlyViewed) > 0)
-                <section class="recently-viewed" style="margin-top: 64px; margin-bottom: 64px;">
-                    <h2 style="font-size: 24px; font-weight: 800; color: #1a1a1a; margin-bottom: 32px;">
-                        Recently Viewed
-                        <div style="width: 40px; height: 3px; background: #a91b43; margin-top: 8px;"></div>
-                    </h2>
+                <section class="recently-viewed">
+                    <div class="recently-viewed-header">
+                        <h2 class="recently-viewed-title">Recently Viewed</h2>
+                        <div class="recently-viewed-accent"></div>
+                    </div>
 
-                    <div class="product-grid"
-                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 30px;">
-                        @foreach ($recentlyViewed as $recent)
-                            @include('frontend.partials.product-card', ['product' => $recent])
-                        @endforeach
+                    <div class="swiper-wrap-outer">
+                        <div class="swiper recently-swiper">
+                            <div class="swiper-wrapper">
+                                @foreach ($recentlyViewed as $recent)
+                                    <div class="swiper-slide">
+                                        <article class="product-card-v2" style="height: 100%;">
+                                            @php
+                                                $recentImage = 'images/pro.png';
+                                                if ($recent->image_path) {
+                                                    if (
+                                                        Str::startsWith($recent->image_path, 'products/') ||
+                                                        Str::startsWith($recent->image_path, 'categories/')
+                                                    ) {
+                                                        $recentImage = 'uploads/' . $recent->image_path;
+                                                    } else {
+                                                        $recentImage = 'images/' . $recent->image_path;
+                                                    }
+                                                } elseif (!empty($recent->images)) {
+                                                    $rImages = is_string($recent->images)
+                                                        ? json_decode($recent->images, true)
+                                                        : $recent->images;
+                                                    if (is_array($rImages) && count($rImages) > 0) {
+                                                        $recentImage = 'uploads/' . $rImages[0];
+                                                    }
+                                                }
+                                            @endphp
+                                            @php $rInWishlist = in_array($recent->id, session('wishlist', [])); @endphp
+                                            <a href="{{ route('product.show', $recent->slug) }}"
+                                                style="text-decoration: none; color: inherit;">
+                                                <div class="product-image-v2" style="position: relative;">
+                                                    <img src="{{ asset($recentImage) }}" alt="{{ $recent->name }}">
+                                                    <button type="button" class="btn-wishlist-detail wishlist-btn" id="recentWishlistBtn_{{ $recent->id }}"
+                                                        aria-label="Add to Wishlist" data-product-id="{{ $recent->id }}"
+                                                        style="position: absolute; top: 15px; right: 15px; width: 42px; height: 42px; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10;">
+                                                        <i class="{{ $rInWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart" id="recentWishlistIcon_{{ $recent->id }}"
+                                                            style="color: #A91B43; font-size: 18px;"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="product-info-v2" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 15px;">
+                                                    <h3 class="product-name-v2" style="margin: 0 0 8px; font-size: 17px; font-weight: 700; color: #1a1a1a;">{{ \Illuminate\Support\Str::limit($recent->name, 55) }}</h3>
+                                                <div class="product-price-v2" style="margin: 0; font-size: 18px; font-weight: 800; display: flex; align-items: baseline; gap: 8px;">
+                                                    @if($recent->sale_price > 0)
+                                                        <span class="price-current">₹{{ number_format($recent->sale_price, 0) }}</span>
+                                                        <span class="product-price-old" style="color: #98A2B3; font-size: 15px; font-weight: 500;">₹{{ number_format($recent->regular_price ?? $recent->price, 0) }}</span>
+                                                    @else
+                                                        <span class="price-current">₹{{ number_format($recent->price, 0) }}</span>
+                                                        @if(isset($recent->regular_price) && $recent->regular_price > $recent->price)
+                                                            <span class="product-price-old" style="color: #98A2B3; font-size: 15px; font-weight: 500;">₹{{ number_format($recent->regular_price, 0) }}</span>
+                                                        @endif
+                                                    @endif
+                                                </div>
+                                                    <span class="add-to-cart-v2">View Details</span>
+                                                </div>
+                                            </a>
+                                        </article>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        <div class="swiper-button-next recently-next"></div>
+                        <div class="swiper-button-prev recently-prev"></div>
                     </div>
                 </section>
             @endif
@@ -2710,11 +3046,26 @@
                     method: 'POST',
                     body: formData,
                     headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                         'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'application/json'
                     }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 419) {
+                        Swal.fire({
+                            title: 'Session Expired',
+                            text: 'Your session has expired. Please refresh the page to continue.',
+                            icon: 'warning',
+                            confirmButtonText: 'Refresh Page',
+                            confirmButtonColor: '#A91B43'
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                        throw new Error('CSRF token mismatch');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         toastr.success(data.message || 'Cart updated.');
@@ -2724,10 +3075,7 @@
                         // Update local tracking
                         updateLocalCartQuantity(increment);
                     } else {
-                        toastr.error(data.message || 'Error updating cart.');
-                        // Revert local UI if failed? 
-                        // For now we just stay as is.
-                        location.reload(); // Safer to sync from server
+                        toastr.error(data.message || 'Error updating cart.', {timeOut: 15000});
                     }
                 })
                 .catch(error => {
@@ -2971,7 +3319,12 @@
             btn.classList.add('go-to-cart-state');
             btn.style.background = '#2a2a2a';
             btn.type = 'button';
+            btn.disabled = false;
             btn.onclick = function() { window.location.href = "{{ route('cart') }}"; };
+            
+            // Hide Buy It Now button when product is already in cart
+            const buyNowBtn = document.getElementById('buyNowBtn');
+            if (buyNowBtn) buyNowBtn.style.display = 'none';
         }
 
         function resetAddToCartState(btn, isInStock) {
@@ -2980,10 +3333,26 @@
             btn.style.background = ''; // Revert to CSS default
             btn.type = 'submit';
             btn.onclick = null;
+            
+            const buyNowBtn = document.getElementById('buyNowBtn');
             if (!isInStock) {
                 btn.classList.add('disabled');
+                btn.disabled = true;
+                if (buyNowBtn) {
+                    buyNowBtn.disabled = true;
+                    buyNowBtn.style.display = 'inline-flex'; // Keep it visible but disabled
+                    buyNowBtn.style.opacity = '0.5';
+                    buyNowBtn.style.cursor = 'not-allowed';
+                }
             } else {
                 btn.classList.remove('disabled');
+                btn.disabled = false;
+                if (buyNowBtn) {
+                    buyNowBtn.disabled = false;
+                    buyNowBtn.style.display = 'inline-flex';
+                    buyNowBtn.style.opacity = '1';
+                    buyNowBtn.style.cursor = 'pointer';
+                }
             }
         }
 
@@ -3133,46 +3502,40 @@
             const tc = document.getElementById('thumbnailsContainer');
             if (tc) tc.style.display = 'flex';
 
-            const swiperOptions = {
-                slidesPerView: 2,
-                spaceBetween: 20,
-                loop: true,
-                observer: true,
-                observeParents: true,
-                watchOverflow: true,
-                autoplay: {
-                    delay: 3500,
-                    disableOnInteraction: false,
-                },
-                navigation: {
-                    nextEl: '.related-next',
-                    prevEl: '.related-prev',
-                },
-                breakpoints: {
-                    640: {
-                        slidesPerView: 2
-                    },
-                    768: {
-                        slidesPerView: 3
-                    },
-                    1024: {
-                        slidesPerView: 4
-                    },
-                }
-            };
+            function initSwiper(selector, nextEl, prevEl) {
+                const el = document.querySelector(selector);
+                if (!el) return;
+                
+                const slideCount = el.querySelectorAll('.swiper-slide').length;
+                // Only loop if we have enough slides, otherwise centering and sliding misbehaves
+                const shouldLoop = slideCount > 4; 
 
-            if (document.querySelector('.related-swiper')) {
-                new Swiper('.related-swiper', swiperOptions);
-            }
-            if (document.querySelector('.recently-swiper')) {
-                new Swiper('.recently-swiper', {
-                    ...swiperOptions,
+                new Swiper(selector, {
+                    slidesPerView: 2,
+                    spaceBetween: 20,
+                    loop: shouldLoop,
+                    centerInsufficientSlides: true, // Centers when slides are fewer than slidesPerView
+                    observer: true,
+                    observeParents: true,
+                    watchOverflow: true,
+                    autoplay: {
+                        delay: 3500,
+                        disableOnInteraction: false,
+                    },
                     navigation: {
-                        nextEl: '.recently-next',
-                        prevEl: '.recently-prev',
+                        nextEl: nextEl,
+                        prevEl: prevEl,
+                    },
+                    breakpoints: {
+                        640: { slidesPerView: 2 },
+                        768: { slidesPerView: 3 },
+                        1024: { slidesPerView: 4 },
                     }
                 });
             }
+
+            initSwiper('.related-swiper', '.related-next', '.related-prev');
+            initSwiper('.recently-swiper', '.recently-next', '.recently-prev');
 
         });
         // AJAX Add to Cart
@@ -3189,11 +3552,26 @@
                         method: 'POST',
                         body: formData,
                         headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                             'X-Requested-With': 'XMLHttpRequest',
                             'Accept': 'application/json'
                         }
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        if (response.status === 419) {
+                            Swal.fire({
+                                title: 'Session Expired',
+                                text: 'Your session has expired. Please refresh the page to continue.',
+                                icon: 'warning',
+                                confirmButtonText: 'Refresh Page',
+                                confirmButtonColor: '#A91B43'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                            throw new Error('CSRF token mismatch');
+                        }
+                        return response.json();
+                    })
                     .then(data => {
                         if (data.success) {
                             toastr.success(data.message || 'Added to cart.');
@@ -3231,8 +3609,10 @@
                         }
                     })
                     .catch(error => {
-                        console.error('Error:', error);
-                        toastr.error('Something went wrong.');
+                        if (error.message !== 'CSRF token mismatch') {
+                            console.error('Error:', error);
+                            toastr.error('Something went wrong.');
+                        }
                     });
             }
         });

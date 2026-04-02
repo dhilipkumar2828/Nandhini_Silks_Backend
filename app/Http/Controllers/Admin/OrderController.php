@@ -8,8 +8,12 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Coupon;
+use App\Models\Setting;
+use App\Mail\OrderStatusUpdate;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -103,6 +107,9 @@ class OrderController extends Controller
             'admin_notes' => 'nullable|string',
         ]);
 
+        $oldStatus = $order->order_status;
+        $oldTracking = $order->tracking_number;
+
         $order->update($request->only([
             'order_status',
             'payment_status',
@@ -110,6 +117,23 @@ class OrderController extends Controller
             'courier_name',
             'admin_notes'
         ]));
+
+        // Send Email if status or tracking changed
+        if ($oldStatus != $request->order_status || $oldTracking != $request->tracking_number) {
+            try {
+                // Send to customer
+                Mail::to($order->customer_email)->send(new OrderStatusUpdate($order));
+                
+                // Send alert to admin
+                $adminEmail = Setting::getAdminEmail();
+                Mail::to($adminEmail)->send(new OrderStatusUpdate($order, true));
+                
+                Log::info("Order #{$order->order_number} status updated and emails sent.");
+            } catch (\Exception $e) {
+                Log::error("Failed to send order status email: " . $e->getMessage());
+                // Non-blocking for the admin UI
+            }
+        }
 
         return redirect()->route('admin.orders.show', $order->id)->with('success', 'Order updated successfully.');
     }

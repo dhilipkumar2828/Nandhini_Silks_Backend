@@ -4,8 +4,14 @@
 
 @push('styles')
     <style>
-        .hero {
-            margin-bottom: 56px;
+        :root {
+            --home-section-space: 48px;
+            --home-section-space-mobile: 32px;
+            --home-heading-space: 14px;
+            --home-subtitle-space: 24px;
+            --category-image-size: 136px;
+            --category-arrow-offset: 5px;
+            --hero-banner-ratio: 12 / 5;
         }
 
         .collection-section,
@@ -25,6 +31,34 @@
         .promo-section {
             overflow-x: clip;
             /* Prevent horizontal page scroll from buttons/content */
+        }
+
+        .hero,
+        .hero-swiper,
+        .hero-swiper .swiper-slide,
+        .hero-swiper .swiper-slide img {
+            user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .hero-swiper .swiper-slide img {
+            -webkit-user-drag: none;
+            pointer-events: none;
+        }
+
+        /* Disable image selection/drag across all home image sections */
+        .collection-image-wrap img,
+        .featured-media img,
+        .category-image,
+        .promo-banner img,
+        .featured-decor,
+        .testimonial-vector {
+            user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            -webkit-user-drag: none;
+            -webkit-touch-callout: none;
         }
 
         .card-link-wrapper {
@@ -56,15 +90,72 @@
 
         .featured-decor-left {
             left: 0;
-            bottom: 0;
-            top: auto !important;
-            transform: rotate(180deg) !important;
+            top: 460px;
+            bottom: auto !important;
         }
 
         .featured-decor-right {
             right: 0;
             top: 0;
-            transform: rotate(180deg) !important;
+        }
+
+        .featured-progress-track.is-inactive {
+            cursor: default !important;
+            opacity: 0.55;
+            pointer-events: none;
+        }
+
+        .rail-nav-inactive {
+            opacity: 0.35 !important;
+            pointer-events: none !important;
+        }
+
+        .home-rail-wishlist {
+            background: transparent;
+            border: 0;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #927541;
+        }
+
+        .home-rail-wishlist i {
+            padding-top: 2px;
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .featured-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .featured-cart-btn {
+            border: 0;
+            background: transparent;
+            color: #927541;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .featured-cart-btn i {
+            font-size: 20px;
+            line-height: 1;
+            color: #927541 !important;
+        }
+
+        .featured-cart-btn img {
+            width: 22px;
+            height: 22px;
+            display: block;
+            opacity: 1;
+            filter: brightness(0) saturate(100%) invert(44%) sepia(17%) saturate(1068%) hue-rotate(357deg) brightness(95%) contrast(88%);
         }
 
 
@@ -78,8 +169,8 @@
         .offers-section {
             width: 100%;
             max-width: none;
-            margin: -6px 0 50px;
-            padding: 36px 0 44px;
+            margin: 56px 0 50px;
+            padding: 44px 0 48px;
             background: linear-gradient(90deg, #a91b435c 0%, #fbb6245c 100%);
         }
 
@@ -101,18 +192,40 @@
         .featured-section {
             margin-top: 0;
             margin-bottom: 0;
-            padding-top: 60px;
-            padding-bottom: 60px;
+            padding-top: 35px;
+            padding-bottom: 35px;
         }
 
+        .collection-section,
+        .featured-section,
+        .offers-section,
+        .category-section,
+        .promo-section,
+        .testimonial-section {
+            scroll-margin-top: 100px;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            padding-top: var(--home-section-space);
+        }
+
+        .category-section,
+        .offers-section,
+        .testimonial-section {
+            margin-bottom: var(--home-section-space) !important;
+        }
 
         .collection-title,
         .featured-title,
-        .category-title,
-        .testimonial-title {
+        .category-title {
+            margin-bottom: 30px !important;
             margin-left: auto;
             margin-right: auto;
             text-align: center;
+            line-height: 1.15;
+        }
+
+        .testimonial-title {
+            margin-bottom: 10px !important;
         }
 
         .collection-swiper,
@@ -129,8 +242,17 @@
         }
 
         .category-swiper {
-            padding: 8px 4px 20px;
+            padding: 10px 4px 0px;
             overflow: hidden;
+        }
+
+        .category-swiper-wrap {
+            --category-arrow-center: calc((var(--category-image-size) / 2) + 8px + var(--category-arrow-offset));
+        }
+
+        .category-swiper-wrap .category-prev,
+        .category-swiper-wrap .category-next {
+            top: var(--category-arrow-center) !important;
         }
 
         /* ── Shared nav-button wrapper for non-featured sections ── */
@@ -175,7 +297,7 @@
         }
 
         .promo-prev {
-            left: -50px;
+            left: -80px;
         }
 
         .category-next,
@@ -232,8 +354,27 @@
         }
 
         .featured-subtitle {
-            margin-bottom: 0;
+            margin: 0 auto var(--home-subtitle-space) !important;
             text-align: center;
+            line-height: 1.6;
+            max-width: 720px;
+        }
+
+        .testimonial-kicker {
+            margin: 0 0 10px;
+            text-align: center;
+        }
+
+        .testimonial-vector-wrap {
+            margin: 0 auto 24px;
+        }
+
+        .featured-progress {
+            margin: 0 auto 28px;
+        }
+
+        .featured-progress-fill {
+            background: #111 !important;
         }
 
         .collection-card,
@@ -256,16 +397,23 @@
         }
 
         .collection-cta {
-            width: 90px;
-            height: 28px;
+            width: auto;
+            min-width: 110px;
+            height: 32px;
             border-radius: 8px;
             background: #f3a349;
             color: #ffffff;
-            font-size: 15px;
-            font-weight: 300;
-            text-decoration: underline;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
             box-shadow: none;
             transition: opacity 0.3s;
+            border: none;
+            cursor: pointer;
         }
 
         .collection-cta:hover {
@@ -275,8 +423,27 @@
         }
 
         .featured-name {
-            min-height: 10px;
-            margin-bottom: 6px !important;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            word-break: break-all;
+            overflow: hidden;
+            min-height: 2.4em;
+            margin-bottom: 4px !important;
+        }
+
+        .read-more-link {
+            display: inline-block;
+            font-size: 12px;
+            color: #927541;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 8px;
+            padding: 0 4px;
+        }
+
+        .read-more-link:hover {
+            text-decoration: underline;
         }
 
         .featured-footer {
@@ -298,7 +465,8 @@
         .promo-section {
             width: 100%;
             max-width: 1360px;
-            margin: 48px auto 72px;
+            margin-left: auto !important;
+            margin-right: auto !important;
             padding: 0 100px;
             box-sizing: border-box;
             /* CRITICAL: Disconnect layout from content feedback */
@@ -386,11 +554,11 @@
         }
 
         .promo-prev {
-            left: -50px;
+            left: -80px;
         }
 
         .promo-next {
-            right: -50px;
+            right: -80px;
         }
 
         .promo-pagination {
@@ -439,8 +607,8 @@
         }
 
         .testimonial-section {
-            margin-top: 16px;
-            margin-bottom: 80px;
+            margin-bottom: 0;
+            padding-bottom: 50px;
         }
 
         .testimonial-swiper {
@@ -480,7 +648,7 @@
         }
 
         .testimonial-text {
-            font-size: 16px;
+            font-size: 15px;
             line-height: 1.7;
         }
 
@@ -543,16 +711,28 @@
             .offers-prev::after,
             .hero-next::after,
             .hero-prev::after {
-                font-size: 13px !important;
+                font-size: 14px !important;
             }
 
             /* ── Section spacing ── */
             /* ── Global Section Padding (Mobile) ── */
             .collection-section,
-            .category-section {
+            .category-section,
+            .featured-section,
+            .offers-section,
+            .promo-section,
+            .testimonial-section {
                 padding-left: 45px !important;
                 padding-right: 45px !important;
-                margin-bottom: 30px;
+                padding-top: var(--home-section-space-mobile) !important;
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
+            }
+
+            .category-section,
+            .offers-section,
+            .testimonial-section {
+                margin-bottom: var(--home-section-space-mobile) !important;
             }
 
             .category-section {
@@ -565,12 +745,12 @@
             .testimonial-section {
                 padding-left: 20px !important;
                 padding-right: 20px !important;
-                margin-bottom: 30px;
             }
 
             /* ── Special case for featured-inner which is already a sub-container ── */
             .featured-section {
-                margin-bottom: 5px;
+                padding-top: var(--home-section-space-mobile) !important;
+                padding-bottom: var(--home-section-space-mobile) !important;
             }
 
             /* Nav buttons sit on the left/right edge of the section padding area */
@@ -599,7 +779,7 @@
             .collection-name,
             .featured-name {
                 min-height: auto;
-                font-size: 15px;
+                font-size: 16px;
                 margin-top: 12px !important;
                 margin-bottom: 6px !important;
                 width: 100%;
@@ -615,11 +795,13 @@
             /* ── Featured / New Arrivals section ── */
             .featured-title {
                 font-size: 22px !important;
+                margin-bottom: 10px !important;
             }
 
             .featured-subtitle {
-                font-size: 13px !important;
-                padding-bottom: 16px !important;
+                font-size: 14px !important;
+                margin: 0 auto 18px !important;
+                padding-bottom: 0 !important;
             }
 
             .featured-swiper-container {
@@ -633,8 +815,8 @@
             }
 
             .offers-section {
-                margin-top: -4px !important;
-                padding: 26px 0 32px !important;
+                padding-top: var(--home-section-space-mobile) !important;
+                padding-bottom: var(--home-section-space-mobile) !important;
             }
 
             .offers-section .featured-inner {
@@ -650,23 +832,23 @@
 
             /* Nav buttons on edge of padded area */
             .featured-prev {
-                left: -35px;
-                top: 40%;
+                left: 0 !important;
+                top: 45%;
             }
 
             .offers-prev {
-                left: -35px;
-                top: 40%;
+                left: 0 !important;
+                top: 45%;
             }
 
             .featured-next {
-                right: -35px;
-                top: 40%;
+                right: 0 !important;
+                top: 45%;
             }
 
             .offers-next {
-                right: -35px;
-                top: 40%;
+                right: 0 !important;
+                top: 45%;
             }
 
             /* Hide decorative flourish images on mobile — they overflow */
@@ -717,13 +899,13 @@
             }
 
             .category-image-shell {
-                width: 136px !important;
-                height: 136px !important;
+                width: var(--category-image-size) !important;
+                height: var(--category-image-size) !important;
                 margin: 0 auto !important;
             }
 
             .category-name {
-                font-size: clamp(11px, 3vw, 13px) !important;
+                font-size: clamp(12px, 3vw, 14px) !important;
                 margin-top: 8px !important;
                 white-space: normal;
                 line-height: 1.35;
@@ -733,15 +915,20 @@
 
             .category-prev {
                 left: 0 !important;
-                top: 45%;
+                top: var(--category-arrow-center);
             }
 
             .category-next {
                 right: 0 !important;
-                top: 45%;
+                top: var(--category-arrow-center);
             }
 
             @media (max-width: 575px) {
+                :root {
+                    --category-image-size: 128px;
+                    --category-arrow-offset: -10px;
+                }
+
                 .category-section {
                     padding-left: 16px !important;
                     padding-right: 16px !important;
@@ -756,12 +943,17 @@
                 }
 
                 .category-image-shell {
-                    width: 128px !important;
-                    height: 128px !important;
+                    width: var(--category-image-size) !important;
+                    height: var(--category-image-size) !important;
                 }
             }
 
             @media (max-width: 399px) {
+                :root {
+                    --category-image-size: 120px;
+                    --category-arrow-offset: -8px;
+                }
+
                 .category-section {
                     padding-left: 12px !important;
                     padding-right: 12px !important;
@@ -783,7 +975,7 @@
 
                 .category-prev::after,
                 .category-next::after {
-                    font-size: 11px !important;
+                    font-size: 12px !important;
                 }
 
                 .category-image-shell {
@@ -792,7 +984,7 @@
                 }
 
                 .category-name {
-                    font-size: 10px !important;
+                    font-size: 12px !important;
                 }
             }
 
@@ -829,13 +1021,13 @@
 
             .promo-prev {
                 left: 5px !important;
-                top: 50%;
+                top: 55%;
                 z-index: 1001;
             }
 
             .promo-next {
                 right: 5px !important;
-                top: 50%;
+                top: 55%;
                 z-index: 1001;
             }
 
@@ -897,9 +1089,8 @@
                 display: inline-flex !important;
                 align-items: center !important;
                 justify-content: center !important;
-                width: 96px !important;
                 height: 30px !important;
-                font-size: 13px !important;
+                font-size: 14px !important;
                 margin-top: 8px !important;
                 margin-left: auto !important;
                 margin-right: auto !important;
@@ -951,7 +1142,7 @@
         }
 
         .category-name {
-            font-size: 14px !important;
+            font-size: 17px !important;
             margin-top: 15px !important;
             height: 36px;
             display: flex;
@@ -983,25 +1174,382 @@
             align-items: center;
             justify-content: space-between;
             width: 100%;
-            margin-top: 12px;
+            margin-top: 5px !important;
+            padding: 0 10px 0 4px;
+            box-sizing: border-box;
         }
 
         .featured-price-wrap {
             display: flex;
             align-items: baseline;
             gap: 8px;
+            min-width: 0;
+            flex: 1 1 auto;
+            white-space: nowrap;
         }
 
         .featured-price {
             color: #744707;
-            font-size: 16px !important;
+            font-size: 17px !important;
             font-weight: 700 !important;
         }
 
+        .featured-actions {
+            flex-shrink: 0;
+            gap: 12px;
+        }
+
+        .featured-name {
+            padding: 0 4px;
+            box-sizing: border-box;
+            text-align: left !important;
+            margin-bottom: 0 !important;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        @media (min-width: 641px) {
+            .featured-section .featured-name,
+            .offers-section .featured-name {
+                margin-bottom: 8px !important;
+            }
+
+            .featured-section .featured-footer,
+            .offers-section .featured-footer {
+                margin-top: 12px !important;
+            }
+        }
+
         .featured-card .old-price {
-            font-size: 13px !important;
+            font-size: 14px !important;
             color: #888 !important;
             text-decoration: line-through;
+        }
+
+        /* Home rails: mobile stability patch (New Arrivals + Offers) */
+        @media (max-width: 480px) {
+            .featured-section,
+            .offers-section {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+
+            .featured-inner {
+                padding-left: 14px !important;
+                padding-right: 14px !important;
+            }
+
+            .featured-swiper-container,
+            .offers-swiper-container {
+                padding: 0 28px !important;
+            }
+
+            .featured-swiper .swiper-slide,
+            .offers-swiper .swiper-slide {
+                display: flex !important;
+                justify-content: center !important;
+                align-items: stretch !important;
+            }
+
+            .featured-card {
+                width: 100% !important;
+                max-width: 260px !important;
+                margin: 0 auto !important;
+            }
+
+            .featured-media {
+                aspect-ratio: 3 / 4 !important;
+            }
+
+            .featured-name {
+                font-size: 14px !important;
+                line-height: 1.3 !important;
+                min-height: 34px !important;
+                margin-top: 10px !important;
+                text-align: left !important;
+                display: block !important;
+                width: 100% !important;
+            }
+
+            .featured-subtitle {
+                font-size: 13px !important;
+                line-height: 1.5 !important;
+                margin-bottom: 14px !important;
+            }
+
+            .featured-prev,
+            .featured-next,
+            .offers-prev,
+            .offers-next {
+                width: 30px !important;
+                height: 30px !important;
+                top: 38% !important;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .featured-inner {
+                padding-left: 10px !important;
+                padding-right: 10px !important;
+            }
+
+            .featured-swiper-container,
+            .offers-swiper-container {
+                padding: 0 24px !important;
+            }
+
+            .featured-card {
+                max-width: 232px !important;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .featured-section .featured-card,
+            .offers-section .featured-card {
+                align-items: stretch !important;
+                text-align: left !important;
+            }
+
+            .featured-section .featured-name,
+            .offers-section .featured-name {
+                text-align: left !important;
+                width: 100% !important;
+                min-height: 2.2em !important;
+                display: block !important;
+                padding: 0 6px !important;
+                font-size: 17px !important;
+                line-height: 1.35 !important;
+                margin-top: 12px !important;
+                margin-bottom: 0 !important;
+            }
+
+            .featured-section .featured-footer,
+            .offers-section .featured-footer {
+                margin-top: 2px !important;
+            }
+        }
+
+        /* Final mobile nav alignment override */
+        @media (max-width: 768px) {
+            .featured-prev,
+            .featured-next,
+            .offers-prev,
+            .offers-next,
+            .category-prev,
+            .category-next {
+                top: 50% !important;
+                transform: translateY(-50%) !important;
+            }
+        }
+
+        /* Final Category Section Mobile Alignment Fix */
+        @media (max-width: 768px) {
+            .category-section {
+                padding-left: 12px !important;
+                padding-right: 12px !important;
+            }
+
+            .category-swiper-wrap {
+                padding: 0 34px !important;
+                overflow: visible !important;
+            }
+
+            .category-swiper {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+                overflow: hidden !important;
+            }
+
+            .category-swiper .swiper-wrapper {
+                align-items: stretch !important;
+            }
+
+            .category-swiper .swiper-slide {
+                height: auto !important;
+                display: flex !important;
+                justify-content: center !important;
+                align-items: flex-start !important;
+            }
+
+            .category-link {
+                width: 100% !important;
+                margin: 0 !important;
+                text-decoration: none !important;
+                display: flex !important;
+                justify-content: center !important;
+                height: 100% !important;
+            }
+
+            .category-card {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 auto !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: flex-start !important;
+                text-align: center !important;
+                gap: 8px !important;
+            }
+
+            .category-image-shell {
+                margin: 0 auto !important;
+            }
+
+            .category-name {
+                width: 100% !important;
+                min-height: 2.6em !important;
+                margin: 0 !important;
+                display: -webkit-box !important;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                text-wrap: pretty;
+            }
+
+            .category-prev,
+            .category-next {
+                top: calc((var(--category-image-size) / 2) + 6px) !important;
+                width: 32px !important;
+                height: 32px !important;
+                margin-top: 0 !important;
+            }
+
+            .category-prev {
+                left: 20px !important;
+            }
+
+            .category-next {
+                right: 20px !important;
+            }
+
+            .category-prev::after,
+            .category-next::after {
+                font-size: 13px !important;
+                font-weight: 700 !important;
+            }
+        }
+
+        @media (max-width: 399px) {
+            .category-swiper-wrap {
+                padding: 0 26px !important;
+            }
+
+            .category-card {
+                max-width: 100% !important;
+            }
+
+            .category-prev,
+            .category-next {
+                width: 28px !important;
+                height: 28px !important;
+            }
+
+            .category-prev::after,
+            .category-next::after {
+                font-size: 12px !important;
+            }
+        }
+
+        @media (max-width: 240px) {
+            .category-section {
+                padding-left: 8px !important;
+                padding-right: 8px !important;
+            }
+
+            .category-swiper-wrap {
+                padding: 0 20px !important;
+            }
+
+            .category-card {
+                max-width: 100% !important;
+            }
+
+            .category-image-shell {
+                width: 96px !important;
+                height: 96px !important;
+            }
+
+            .category-name {
+                font-size: 11px !important;
+                min-height: 2.4em !important;
+            }
+
+            .category-prev,
+            .category-next {
+                width: 24px !important;
+                height: 24px !important;
+                top: calc((96px / 2) + 6px) !important;
+            }
+
+            .category-prev {
+                left: 2px !important;
+            }
+
+            .category-next {
+                right: 2px !important;
+            }
+        }
+
+        /* Final alignment + hero banner visibility patch */
+        .testimonial-swiper-wrap .testimonial-prev,
+        .testimonial-swiper-wrap .testimonial-next {
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            .testimonial-swiper-wrap .testimonial-prev,
+            .testimonial-swiper-wrap .testimonial-next {
+                top: 55% !important;
+            }
+
+            .testimonial-swiper-wrap .testimonial-prev {
+                left: 10% !important;
+                transform: translateX(calc(-100% - 8px)) translateY(-50%) !important;
+            }
+
+            .testimonial-swiper-wrap .testimonial-next {
+                left: 90% !important;
+                right: auto !important;
+                transform: translateX(8px) translateY(-50%) !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero,
+            .hero-swiper,
+            .hero-swiper .swiper-slide {
+                width: 100%;
+                height: 200px !important;
+            }
+
+            .hero {
+                padding-bottom: 10px;
+            }
+
+            .hero-swiper .swiper-slide {
+                overflow: hidden;
+            }
+
+            .hero-swiper .swiper-slide img {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: cover !important;
+                object-position: center;
+                display: block;
+            }
+
+            .hero-prev,
+            .hero-next {
+                top: 50% !important;
+                transform: translateY(-50%) !important;
+            }
         }
     </style>
 @endpush
@@ -1012,11 +1560,11 @@
             <div class="swiper-wrapper">
                 @forelse($banners as $banner)
                     <div class="swiper-slide">
-                        <img src="{{ asset('uploads/' . $banner->image) }}" alt="{{ $banner->title ?? 'Promo Banner' }}" />
+                        <img src="{{ asset('uploads/' . $banner->image) }}" alt="{{ $banner->title ?? 'Promo Banner' }}" draggable="false" />
                     </div>
                 @empty
                     <div class="swiper-slide">
-                        <img src="{{ asset('images/banner 1.png') }}" alt="Default Banner" />
+                        <img src="{{ asset('images/banner 1.png') }}" alt="Default Banner" draggable="false" />
                     </div>
                 @endforelse
             </div>
@@ -1044,8 +1592,7 @@
                                         <h3 class="collection-name">{{ $sub->name }}</h3>
                                     </a>
                                     <button class="collection-cta" type="button"
-                                        onclick="window.location.href='{{ route('category.show', $sub->slug) }}'">Shop
-                                        Now</button>
+                                        onclick="window.location.href='{{ route('category.show', $sub->slug) }}'">Shop Now</button>
                                 </article>
                             </div>
                         @empty
@@ -1068,6 +1615,7 @@
                 src="{{ asset('images/177ac6ca-e05e-455e-b85a-ac15d09dd31f 1.png') }}" alt="" />
 
             <div class="featured-inner">
+                
                 <h2 id="featured-title" class="featured-title">New Arrivals</h2>
                 <p class="featured-subtitle">Fresh weaves, added daily - discover sarees handwoven just for you</p>
 
@@ -1081,50 +1629,40 @@
                                             <div class="featured-media">
                                                 @php
                                                     $productImage = 'images/pro.png';
-                                                    if (
-                                                        $product->images &&
-                                                        is_array($product->images) &&
-                                                        count($product->images) > 0
-                                                    ) {
+                                                    if ($product->images && is_array($product->images) && count($product->images) > 0) {
                                                         $productImage = 'uploads/' . $product->images[0];
                                                     } elseif ($product->image_path) {
                                                         $productImage = 'images/' . $product->image_path;
                                                     }
                                                 @endphp
                                                 <img src="{{ asset($productImage) }}" alt="{{ $product->name }}" />
-                                                @if ($product->is_featured)
-                                                    <span class="featured-badge">New Arrival</span>
-                                                @endif
                                                 @if ($product->discount_percent > 0)
-                                                    <span class="featured-badge"
-                                                        style="top: 40px;">{{ round($product->discount_percent) }}%
-                                                        Off</span>
+                                                    <span class="featured-badge" style="top: 10px;">{{ round($product->discount_percent) }}% Off</span>
                                                 @endif
+                                                
                                             </div>
-                                            <h3 class="featured-name">{{ $product->name }}</h3>
+                                            <h3 class="featured-name">{{ \Illuminate\Support\Str::limit($product->name, 55) }}</h3>
+                                            {{-- <span class="read-more-link">Read More...</span> --}}
                                         </a>
-                                        <div class="featured-footer" style="margin-top: -19px;">
+                                        @php $inWishlist = in_array($product->id, session('wishlist', [])); @endphp
+                                        <div class="featured-footer">
                                             <div class="featured-price-wrap">
                                                 <span class="featured-price">&#8377; {{ number_format($product->price, 0) }}</span>
                                                 @if ($product->regular_price > $product->price)
                                                     <span class="old-price">₹{{ number_format($product->regular_price, 0) }}</span>
                                                 @endif
                                             </div>
-                                            <div style="display: flex; gap: 8px;">
-                                                @php $inWishlist = in_array($product->id, session('wishlist', [])); @endphp
-                                                <button class="wishlist-btn" type="button"
-                                                    data-product-id="{{ $product->id }}" aria-label="Add to wishlist"
-                                                    style="background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center;">
-                                                    <svg width="20" height="20" viewBox="0 0 24 24"
-                                                        fill="#C1121F">
-                                                        <path
-                                                            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                                                    </svg>
-                                                </button>
-                                                <button class="featured-cart add-to-cart-btn" type="button"
+                                            <div class="featured-actions">
+                                                <button class="wishlist-btn home-rail-wishlist" type="button"
                                                     data-product-id="{{ $product->id }}"
-                                                    aria-label="Add {{ $product->name }} to cart">
-                                                    <img src="{{ asset('images/Vector.svg') }}" alt="" />
+                                                    aria-label="Add to wishlist"
+                                                    aria-pressed="{{ $inWishlist ? 'true' : 'false' }}">
+                                                    <i class="{{ $inWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart"></i>
+                                                </button>
+                                                <button class="featured-cart-btn add-to-cart-btn" type="button"
+                                                    data-product-id="{{ $product->id }}"
+                                                    aria-label="Add to cart">
+                                                    <img src="{{ asset('images/local_mall.svg') }}" alt="">
                                                 </button>
                                             </div>
                                         </div>
@@ -1138,7 +1676,7 @@
                     <div class="swiper-button-prev featured-prev"></div>
                 </div>
 
-                <div class="featured-progress" id="featuredProgress">
+                <div class="featured-progress mt-5" id="featuredProgress" style="margin-top: 50px;">
                     <span id="currentSlide">01</span>
                     <div class="featured-progress-track" id="progressTrack">
                         <div class="featured-progress-bg"></div>
@@ -1150,14 +1688,16 @@
         </section>
     @endif
 
-     @foreach($offerCollections as $collection)
-        <section class="featured-section offers-section" aria-labelledby="offers-title" style="margin-top: 3rem;">
+    {{-- @foreach($offerCollections as $collection)
+        <section class="featured-section offers-section" aria-labelledby="offers-title-{{ $collection->id }}">
             <div class="featured-inner">
-                <h2 id="offers-title" class="featured-title">Offers</h2>
+                
+
+                <h2 id="offers-title-{{ $collection->id }}" class="featured-title">{{ $collection->name }}</h2>
                 <p class="featured-subtitle">Curated picks from our active offer collections, chosen for extra value</p>
 
                 <div class="featured-swiper-container offers-swiper-container" style="position: relative;">
-                    <div class="swiper offers-swiper">
+                    <div class="swiper offers-swiper offers-swiper-{{ $collection->id }}">
                         <div class="swiper-wrapper">
                             @foreach ($collection->products as $product)
                                 <div class="swiper-slide">
@@ -1177,25 +1717,28 @@
                                                     <span class="featured-badge" style="top: 10px;">{{ round($product->discount_percent) }}% Off</span>
                                                 @endif
                                             </div>
-                                            <h3 class="featured-name">{{ $product->name }}</h3>
+                                            <h3 class="featured-name">{{ \Illuminate\Support\Str::limit($product->name, 55) }}</h3>
+                                            <span class="read-more-link">Read More...</span>
                                         </a>
+                                        @php $offerInWishlist = in_array($product->id, session('wishlist', [])); @endphp
                                         <div class="featured-footer">
-                                            <span class="featured-price">&#8377; {{ number_format($product->price, 0) }}</span>
-                                            <div style="display: flex; gap: 8px;">
-                                                @php $offerInWishlist = in_array($product->id, session('wishlist', [])); @endphp
-                                                <button class="wishlist-btn" type="button"
-                                                    data-product-id="{{ $product->id }}" aria-label="Add to wishlist"
-                                                    style="background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center;">
-                                                    <svg width="20" height="20" viewBox="0 0 24 24"
-                                                        fill="#C1121F">
-                                                        <path
-                                                            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                                                    </svg>
-                                                </button>
-                                                <button class="featured-cart add-to-cart-btn" type="button"
+                                            <div class="featured-price-wrap">
+                                                <span class="featured-price">&#8377; {{ number_format($product->price, 0) }}</span>
+                                                @if ($product->regular_price > $product->price)
+                                                    <span class="old-price">₹{{ number_format($product->regular_price, 0) }}</span>
+                                                @endif
+                                            </div>
+                                            <div class="featured-actions">
+                                                <button class="wishlist-btn home-rail-wishlist" type="button"
                                                     data-product-id="{{ $product->id }}"
-                                                    aria-label="Add {{ $product->name }} to cart">
-                                                    <img src="{{ asset('images/Vector.svg') }}" alt="" />
+                                                    aria-label="Add to wishlist"
+                                                    aria-pressed="{{ $offerInWishlist ? 'true' : 'false' }}">
+                                                    <i class="{{ $offerInWishlist ? 'fa-solid' : 'fa-regular' }} fa-heart"></i>
+                                                </button>
+                                                <button class="featured-cart-btn add-to-cart-btn" type="button"
+                                                    data-product-id="{{ $product->id }}"
+                                                    aria-label="Add to cart">
+                                                    <img src="{{ asset('images/local_mall.svg') }}" alt="">
                                                 </button>
                                             </div>
                                         </div>
@@ -1207,12 +1750,21 @@
                     <div class="swiper-button-next featured-next collection-next-{{ $collection->id }}"></div>
                     <div class="swiper-button-prev featured-prev collection-prev-{{ $collection->id }}"></div>
                 </div>
+
+                <div class="featured-progress mt-5" id="offersProgress-{{ $collection->id }}" style="margin-top: 50px;">
+                    <span id="offersCurrentSlide-{{ $collection->id }}">01</span>
+                    <div class="featured-progress-track" id="offersProgressTrack-{{ $collection->id }}">
+                        <div class="featured-progress-bg"></div>
+                        <div class="featured-progress-fill" id="offersProgressFill-{{ $collection->id }}"></div>
+                    </div>
+                    <span>{{ sprintf('%02d', count($collection->products)) }}</span>
+                </div>
             </div>
         </section>
-    @endforeach
+    @endforeach --}}
 
     @if($categories->count() > 0)
-        <section class="category-section" aria-labelledby="browse-categories-title" style="margin-top: 5rem;">
+        <section class="category-section" aria-labelledby="browse-categories-title">
             <h2 id="browse-categories-title" class="category-title">Browse Our Categories</h2>
             <div class="category-swiper-wrap">
                 <div class="swiper category-swiper">
@@ -1358,82 +1910,50 @@
                     }
                 });
 
-                const categoryWrapper = document.querySelector('.category-swiper .swiper-wrapper');
-                const originalCategorySlides = categoryWrapper ? Array.from(categoryWrapper.children) : [];
-
-                const originalCategoryCount = originalCategorySlides.length;
-
-                if (categoryWrapper && originalCategoryCount > 1) {
-                    while (categoryWrapper.children.length < Math.max(originalCategoryCount * 3, 18)) {
-                        originalCategorySlides.forEach((slide) => {
-                            const clone = slide.cloneNode(true);
-                            clone.classList.add('category-slide-clone');
-                            categoryWrapper.appendChild(clone);
-                        });
-                    }
-                }
-
                 const categorySlideCount = document.querySelectorAll('.category-swiper .swiper-slide').length;
-                const safeCategoryCount = Math.max(originalCategoryCount, 1);
-                const enableCategoryLoop = originalCategoryCount > 1;
+                const enableCategoryLoop = categorySlideCount > 6;
 
                 new Swiper('.category-swiper', {
-                    slidesPerView: Math.min(2, safeCategoryCount),
+                    slidesPerView: 1,
                     slidesPerGroup: 1,
-                    spaceBetween: 8,
-                    speed: 900,
+                    spaceBetween: 10,
                     centeredSlides: false,
-                    centeredSlidesBounds: false,
-                    centerInsufficientSlides: true,
+                    speed: 500,
                     loop: enableCategoryLoop,
-                    loopedSlides: categorySlideCount,
-                    loopAdditionalSlides: categorySlideCount,
-                    loopPreventsSliding: true,
-                    roundLengths: true,
                     watchOverflow: false,
-                    observer: true,
-                    observeParents: true,
-                    autoplay: {
+                    autoplay: categorySlideCount > 2 ? {
                         delay: 3500,
                         disableOnInteraction: false,
-                        pauseOnMouseEnter: false,
-                        waitForTransition: true,
-                    },
+                    } : false,
                     navigation: {
                         nextEl: '.category-next',
                         prevEl: '.category-prev',
                     },
                     breakpoints: {
                         0: {
-                            slidesPerView: Math.min(2, safeCategoryCount),
-                            spaceBetween: -4
+                            slidesPerView: 1,
+                            spaceBetween: 8
                         },
                         400: {
-                            slidesPerView: Math.min(2, safeCategoryCount),
-                            spaceBetween: -2
+                            slidesPerView: 1,
+                            spaceBetween: 8
                         },
                         480: {
-                            slidesPerView: Math.min(2, safeCategoryCount),
-                            spaceBetween: 0
-                        },
-                        640: {
-                            slidesPerView: Math.min(3, safeCategoryCount),
-                            spaceBetween: 12
+                            slidesPerView: 1,
+                            spaceBetween: 10
                         },
                         768: {
-                            slidesPerView: Math.min(4, safeCategoryCount),
-                            spaceBetween: 14
+                            slidesPerView: 1,
+                            spaceBetween: 12
                         },
                         1024: {
-                            slidesPerView: Math.min(5, safeCategoryCount),
-                            slidesPerGroup: 1,
-                            spaceBetween: 12
+                            slidesPerView: 5,
+                            spaceBetween: 15
                         },
                         1280: {
-                            slidesPerView: Math.min(6, safeCategoryCount),
-                            slidesPerGroup: 1,
-                            spaceBetween: 12
-                        },
+                            slidesPerView: 5, // Show 5 fully to make 6th one scrollable
+                            spaceBetween: 15
+                        }
                     }
                 });
 
@@ -1506,37 +2026,112 @@
                     return swiper.slides.filter(slide => !slide.classList.contains('swiper-slide-duplicate')).length;
                 }
 
-                function updateProgressBar(swiper, progressFillId, currentSlideId) {
+                function updateProgressBar(swiper, progressFillId, currentSlideId, minScrollableItems = 1) {
                     const progressFill = document.getElementById(progressFillId);
                     const currentSlide = document.getElementById(currentSlideId);
 
                     if (!progressFill || !currentSlide) return;
 
                     const totalProducts = getRailProductCount(swiper);
-                    const currentIndex = Math.min(swiper.realIndex, Math.max(totalProducts - 1, 0));
-                    const progress = totalProducts <= 1 ? 100 : (currentIndex / (totalProducts - 1)) * 100;
+                    const isScrollable = totalProducts >= minScrollableItems;
 
-                    progressFill.style.width = `${Math.min(Math.max(progress, 0), 100)}%`;
-                    currentSlide.textContent = String(currentIndex + 1).padStart(2, '0');
+                    if (!isScrollable) {
+                        progressFill.style.width = '0%';
+                        currentSlide.textContent = '01';
+                        return;
+                    }
+
+                    const currentIndex = swiper.realIndex;
+                    const progress = totalProducts <= 1
+                        ? 100
+                        : ((currentIndex + 1) / totalProducts) * 100;
+
+                    if (progressFill) progressFill.style.width = `${Math.min(Math.max(progress, 0), 100)}%`;
+                    if (currentSlide) currentSlide.textContent = String(currentIndex + 1).padStart(2, '0');
                 }
 
-                function initProductRail(swiperSelector, nextEl, prevEl, progressFillId, currentSlideId, progressTrackId) {
+                function setRailState({
+                    totalProducts,
+                    minScrollableItems,
+                    progressTrackId,
+                    progressFillId,
+                    currentSlideId,
+                    nextEl,
+                    prevEl,
+                    slidesPerView = 4
+                }) {
+                    // isScrollable should technically be true if we have more than what's currently visible
+                    // but we also need isLoopable for Swiper 11 to not break
+                    const isScrollable = totalProducts >= 2; // Always scrollable if > 1 for mobile/tablet
+                    const isEnoughForDesktop = totalProducts > slidesPerView; 
+                    
+                    const progressTrack = document.getElementById(progressTrackId);
+                    const progressFill = document.getElementById(progressFillId);
+                    const currentSlide = document.getElementById(currentSlideId);
+                    const navButtons = [document.querySelector(nextEl), document.querySelector(prevEl)].filter(Boolean);
+
+                    if (progressTrack) {
+                        progressTrack.classList.toggle('is-inactive', !isScrollable);
+                        progressTrack.style.cursor = isScrollable ? 'pointer' : 'default';
+                    }
+
+                    navButtons.forEach((button) => {
+                        button.classList.remove('swiper-button-lock');
+                        button.classList.toggle('rail-nav-inactive', !isScrollable);
+                        button.setAttribute('aria-disabled', isScrollable ? 'false' : 'true');
+                        button.style.display = 'flex';
+                    });
+
+                    if (!isScrollable) {
+                        if (progressFill) progressFill.style.width = '0%';
+                        if (currentSlide) currentSlide.textContent = '01';
+                    }
+
+                    const isMobile = window.innerWidth < 1024;
+                    const isLoopable = isMobile ? (totalProducts > 1) : (totalProducts > 4);
+
+                    return { isScrollable, isLoopable };
+                }
+
+                function initProductRail(swiperSelector, nextEl, prevEl, progressFillId, currentSlideId, progressTrackId, minScrollableItems = 1) {
                     const swiperRoot = document.querySelector(swiperSelector);
                     if (!swiperRoot) return null;
 
+                    const totalProducts = swiperRoot.querySelectorAll('.swiper-slide').length;
+                    const { isScrollable, isLoopable } = setRailState({
+                        totalProducts,
+                        minScrollableItems,
+                        progressTrackId,
+                        progressFillId,
+                        currentSlideId,
+                        nextEl,
+                        prevEl
+                    });
+
                     const swiper = new Swiper(swiperSelector, {
-                        slidesPerView: 1,
-                        spaceBetween: 18,
-                        loop: true,
-                        autoplay: {
+                        slidesPerView: 1.1,
+                        spaceBetween: 14,
+                        loop: isLoopable, 
+                        watchOverflow: true,
+                        allowTouchMove: isScrollable,
+                        simulateTouch: isScrollable,
+                        autoplay: isScrollable ? {
                             delay: 3500,
                             disableOnInteraction: false,
-                        },
+                        } : false,
                         navigation: {
                             nextEl,
                             prevEl,
                         },
                         breakpoints: {
+                            0: {
+                                slidesPerView: 1,
+                                spaceBetween: 12
+                            },
+                            480: {
+                                slidesPerView: 1.2,
+                                spaceBetween: 14
+                            },
                             640: {
                                 slidesPerView: 2
                             },
@@ -1549,19 +2144,19 @@
                         },
                         on: {
                             init: function() {
-                                updateProgressBar(this, progressFillId, currentSlideId);
+                                updateProgressBar(this, progressFillId, currentSlideId, minScrollableItems);
                             },
                             slideChange: function() {
-                                updateProgressBar(this, progressFillId, currentSlideId);
+                                updateProgressBar(this, progressFillId, currentSlideId, minScrollableItems);
                             },
                             resize: function() {
-                                updateProgressBar(this, progressFillId, currentSlideId);
+                                updateProgressBar(this, progressFillId, currentSlideId, minScrollableItems);
                             }
                         }
                     });
 
                     const progressTrack = document.getElementById(progressTrackId);
-                    if (progressTrack) {
+                    if (progressTrack && isScrollable) {
                         progressTrack.style.cursor = 'pointer';
                         progressTrack.addEventListener('click', function(event) {
                             const rect = progressTrack.getBoundingClientRect();
@@ -1583,17 +2178,21 @@
                     '.featured-prev',
                     'progressFill',
                     'currentSlide',
-                    'progressTrack'
+                    'progressTrack',
+                    2
                 );
 
-                initProductRail(
-                    '.offers-swiper',
-                    '.offers-next',
-                    '.offers-prev',
-                    'offersProgressFill',
-                    'offersCurrentSlide',
-                    'offersProgressTrack'
-                );
+                @foreach($offerCollections as $collection)
+                    initProductRail(
+                        '.offers-swiper-{{ $collection->id }}',
+                        '.collection-next-{{ $collection->id }}',
+                        '.collection-prev-{{ $collection->id }}',
+                        'offersProgressFill-{{ $collection->id }}',
+                        'offersCurrentSlide-{{ $collection->id }}',
+                        'offersProgressTrack-{{ $collection->id }}',
+                        2
+                    );
+                @endforeach
 
                 // AJAX Add to Cart for Home Page buttons
                 document.addEventListener('click', function(e) {
@@ -1604,12 +2203,26 @@
                         fetch(`{{ url('cart/add') }}/${productId}`, {
                                 method: 'POST',
                                 headers: {
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                                     'X-Requested-With': 'XMLHttpRequest',
                                     'Accept': 'application/json'
                                 }
                             })
-                            .then(response => response.json())
+                            .then(response => {
+                                if (response.status === 419) {
+                                    Swal.fire({
+                                        title: 'Session Expired',
+                                        text: 'Your session has expired. Please refresh the page to continue.',
+                                        icon: 'warning',
+                                        confirmButtonText: 'Refresh Page',
+                                        confirmButtonColor: '#A91B43'
+                                    }).then(() => {
+                                        window.location.reload();
+                                    });
+                                    throw new Error('CSRF token mismatch');
+                                }
+                                return response.json();
+                            })
                             .then(data => {
                                 if (data.success) {
                                     toastr.success(data.message || 'Added to cart.');
@@ -1620,8 +2233,10 @@
                                 }
                             })
                             .catch(error => {
-                                console.error('Error:', error);
-                                toastr.error('Something went wrong.');
+                                if (error.message !== 'CSRF token mismatch') {
+                                    console.error('Error:', error);
+                                    toastr.error('Something went wrong.');
+                                }
                             });
                     }
                 });

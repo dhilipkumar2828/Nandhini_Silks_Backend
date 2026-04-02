@@ -168,8 +168,8 @@
                     </div>
 
                     <div class="review-tabs">
-                        <div class="review-tab active">Published Reviews ({{ $publishedReviews->count() }})</div>
-                        <div class="review-tab">Pending Reviews ({{ $pendingReviews->count() }})</div>
+                        <div class="review-tab active" data-tab="published">Published Reviews ({{ $publishedReviews->total() }})</div>
+                        <div class="review-tab" data-tab="pending">Pending Reviews ({{ $pendingReviews->total() }})</div>
                     </div>
 
                     <div id="publishedReviews">
@@ -208,6 +208,10 @@
                         @empty
                             <div style="text-align: center; padding: 40px; color: #999;">You haven't published any reviews yet.</div>
                         @endforelse
+
+                        <div class="mt-4">
+                            {{ $publishedReviews->appends(['pending_page' => $pendingReviews->currentPage(), 'tab' => 'published'])->links() }}
+                        </div>
                     </div>
 
                     <div id="pendingReviews" style="display: none;">
@@ -228,11 +232,15 @@
                                         <p style="font-size: 12px; color: #777;">Added on {{ $review->created_at->format('M d, Y') }}</p>
                                     </div>
                                 </div>
-                                <button class="btn-review-now">Review Now</button>
+                                <button class="btn-review-now">Under Review</button>
                             </div>
                         @empty
                             <div style="text-align: center; padding: 40px; color: #999;">No pending reviews.</div>
                         @endforelse
+
+                        <div class="mt-4">
+                            {{ $pendingReviews->appends(['published_page' => $publishedReviews->currentPage(), 'tab' => 'pending'])->links() }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -247,14 +255,16 @@
                 <button onclick="closeEditModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">&times;</button>
             </div>
             
-            <form id="editReviewForm" method="POST">
+            <form id="editReviewForm" class="validate-form" method="POST" novalidate>
                 @csrf
                 @method('PUT')
                 
-                <div style="margin-bottom: 20px;">
+                <div class="form-group" style="margin-bottom: 20px;">
                     <label style="display: block; font-size: 14px; font-weight: 700; color: #666; margin-bottom: 10px;">Your Rating</label>
-                    <div style="display: flex; gap: 10px; background: #f8f8f8; padding: 10px; border-radius: 12px; border: 1px solid #eee;">
-                        <select name="stars" id="editStars" style="width: 100%; border: none; background: transparent; font-weight: 600; color: #333; outline: none; cursor: pointer;">
+                    <div style="display: flex; flex-direction: column; background: #f8f8f8; padding: 10px; border-radius: 12px; border: 1px solid #eee;">
+                        <select name="stars" id="editStars" required 
+                            style="width: 100%; border: none; background: transparent; font-weight: 600; color: #333; outline: none; cursor: pointer;"
+                            data-msg-required="Please select a rating.">
                             <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
                             <option value="4">⭐⭐⭐⭐ (4/5)</option>
                             <option value="3">⭐⭐⭐ (3/5)</option>
@@ -264,9 +274,11 @@
                     </div>
                 </div>
 
-                <div style="margin-bottom: 30px;">
+                <div class="form-group" style="margin-bottom: 30px;">
                     <label style="display: block; font-size: 14px; font-weight: 700; color: #666; margin-bottom: 10px;">Detailed Review</label>
-                    <textarea name="review" id="editReviewText" rows="6" required 
+                    <textarea name="review" id="editReviewText" rows="6" required minlength="10"
+                        data-msg-required="Please enter your review."
+                        data-msg-minlength="Review must be at least 10 characters."
                         style="width: 100%; border: 1px solid #eee; border-radius: 12px; padding: 15px; font-size: 14px; color: #333; outline: none; transition: 0.3s; resize: none;"
                         onfocus="this.style.borderColor='var(--pink)'"
                         onblur="this.style.borderColor='#eee'"></textarea>
@@ -288,6 +300,17 @@
         const published = document.getElementById('publishedReviews');
         const pending = document.getElementById('pendingReviews');
 
+        // Initial tab based on URL param
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTab = urlParams.get('tab');
+        
+        if (activeTab === 'pending' || (urlParams.has('pending_page') && !urlParams.has('published_page'))) {
+            tabs.forEach(item => item.classList.remove('active'));
+            tabs[1].classList.add('active');
+            published.style.display = 'none';
+            pending.style.display = 'block';
+        }
+
         tabs.forEach((tab, index) => {
             tab.addEventListener('click', () => {
                 tabs.forEach(item => item.classList.remove('active'));
@@ -301,6 +324,7 @@
     function openEditModal(review) {
         const modal = document.getElementById('editReviewModal');
         const form = document.getElementById('editReviewForm');
+        clearReviewValidation();
         
         document.getElementById('editStars').value = review.stars;
         document.getElementById('editReviewText').value = review.review;
@@ -312,7 +336,18 @@
     }
 
     function closeEditModal() {
+        clearReviewValidation();
         document.getElementById('editReviewModal').style.display = 'none';
+    }
+
+    function clearReviewValidation() {
+        if (!window.jQuery) return;
+        const $form = $('#editReviewForm');
+        $form.find('.error-text').remove();
+        $form.find('.error-border').removeClass('error-border');
+        if ($form.data('validator')) {
+            $form.validate().resetForm();
+        }
     }
 
     function confirmDelete(reviewId) {

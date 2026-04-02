@@ -1,6 +1,6 @@
 @extends('admin.layouts.admin')
 
-@section('title', 'Order Details #' . $order->id)
+@section('title', 'Order Details #' . $order->order_number)
 
 @section('content')
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">

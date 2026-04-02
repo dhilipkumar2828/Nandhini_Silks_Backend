@@ -20,24 +20,26 @@
 
     .order-header {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
+        flex-direction: column;
+        gap: 15px;
         padding-bottom: 15px;
         border-bottom: 1px solid #f5f5f5;
         margin-bottom: 15px;
-        flex-wrap: wrap;
-        gap: 15px;
     }
 
-    .order-status-row {
+    .order-header-row {
         display: flex;
-        justify-content: flex-end;
-        align-self: center;
+        justify-content: space-between;
+        align-items: flex-end;
+        width: 100%;
+        gap: 15px;
     }
 
     .order-meta {
         display: flex;
-        gap: 30px;
+        justify-content: space-between;
+        flex: 1;
+        gap: 20px;
         flex-wrap: wrap;
     }
 
@@ -49,7 +51,7 @@
     }
 
     .meta-label {
-        font-size: 12px;
+        font-size: 15px;
         color: #999;
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -57,7 +59,7 @@
     }
 
     .meta-value {
-        font-size: 14px;
+        font-size: 16px;
         font-weight: 600;
         color: #333;
         white-space: nowrap;
@@ -94,7 +96,7 @@
     }
 
     .order-items-count {
-        font-size: 13px;
+        font-size: 15px;
         color: #777;
     }
 
@@ -109,7 +111,7 @@
         color: var(--pink);
         background: #fff;
         border-radius: 8px;
-        font-size: 13px;
+        font-size: 15px;
         font-weight: 600;
         text-decoration: none;
         transition: all 0.3s ease;
@@ -125,7 +127,7 @@
         background: #f5f5f5;
         border: none;
         border-radius: 8px;
-        font-size: 13px;
+        font-size: 15px;
         font-weight: 600;
         color: #666;
         cursor: pointer;
@@ -142,7 +144,7 @@
         justify-content: center;
         padding: 4px 10px;
         border-radius: 4px;
-        font-size: 11px;
+        font-size: 13px;
         font-weight: 700;
         margin-left: 10px;
         line-height: 1;
@@ -180,7 +182,7 @@
         justify-content: center;
         padding: 5px 12px;
         border-radius: 999px;
-        font-size: 11px;
+        font-size: 13px;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.04em;
@@ -237,28 +239,19 @@
         }
 
         .order-meta {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            column-gap: 10px;
-            row-gap: 6px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
             align-items: flex-start;
             width: 100%;
+            padding-right: 0;
         }
 
         .meta-item {
             gap: 2px;
             min-width: 0;
-        }
-
-        .meta-item:nth-child(2) {
-            align-items: center;
-            text-align: center;
-        }
-
-        .meta-item:last-child {
-            align-items: flex-end;
-            justify-self: end;
-            text-align: right;
+            text-align: left;
+            align-items: flex-start;
         }
 
         .meta-label {
@@ -333,7 +326,7 @@
                 <aside class="account-sidebar">
                     <div class="account-user-info">
                         <div class="account-avatar">
-                            <img src="{{ asset('images/user-avatar.svg') }}" alt="User Avatar">
+                            <img src="{{ Auth::user()->profile_picture ? asset('uploads/'.Auth::user()->profile_picture) : asset('images/user-avatar.svg') }}" alt="User Avatar">
                         </div>
                         <h2 class="account-user-name">{{ Auth::user()->name }}</h2>
                         <p class="account-user-email">{{ Auth::user()->email }}</p>
@@ -357,7 +350,7 @@
                     </div>
 
                     <div class="orders-container">
-                        @forelse(Auth::user()->orders()->latest()->get() as $order)
+                        @forelse($orders as $order)
                         @php
                             $paymentStatus = strtolower(trim((string) $order->payment_status));
                             $orderStatus = strtolower(trim((string) $order->order_status));
@@ -383,26 +376,31 @@
                         @endphp
                         <div class="order-card">
                             <div class="order-header">
-                                <div class="order-meta">
+                                <!-- Row 1: ID and Date -->
+                                <div class="order-header-row">
                                     <div class="meta-item">
                                         <span class="meta-label">Order ID</span>
-                                        <span class="meta-value">#NS{{ $order->id }}</span>
+                                        <span class="meta-value">#{{ $order->order_number }}</span>
                                     </div>
-                                    <div class="meta-item">
+                                    <div class="meta-item" style="text-align: right;">
                                         <span class="meta-label">Date Placed</span>
                                         <span class="meta-value">{{ $order->created_at->format('M d, Y') }}</span>
                                     </div>
+                                </div>
+                                
+                                <!-- Row 2: Amount and Status -->
+                                <div class="order-header-row">
                                     <div class="meta-item">
                                         <span class="meta-label">Total Amount</span>
-                                        <span class="meta-value meta-value-total">&#8377;{{ number_format($order->grand_total, 0) }} 
+                                        <span class="meta-value meta-value-total">&#8377;{{ number_format($order->grand_total, 2) }} 
                                             <span class="payment-status {{ $paymentStatusClass }}">
                                                 {{ ucfirst($paymentStatus) }}
                                             </span>
                                         </span>
                                     </div>
-                                </div>
-                                <div class="order-status-row">
-                                    <span class="status-badge {{ $orderStatusClass }}">{{ ucfirst($orderStatus) }}</span>
+                                    <div class="order-status-row">
+                                        <span class="status-badge {{ $orderStatusClass }}">{{ ucfirst($orderStatus) }}</span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="order-body">
@@ -420,7 +418,6 @@
                                 </div>
                                 <div class="order-actions">
                                     <a href="{{ url('order-detail') }}?id={{ $order->id }}" class="btn-outline">View Details</a>
-                                    <button class="btn-action">Track Order</button>
                                 </div>
                             </div>
                         </div>
@@ -432,6 +429,10 @@
                                 <a href="{{ url('shop') }}" class="btn-outline" style="display: inline-block; margin-top: 20px;">Start Shopping</a>
                             </div>
                         @endforelse
+
+                        <div class="mt-4">
+                            {{ $orders->links() }}
+                        </div>
                     </div>
                 </div>
             </div>

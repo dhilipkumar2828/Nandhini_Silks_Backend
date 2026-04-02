@@ -14,6 +14,9 @@ use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\UserAddressController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\InquiryController;
+use App\Http\Controllers\Admin\AttributeController;
+use App\Http\Controllers\Admin\AttributeValueController;
 
 Route::post('/addresses', [UserAddressController::class, 'store'])->name('addresses.store');
 
@@ -57,10 +60,14 @@ Route::get('/login', [FrontendController::class, 'userLogin'])->name('login');
 Route::middleware(['auth'])->group(function () {
     Route::get('/my-account', [FrontendController::class, 'myAccount'])->name('my-account');
     Route::get('/my-addresses', [FrontendController::class, 'myAddresses'])->name('my-addresses');
+    Route::put('/addresses/{address}', [UserAddressController::class, 'update'])->name('addresses.update');
+    Route::delete('/addresses/{address}', [UserAddressController::class, 'destroy'])->name('addresses.destroy');
     Route::get('/my-reviews', [FrontendController::class, 'myReviews'])->name('my-reviews');
     Route::get('/my-profile', [FrontendController::class, 'myProfile'])->name('my-profile');
     Route::post('/my-profile/update', [FrontendController::class, 'updateProfile'])->name('profile.update');
     Route::post('/my-profile/photo', [FrontendController::class, 'updateProfilePhoto'])->name('profile.photo');
+    Route::post('/my-profile/email/request-otp', [FrontendController::class, 'requestEmailChangeOtp'])->name('profile.email.request_otp');
+    Route::post('/my-profile/email/verify-otp', [FrontendController::class, 'verifyEmailChangeOtp'])->name('profile.email.verify_otp');
     Route::delete('/my-reviews/{id}', [FrontendController::class, 'deleteReview'])->name('profile.review.delete');
     Route::put('/my-reviews/{id}', [FrontendController::class, 'updateReview'])->name('profile.review.update');
     Route::post('/product/{product}/review', [FrontendController::class, 'storeReview'])->name('product.review.store');
@@ -117,6 +124,19 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 
+        // Slug & Name Uniqueness Checks (Must be above resources to avoid conflict with show() method)
+        Route::get('/categories/check-slug', [CategoryController::class, 'checkSlug'])->name('admin.categories.check-slug');
+        Route::get('/categories/check-name', [CategoryController::class, 'checkName'])->name('admin.categories.check-name');
+        
+        Route::get('/sub-categories/check-slug', [SubCategoryController::class, 'checkSlug'])->name('admin.sub-categories.check-slug');
+        Route::get('/sub-categories/check-name', [SubCategoryController::class, 'checkName'])->name('admin.sub-categories.check-name');
+        
+        Route::get('/child-categories/check-slug', [ChildCategoryController::class, 'checkSlug'])->name('admin.child-categories.check-slug');
+        Route::get('/child-categories/check-name', [ChildCategoryController::class, 'checkName'])->name('admin.child-categories.check-name');
+
+        Route::get('/attributes/check-slug', [AttributeController::class, 'checkSlug'])->name('admin.attributes.check-slug');
+        Route::get('/attributes/check-name', [AttributeController::class, 'checkName'])->name('admin.attributes.check-name');
+
         // Category Management
         Route::resource('categories', CategoryController::class)->names('admin.categories');
 
@@ -150,6 +170,7 @@ Route::group(['prefix' => 'admin'], function () {
         // Users
         Route::resource('users', UserController::class)->only(['index', 'show', 'edit', 'update'])->names('admin.users');
         Route::post('users/{user}/addresses', [UserController::class, 'storeAddress'])->name('admin.users.addresses.store');
+        Route::put('users/{user}/addresses/{address}', [UserController::class, 'updateAddress'])->name('admin.users.addresses.update');
         Route::delete('users/{user}/addresses/{address}', [UserController::class, 'destroyAddress'])->name('admin.users.addresses.destroy');
         
         // Stock Maintenance
@@ -178,6 +199,9 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/reviews', [\App\Http\Controllers\Admin\ProductReviewController::class, 'index'])->name('admin.reviews.index');
         Route::post('/reviews/{id}/status', [\App\Http\Controllers\Admin\ProductReviewController::class, 'updateStatus'])->name('admin.reviews.status');
         Route::delete('/reviews/{id}', [\App\Http\Controllers\Admin\ProductReviewController::class, 'destroy'])->name('admin.reviews.destroy');
+
+        // Inquiries Management
+        Route::resource('inquiries', InquiryController::class)->only(['index', 'show', 'update', 'destroy'])->names('admin.inquiries');
 
         // AJAX Helpers
         Route::get('/get-sub-categories/{category_id}', [ChildCategoryController::class, 'getSubCategories']);

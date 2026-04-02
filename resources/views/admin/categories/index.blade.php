@@ -72,40 +72,46 @@
         <table class="w-full text-left">
             <thead>
                 <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-100">
-                    <th class="pb-3 px-2 font-bold">S.No</th>
-                    <th class="pb-3 px-2 font-bold">Image</th>
-                    <th class="pb-3 font-bold">Details</th>
-                    <th class="pb-3 font-bold">Order</th>
-                    <th class="pb-3 font-bold">Status</th>
-                    <th class="pb-3 font-bold text-right">Actions</th>
+                    <th class="pb-3 px-2 font-bold text-center w-16">S.No</th>
+                    <th class="pb-3 px-2 font-bold text-center w-20">Image</th>
+                    <th class="pb-3 font-bold text-center w-40">Category</th>
+                    <th class="pb-3 font-bold text-center w-16">Order</th>
+                    <th class="pb-3 font-bold text-center w-16">Status</th>
+                    <th class="pb-3 font-bold text-center w-16">In Menu</th>
+                    <th class="pb-3 font-bold text-right pr-4 w-16">Actions</th>
                 </tr>
             </thead>
             <tbody class="text-sm">
                 @foreach($categories as $category)
                 <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-all">
-                    <td class="py-2.5 px-2 text-xs font-bold text-slate-500">
+                    <td class="py-2.5 px-2 text-xs font-bold text-slate-500 text-center">
                         {{ $categories->firstItem() + $loop->index }}
                     </td>
-                    <td class="py-2.5 px-2">
+                    <td class="py-2.5 px-2 text-center">
                         @if($category->image)
-                            <img src="{{ asset('uploads/' . $category->image) }}" class="w-10 h-10 rounded-lg object-cover shadow-sm">
+                            <img src="{{ asset('uploads/' . $category->image) }}" class="w-10 h-10 rounded-lg object-cover shadow-sm mx-auto">
                         @else
-                            <div class="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center text-slate-300">
+                            <div class="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center text-slate-300 mx-auto">
                                 <i class="fas fa-image text-xs"></i>
                             </div>
                         @endif
                     </td>
-                    <td class="py-2.5">
+                    <td class="py-2.5 text-center w-16">
                         <div class="font-bold text-slate-800 text-sm">{{ $category->name }}</div>
                         <div class="text-[10px] text-slate-400 tracking-tight">{{ $category->slug }}</div>
                     </td>
-                    <td class="py-2.5 text-xs text-slate-500 font-bold">{{ $category->display_order }}</td>
-                    <td class="py-2.5">
-                        <span class="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-tighter {{ $category->status ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }}">
+                    <td class="py-2.5 text-xs text-slate-500 font-bold text-center">{{ $category->display_order }}</td>
+                    <td class="py-2.5 text-center">
+                        <span class="px-2 py-0.5 rounded-md text-[7px] font-bold uppercase tracking-tighter {{ $category->status ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }}">
                             {{ $category->status ? 'Active' : 'Inactive' }}
                         </span>
                     </td>
-                    <td class="py-2.5 text-right">
+                    <td class="py-2.5 text-center">
+                        <span class="px-2 py-0.5 rounded-md text-[8px] font-bold uppercase tracking-tighter {{ $category->show_in_menu ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-50 text-slate-600' }}">
+                            {{ $category->show_in_menu ? 'Shown' : 'Hidden' }}
+                        </span>
+                    </td>
+                    <td class="py-2.5 text-right pr-4">
                         <div class="flex justify-end space-x-1">
                             <a href="{{ route('admin.categories.edit', $category->id) }}" class="p-1.5 text-indigo-400 hover:bg-indigo-50 rounded-md transition-all">
                                 <i class="fas fa-edit text-xs"></i>

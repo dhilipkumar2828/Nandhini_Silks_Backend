@@ -86,7 +86,7 @@
                 <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-100">
                     <th class="pb-3 px-2 font-bold">Attribute</th>
                     <th class="pb-3 font-bold">Value Name</th>
-                    <th class="pb-3 font-bold">Swatch</th>
+                    <th class="pb-3 font-bold">Image</th>
                     <th class="pb-3 font-bold">Order</th>
                     <th class="pb-3 font-bold">Status</th>
                     <th class="pb-3 font-bold text-right">Actions</th>

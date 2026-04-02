@@ -22,49 +22,61 @@ class UserAuthController extends Controller
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            $user = Auth::user();
+        $user = User::where('email', $credentials['email'])->first();
 
-            if (!$user->is_verified) {
-                // If not verified, logout and redirect to OTP verification
-                $otp = sprintf("%06d", mt_rand(1, 999999));
-                $user->otp = $otp;
-                $user->otp_expires_at = now()->addMinutes(10);
-                $user->save();
-
-                try {
-                    Mail::to($user->email)->send(new VerficationOTP($otp));
-                } catch (\Exception $e) {
-                    Log::error('Login Verification OTP Failure: ' . $e->getMessage());
-                }
-
-                Auth::logout();
-                $request->session()->put('pending_verification_user_id', $user->id);
-                return redirect()->route('otp.verify.form')->with('error', 'Your account is not verified. A new OTP has been sent to your email.');
-            }
-
-            $request->session()->regenerate();
-            $user->last_login_at = now();
-            $user->save();
-            
-            // Sync cart from session to database
-            (new \App\Http\Controllers\CartController)->syncCartOnLogin();
-            
-            return redirect()->intended(route('home'))->with('success', 'Welcome back, ' . $user->name . '!');
+        if (!$user) {
+            return back()->withErrors([
+                'email' => 'Email is wrong.',
+            ])->onlyInput('email');
         }
 
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ])->onlyInput('email');
+        if (!Hash::check($credentials['password'], $user->password)) {
+            return back()->withErrors([
+                'password' => 'Password is wrong.',
+            ])->onlyInput('email');
+        }
+
+        Auth::login($user, $request->boolean('remember'));
+
+        if (!$user->is_verified) {
+            // If not verified, logout and redirect to OTP verification
+            $otp = sprintf("%06d", mt_rand(1, 999999));
+            $user->otp = $otp;
+            $user->otp_expires_at = now()->addMinutes(10);
+            $user->save();
+
+            try {
+                Mail::to($user->email)->send(new VerficationOTP($otp));
+            } catch (\Exception $e) {
+                Log::error('Login Verification OTP Failure: ' . $e->getMessage());
+            }
+
+            Auth::logout();
+            $request->session()->put('pending_verification_user_id', $user->id);
+            return redirect()->route('otp.verify.form')->with('error', 'Your account is not verified. A new OTP has been sent to your email.');
+        }
+
+        $request->session()->regenerate();
+        $user->last_login_at = now();
+        $user->save();
+        
+        // Sync cart from session to database
+        (new \App\Http\Controllers\CartController)->syncCartOnLogin();
+        
+        return redirect()->intended(route('home'))->with('success', 'Welcome back, ' . $user->name . '!');
     }
 
     public function register(Request $request)
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z\s]+$/'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'phone' => ['required', 'string', 'max:20'],
+            'phone' => ['required', 'regex:/^[0-9]{10}$/'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ], [
+            'name.regex' => 'Name must contain only alphabets.',
+            'phone.regex' => 'Please enter a valid 10-digit phone number.',
+            'password.confirmed' => 'Password confirmation does not match.',
         ]);
 
         // In Laravel 12 with 'password' => 'hashed' cast, we don't need Hash::make() 
@@ -90,15 +102,24 @@ class UserAuthController extends Controller
         // Instead of full login, we'll store basic ID in session for verification
         $request->session()->put('pending_verification_user_id', $user->id);
 
-        // Send OTP email to customer
+        // Send OTP email to customer (separate try-catch so admin alert always fires)
         try {
             Mail::to($user->email)->send(new VerficationOTP($otp));
-            
-            // Notify Admin
-            $adminEmail = Setting::where('key', 'order_notification_email')->first()->value ?? 'orders@nandhinisilks.com';
-            Mail::to($adminEmail)->send(new NewRegistrationAdminAlert($user));
+            Log::info('Registration OTP sent successfully to customer: ' . $user->email);
         } catch (\Exception $e) {
-            Log::error('Registration OTP Failure: ' . $e->getMessage());
+            Log::error('Registration OTP to CUSTOMER failed [' . $user->email . ']: ' . $e->getMessage());
+        }
+
+        // Small delay to avoid "Too many emails per second" (550 error)
+        sleep(2);
+
+        // Notify Admin (separate block so customer mail failure doesn't block this)
+        try {
+            $adminEmail = Setting::getAdminEmail();
+            Mail::to($adminEmail)->send(new NewRegistrationAdminAlert($user));
+            Log::info('Admin registration alert sent for user: ' . $user->email);
+        } catch (\Exception $e) {
+            Log::error('Admin registration alert failed: ' . $e->getMessage());
         }
 
         return redirect()->route('otp.verify.form')->with('success', 'A verification OTP has been sent to your email.');
@@ -181,13 +202,31 @@ class UserAuthController extends Controller
     {
         $request->validate(['email' => 'required|email']);
 
-        $status = \Illuminate\Support\Facades\Password::broker()->sendResetLink(
-            $request->only('email')
-        );
+        Log::info('Password reset process started for email: ' . $request->email);
 
-        return $status === \Illuminate\Support\Facades\Password::RESET_LINK_SENT
-                    ? back()->with('status', __($status))
-                    : back()->withErrors(['email' => __($status)]);
+        try {
+            $status = \Illuminate\Support\Facades\Password::broker()->sendResetLink(
+                $request->only('email')
+            );
+
+            Log::info('Password reset broker return status: ' . __($status));
+
+            if ($status === \Illuminate\Support\Facades\Password::RESET_LINK_SENT) {
+                return back()->with('status', __($status));
+            }
+
+            Log::warning('Password reset failed due to broker status: ' . __($status));
+            return back()->withErrors(['email' => __($status)]);
+            
+        } catch (\Exception $e) {
+            Log::error('CRITICAL: Password reset email exception for ' . $request->email . ': ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            
+            return back()->withErrors(['email' => 'Oops! Something went wrong while sending the email. Error: ' . $e->getMessage()]);
+        }
     }
 
     public function showResetForm(Request $request, $token = null)
@@ -219,5 +258,3 @@ class UserAuthController extends Controller
                     : back()->withErrors(['email' => [__($status)]]);
     }
 }
-
-

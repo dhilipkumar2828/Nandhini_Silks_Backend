@@ -3,6 +3,42 @@
 @section('title', 'My Wishlist | Nandhini Silks')
 
 @section('content')
+    <style>
+        .product-card-v2 {
+            position: relative;
+        }
+        .card-actions-overlay {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 10;
+        }
+        .remove-from-wishlist {
+            background: rgba(255, 255, 255, 0.95);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            cursor: pointer;
+        }
+        .remove-from-wishlist:hover {
+            background: #A91B43;
+            transform: scale(1.1);
+        }
+        .remove-from-wishlist:hover i {
+            color: white !important;
+        }
+        .remove-from-wishlist i {
+            font-size: 17px;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+    </style>
     <main class="account-page">
         <div class="page-shell">
             <div class="breadcrumb">
@@ -15,8 +51,8 @@
                         <div class="account-avatar">
                             <img src="{{ asset('images/user-avatar.svg') }}" alt="User Avatar">
                         </div>
-                        <h2 class="account-user-name">John Doe</h2>
-                        <p class="account-user-email">john.doe@example.com</p>
+                        <h2 class="account-user-name">{{ Auth::user()->name }}</h2>
+                        <p class="account-user-email">{{ Auth::user()->email }}</p>
                     </div>
 
                     <ul class="account-nav">
@@ -39,7 +75,9 @@
                         @foreach($products as $product)
                         <article class="product-card-v2" data-product-id="{{ $product->id }}">
                             <div class="card-actions-overlay">
-                                <button class="overlay-btn remove-from-wishlist wishlist-btn" data-product-id="{{ $product->id }}" title="Remove" style="color: #ff4444;">&times;</button>
+                                <button class="overlay-btn remove-from-wishlist wishlist-btn" data-product-id="{{ $product->id }}" title="Remove from Wishlist">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
                             </div>
                             <a href="{{ route('product.show', $product->slug) }}" style="text-decoration: none; color: inherit;">
                                 <div class="product-image-v2">
@@ -61,10 +99,10 @@
                                     <p class="product-price-v2">&#8377;{{ number_format($product->price, 0) }}</p>
                                 </div>
                             </a>
-                            <form action="{{ route('cart.add', $product->id) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="add-to-cart-v2">Add to Cart</button>
-                            </form>
+                            <a href="{{ route('product.show', $product->slug) }}" class="add-to-cart-v2" 
+                               style="text-decoration: none; display: flex; align-items: center; justify-content: center; background: #A91B43; color: white; border-radius: 8px; height: 44px; font-weight: 600; font-size: 14px; margin-top: 12px; transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                               View Details
+                            </a>
                         </article>
                         @endforeach
                     </div>

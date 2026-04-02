@@ -8,8 +8,8 @@ const InvoiceGenerator = {
      */
     formatCurrency: (amount) => {
         return parseFloat(amount || 0).toLocaleString('en-IN', {
-            maximumFractionDigits: 0,
-            minimumFractionDigits: 0
+            maximumFractionDigits: 2,
+            minimumFractionDigits: 2
         });
     },
 

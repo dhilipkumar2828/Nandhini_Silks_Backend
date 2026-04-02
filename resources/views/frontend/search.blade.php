@@ -8,51 +8,6 @@
             padding-bottom: 56px;
         }
 
-        .filter-chips-section {
-            margin-bottom: 25px;
-        }
-
-        .chips-container {
-            display: flex;
-            gap: 12px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-            scrollbar-width: none;
-        }
-
-        .chips-container::-webkit-scrollbar {
-            display: none;
-        }
-
-        .chip {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 40px;
-            padding: 0 20px;
-            background: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: 50px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #4b5563;
-            white-space: nowrap;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .chip:hover {
-            border-color: #A91B43;
-            color: #A91B43;
-            background: #fffcf0;
-        }
-
-        .chip.active {
-            background: #A91B43;
-            border-color: #A91B43;
-            color: #fff;
-            box-shadow: 0 4px 12px rgba(169, 27, 67, 0.15);
-        }
 
         .filters-sidebar {
             background: #fff;
@@ -75,7 +30,7 @@
             border-radius: 12px;
             background: #fff;
             color: #A91B43;
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 700;
             cursor: pointer;
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
@@ -130,6 +85,7 @@
             position: relative;
             cursor: pointer;
             user-select: none;
+            padding-top: 10px;
         }
 
         .custom-checkbox input {
@@ -458,45 +414,35 @@
                 display: flex;
             }
             .mobile-filter-overlay {
-                position: fixed;
-                inset: 0;
-                background: rgba(15, 23, 42, 0.35);
-                backdrop-filter: blur(2px);
-                z-index: 9998;
+                display: none !important;
             }
 
             .mobile-filter-overlay.active {
-                display: block;
+                display: none !important;
             }
 
             .filters-sidebar {
-                display: block !important;
-                position: fixed;
-                top: 0;
-                right: 0;
-                width: min(390px, 100%);
-                height: 100dvh;
-                z-index: 9999;
+                display: none !important;
+                position: static;
+                width: 100%;
+                height: auto;
+                max-height: 70vh;
                 overflow-y: auto;
-                border-radius: 22px 0 0 22px;
-                padding: 18px 18px 26px;
-                box-shadow: -24px 0 50px rgba(15, 23, 42, 0.18);
-                transform: translateX(102%);
-                transition: transform 0.28s ease;
+                border-radius: 14px;
+                padding: 16px;
+                margin-bottom: 16px;
+                box-shadow: 0 10px 24px rgba(15, 23, 42, 0.10);
+                border: 1px solid rgba(169, 27, 67, 0.14);
+                transform: none;
+                transition: none;
             }
 
             .filters-sidebar.mobile-open {
-                transform: translateX(0);
+                display: block !important;
             }
 
             .filter-drawer-header {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 12px;
-                margin-bottom: 18px;
-                padding-bottom: 14px;
-                border-bottom: 1px solid #eee;
+                display: none;
             }
 
             .filter-drawer-title {
@@ -518,10 +464,6 @@
                 cursor: pointer;
             }
 
-            body.filter-open {
-                overflow: hidden;
-            }
-
             .filter-title {
                 cursor: pointer;
                 position: relative;
@@ -529,28 +471,22 @@
             }
 
             .filter-title::after {
-                content: "+";
+                content: '\f078'; /* Font Awesome Chevron Down */
+                font-family: 'Font Awesome 6 Free';
+                font-weight: 900;
+                font-size: 14px;
                 position: absolute;
                 right: 0;
                 top: 50%;
-                transform: translateY(-52%);
-                width: 22px;
-                height: 22px;
-                border-radius: 50%;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
+                transform: translateY(-50%) rotate(0deg);
                 color: #a91b43;
-                font-size: 18px;
                 line-height: 1;
+                transition: transform 0.3s ease;
             }
 
-            .filter-group.is-open .filter-title::after {
-                content: "−";
-            }
-
+            .filter-group.is-open .filter-title::after,
             .filter-group:first-child .filter-title::after {
-                content: "−";
+                transform: translateY(-50%) rotate(180deg);
             }
 
             .filter-group-content {
@@ -569,8 +505,8 @@
 
         @media (max-width: 640px) {
             .filters-sidebar {
-                padding: 16px 16px 22px;
-                border-radius: 18px 0 0 18px;
+                padding: 14px;
+                border-radius: 12px;
             }
 
             .filter-title {
@@ -578,7 +514,7 @@
             }
 
             .label-text {
-                font-size: 14px;
+                font-size: 15px;
             }
 
             .price-val {
@@ -609,9 +545,9 @@
                 <a href="{{ route('home') }}">Home</a> &nbsp; / &nbsp; <span>Search Results</span>
             </div>
 
-            <button type="button" class="mobile-filter-toggle" id="mobileFilterToggle" aria-expanded="false" style="display: none;">
+            <button type="button" class="mobile-filter-toggle" id="mobileFilterToggle" aria-expanded="false" aria-controls="filtersSidebar">
                 <span>Filters</span>
-                <span class="mobile-filter-toggle-icon">+</span>
+                <span class="mobile-filter-toggle-icon"><i class="fa-solid fa-chevron-down"></i></span>
             </button>
 
             <div class="mobile-filter-overlay" id="mobileFilterOverlay"></div>
@@ -635,9 +571,9 @@
                                     <input type="range" name="max_price" id="max_price_input" min="{{ $min_price }}" max="{{ $max_price }}" value="{{ request('max_price', $max_price) }}" class="range-slider-modern">
                                 </div>
                                 <div class="range-values-modern">
-                                    <span class="price-val">₹<span id="min_price_val">{{ number_format(request('min_price', $min_price), 0) }}</span></span>
+                                    <span class="price-val">₹<span id="min_price_val">{{ number_format(request('min_price', $min_price), 2) }}</span></span>
                                     <span class="price-separator">-</span>
-                                    <span class="price-val">₹<span id="max_price_val">{{ number_format(request('max_price', $max_price), 0) }}</span></span>
+                                    <span class="price-val">₹<span id="max_price_val">{{ number_format(request('max_price', $max_price), 2) }}</span></span>
                                 </div>
                             </div>
                         </div>
@@ -718,86 +654,10 @@
                             <a href="{{ route('search', ['q' => request('q')]) }}" class="clear-filters-link">Clear All</a>
                         </div>
                     </form>
+                    </form>
                 </aside>
 
-                <section class="product-listing">
-                    <!-- Filter Chips -->
-                    <div class="filter-chips-section">
-                        <div class="chips-container">
-                            <span class="chip active">All Results</span>
-                        </div>
-                    </div>
-
-                    <div class="product-listing-header">
-                        <div class="header-left">
-                            <h2 class="category-main-title">Search: "{{ request('q') }}"</h2>
-                            <span class="result-count">Showing {{ $products->firstItem() ?? 0 }}-{{ $products->lastItem() ?? 0 }} of {{ $products->total() ?? 0 }} products</span>
-                        </div>
-
-                        <div style="display: flex; align-items: center;">
-                            <div class="view-toggle">
-                                <button class="view-btn active" title="Grid View" data-view="grid">
-                                    <svg width="18" height="18" viewBox="0 0 24 24"><path d="M4 4h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 10h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 16h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4z" /></svg>
-                                </button>
-                                <button class="view-btn" title="List View" data-view="list">
-                                    <svg width="18" height="18" viewBox="0 0 24 24"><path d="M4 14h4v-4H4v4zm0 5h4v-4H4v4zM4 9h4V5H4v4zm5 5h12v-4H9v4zm0 5h12v-4H9v4zM9 5v4h12V5H9z" /></svg>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="product-grid-main" id="resultsGrid">
-                        @forelse($products as $product)
-                            <article class="product-card-v2">
-                                <div class="card-actions-overlay">
-                                    @php $inWishlist = in_array($product->id, session('wishlist', [])); @endphp
-                                    <button class="overlay-btn wishlist-btn" aria-label="Add to Wishlist" data-product-id="{{ $product->id }}">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="{{ $inWishlist ? '#A91B43' : '#666' }}">
-                                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                                        </svg>
-                                    </button>
-                                </div>
-                                <a href="{{ route('product.show', $product->slug) }}" style="text-decoration: none; color: inherit;">
-                                    <div class="product-image-v2">
-                                        @php
-                                            $productImage = 'images/pro.png';
-                                            if ($product->images && is_array($product->images) && count($product->images) > 0) {
-                                                $productImage = 'uploads/' . $product->images[0];
-                                            } elseif ($product->image_path) {
-                                                $productImage = 'images/' . $product->image_path;
-                                            }
-                                        @endphp
-                                        <img src="{{ asset($productImage) }}" alt="{{ $product->name }}">
-                                    </div>
-                                    <div class="product-info-v2">
-                                        <div class="product-rating-v2">★★★★★</div>
-                                        <span class="product-category-v2">{{ $product->category->name ?? 'Collection' }}</span>
-                                        <h3 class="product-name-v2">{{ $product->name }}</h3>
-                                        <p class="product-price-v2">
-                                            ₹{{ number_format($product->price, 0) }}
-                                            @if($product->regular_price > $product->price)
-                                                <span class="product-price-old">₹{{ number_format($product->regular_price, 0) }}</span>
-                                            @endif
-                                        </p>
-                                    </div>
-                                </a>
-                                <a href="{{ route('product.show', $product->slug) }}" class="add-to-cart-v2" style="text-decoration: none; display: block; text-align: center;">View Details</a>
-                            </article>
-                        @empty
-                            <div class="no-results-state" id="noResults" style="display: block; width: 100%; grid-column: 1 / -1; text-align: center; padding: 60px 0;">
-                                <h2 class="no-results-title">No results found</h2>
-                                <p class="no-results-text">We couldn't find anything matching your search.</p>
-                                <a href="{{ url('shop') }}" class="btn-load-more" style="text-decoration: none; display: inline-block; margin-top: 20px;">Browse Collections</a>
-                            </div>
-                        @endforelse
-                    </div>
-
-                    @if($products->hasPages())
-                        <div class="pagination-wrap" style="margin-top: 40px; display: flex; justify-content: center;">
-                            {{ $products->appends(['q' => request('q')])->links() }}
-                        </div>
-                    @endif
-                </section>
+                @include('frontend.partials.product-listing', ['products' => $products, 'category' => $category ?? null, 'title' => 'Search Results'])
             </div>
         </div>
     </main>
@@ -805,16 +665,16 @@
 
 @push('scripts')
     <script>
-        const resultsGrid = document.getElementById('resultsGrid');
+        const productContainer = document.getElementById('productListingGrid');
         const viewButtons = document.querySelectorAll('.view-btn');
 
-        if (resultsGrid && viewButtons.length) {
+        if (productContainer && viewButtons.length) {
             viewButtons.forEach((button) => {
                 button.addEventListener('click', function () {
-                    const selectedView = button.getAttribute('data-view');
+                    const selectedView = button.getAttribute('data-view') || (button.title === 'List View' ? 'list' : 'grid');
                     viewButtons.forEach((btn) => btn.classList.remove('active'));
                     button.classList.add('active');
-                    resultsGrid.classList.toggle('view-list', selectedView === 'list');
+                    productContainer.classList.toggle('view-list', selectedView === 'list');
                 });
             });
         }
@@ -829,15 +689,15 @@
             const closeFilters = () => {
                 filtersSidebar.classList.remove('mobile-open');
                 mobileFilterOverlay?.classList.remove('active');
-                document.body.classList.remove('filter-open');
-                if (mobileFilterToggleIcon) mobileFilterToggleIcon.textContent = '+';
+                mobileFilterToggle.setAttribute('aria-expanded', 'false');
+                if (mobileFilterToggleIcon) mobileFilterToggleIcon.style.transform = 'rotate(0deg)';
             };
 
             const openFilters = () => {
                 filtersSidebar.classList.add('mobile-open');
-                mobileFilterOverlay?.classList.add('active');
-                document.body.classList.add('filter-open');
-                if (mobileFilterToggleIcon) mobileFilterToggleIcon.textContent = '−';
+                mobileFilterOverlay?.classList.remove('active');
+                mobileFilterToggle.setAttribute('aria-expanded', 'true');
+                if (mobileFilterToggleIcon) mobileFilterToggleIcon.style.transform = 'rotate(180deg)';
             };
 
             mobileFilterToggle.addEventListener('click', () => {
@@ -881,8 +741,8 @@
                 const maxPercent = ((max - minInput.min) / (minInput.max - minInput.min)) * 100;
                 sliderFill.style.left = minPercent + '%';
                 sliderFill.style.width = (maxPercent - minPercent) + '%';
-                minVal.innerText = min.toLocaleString();
-                maxVal.innerText = max.toLocaleString();
+                minVal.innerText = min.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                maxVal.innerText = max.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             }
             minInput.addEventListener('input', updateSlider);
             maxInput.addEventListener('input', updateSlider);

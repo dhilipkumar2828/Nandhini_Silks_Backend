@@ -25,31 +25,44 @@
 <body>
     <div class="alert-card">
         <div class="header">
-            <img src="{{ url('images/nandhini-logo.png') }}" alt="Nandhini Silks" style="max-height: 50px; width: auto; background: white; padding: 8px; border-radius: 10px; margin-bottom: 12px;">
-            <span class="badge" style="display: block;">Sales Alert</span>
-            <h1 class="title">New Sales Order!</h1>
+            <img src="{{ isset($message) ? $message->embed(public_path('images/nandhini-logo.png')) : asset('images/nandhini-logo.png') }}" alt="Nandhini Silks" style="max-height: 50px; width: auto; background: white; padding: 8px; border-radius: 10px; margin-bottom: 12px;">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td align="center">
+                        <span class="badge">Sales Alert</span>
+                        <h1 class="title">New Sales Order!</h1>
+                    </td>
+                </tr>
+            </table>
         </div>
         <div class="details">
-            <div class="info-grid">
-                <div class="info-item">
-                    <span class="info-label">Order #</span>
-                    <span class="info-value">{{ $order->order_number }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Customer</span>
-                    <span class="info-value">{{ $order->customer_name }}</span>
-                </div>
-            </div>
+            <!-- Info Table instead of Grid -->
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 30px;">
+                <tr>
+                    <td width="50%" style="padding-right: 10px;">
+                        <div class="info-item">
+                            <span class="info-label">Order #</span>
+                            <span class="info-value">{{ $order->order_number }}</span>
+                        </div>
+                    </td>
+                    <td width="50%" style="padding-left: 10px;">
+                        <div class="info-item">
+                            <span class="info-label">Customer</span>
+                            <span class="info-value">{{ $order->customer_name }}</span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
 
             <div class="info-item" style="margin-bottom: 30px;">
                 <span class="info-label">Address</span>
                 <span class="info-value">{{ $order->delivery_address }}</span>
             </div>
 
-            <table class="order-table">
+            <table class="order-table" width="100%">
                 <thead>
                     <tr>
-                        <th>Item</th>
+                        <th style="text-align: left;">Item</th>
                         <th style="text-align: center;">Qty</th>
                         <th style="text-align: right;">Total</th>
                     </tr>
@@ -59,18 +72,25 @@
                     <tr>
                         <td style="font-weight: 600;">{{ $item->product_name }}</td>
                         <td style="text-align: center;">{{ $item->quantity }}</td>
-                        <td style="text-align: right; font-weight: 600;">₹{{ number_format($item->total, 2) }}</td>
+                        <td style="text-align: right; font-weight: 600;">₹{{ number_format($item->total, 0) }}</td>
                     </tr>
                     @endforeach
                 </tbody>
             </table>
 
-            <div style="background: #a91b43; padding: 25px; border-radius: 15px; margin-top: 30px; display: flex; justify-content: space-between; align-items: center; color: #fff;">
-                <span style="font-weight: 700; opacity: 0.8; text-transform: uppercase;">Total Revenue</span>
-                <span style="font-size: 26px; font-weight: 900;">₹{{ number_format($order->grand_total, 2) }}</span>
-            </div>
+            <!-- Revenue Table instead of Flexbox -->
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background: #a91b43; border-radius: 15px; margin-top: 30px; color: #fff;">
+                <tr>
+                    <td style="padding: 25px;">
+                        <span style="font-weight: 700; opacity: 0.8; text-transform: uppercase; font-size: 14px;">Total Revenue</span>
+                    </td>
+                    <td style="padding: 25px; text-align: right;">
+                        <span style="font-size: 26px; font-weight: 900;">₹{{ number_format($order->grand_total, 0) }}</span>
+                    </td>
+                </tr>
+            </table>
 
-            <a href="{{ url('/admin/orders/'.$order->id) }}" class="button">Process Order in Admin Panel</a>
+            <a href="{{ url('/admin/orders/'.$order->id) }}" class="button" style="display: block; width: 100%; border-radius: 15px; background-color: #a91b43; color: #ffffff !important; padding: 18px; text-align: center; text-decoration: none; font-weight: 800; font-size: 15px; box-sizing: border-box; margin-top: 30px;">Process Order in Admin Panel</a>
         </div>
         <div class="footer">
             Generated by Nandhini Silks System. <br> Time: {{ date('d M Y, H:i') }}

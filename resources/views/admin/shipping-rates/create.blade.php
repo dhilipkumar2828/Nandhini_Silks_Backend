@@ -41,6 +41,20 @@
                            class="w-full bg-slate-50/50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#a91b43]/20 focus:border-[#a91b43] transition-all">
                 </div>
 
+                <!-- State -->
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold uppercase text-slate-500 tracking-wider">State (Optional)</label>
+                    <input type="text" name="state" value="{{ old('state') }}" placeholder="e.g. Tamil Nadu, All"
+                           class="w-full bg-slate-50/50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#a91b43]/20 focus:border-[#a91b43] transition-all">
+                </div>
+
+                <!-- Zip -->
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Zip Code (Optional)</label>
+                    <input type="text" name="zip" value="{{ old('zip') }}" placeholder="e.g. 600001, All"
+                           class="w-full bg-slate-50/50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#a91b43]/20 focus:border-[#a91b43] transition-all">
+                </div>
+
                 <!-- Cost -->
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Cost (₹)</label>

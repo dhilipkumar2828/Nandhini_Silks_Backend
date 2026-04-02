@@ -80,8 +80,11 @@
         padding: 12px 15px;
         border: 1px solid #eee;
         border-radius: 8px;
-        font-size: 14px;
+        font-size: 16px;
         transition: border-color 0.3s ease;
+        width: 100%;
+        min-height: 54px;
+        box-sizing: border-box;
     }
 
     .form-control:focus {
@@ -102,6 +105,73 @@
         gap: 4px;
     }
 
+    .email-change-link {
+        margin-left: 8px;
+        color: var(--pink);
+        font-size: 12px;
+        font-weight: 700;
+        text-decoration: underline;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        padding: 0;
+    }
+
+    .email-change-panel {
+        margin-top: 10px;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #f0d7df;
+        background: #fff8fa;
+    }
+
+    .email-change-panel .row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-inline {
+        height: 40px;
+        padding: 0 16px;
+        border-radius: 8px;
+        border: none;
+        background: var(--pink);
+        color: #fff;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .password-input-wrap {
+        position: relative;
+        display: block;
+        width: 100%;
+    }
+
+    .password-input-wrap .form-control {
+        width: 100%;
+        padding-right: 52px;
+    }
+
+    .password-toggle-btn {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent;
+        border: none;
+        color: #888;
+        cursor: pointer;
+        width: 24px;
+        height: 24px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        z-index: 2;
+    }
+
     .btn-save {
         padding: 12px 30px;
         background: var(--pink);
@@ -111,6 +181,7 @@
         font-weight: 700;
         cursor: pointer;
         transition: opacity 0.3s ease;
+        font-size: 15px;
     }
 
     .btn-save:hover {
@@ -131,6 +202,14 @@
         font-size: 14px;
         cursor: pointer;
         text-decoration: underline;
+    }
+
+    #emailInlineError {
+        color: #ef4444;
+        font-size: 0.875rem;
+        line-height: 1.3;
+        margin-top: 2px;
+        display: none;
     }
 
     @media (max-width: 600px) {
@@ -191,7 +270,7 @@
                         </div>
                     @endif
 
-                    <form class="profile-card validate-form" action="{{ route('profile.update') }}" method="POST">
+                    <form id="profileUpdateForm" class="profile-card validate-form" action="{{ route('profile.update') }}" method="POST" novalidate>
                         @csrf
                         <div class="profile-header-edit">
                             <div class="profile-pic-container">
@@ -209,18 +288,26 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Full Name</label>
-                                <input type="text" class="form-control" name="name" value="{{ $user->name }}" required>
+                                <input type="text" class="form-control" name="name" value="{{ $user->name }}" required oninput="this.value=this.value.replace(/[^A-Za-z\\s]/g,'')"
+                                    data-msg-required="Please enter your full name.">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Email Address <span class="verify-badge">&#10003; Verified</span></label>
-                                <input type="email" class="form-control" name="email" value="{{ $user->email }}" readonly>
+                                <input type="email" id="profileEmailInput" class="form-control" name="email" value="{{ old('email', $user->email) }}" required
+                                    data-msg-required="Please enter your email address."
+                                    data-msg-email="Please enter a valid email address.">
+                                <span class="error-text" id="emailInlineError" style="width:100%;"></span>
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Phone Number <span class="verify-badge">&#10003; Verified</span></label>
-                                <input type="tel" class="form-control" name="phone" value="{{ $user->phone ?? '' }}" placeholder="Enter phone number" required>
+                                <input type="tel" class="form-control" name="phone" value="{{ $user->phone ?? '' }}" placeholder="Enter phone number" required minlength="10" maxlength="10" data-rule-digits="true"
+                                    data-msg-required="Please enter your phone number."
+                                    data-msg-digits="Please enter a valid 10-digit phone number."
+                                    data-msg-minlength="Please enter a valid 10-digit phone number."
+                                    data-msg-maxlength="Please enter a valid 10-digit phone number.">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Gender</label>
@@ -243,17 +330,34 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Current Password</label>
-                                <input type="password" class="form-control" placeholder="********">
+                                <div class="password-input-wrap">
+                                    <input type="password" id="currentPasswordInput" name="current_password" class="form-control" placeholder="Enter the password">
+                                    <button type="button" class="password-toggle-btn" data-target="currentPasswordInput" aria-label="Show password">
+                                        <i class="fa-regular fa-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">New Password</label>
-                                <input type="password" class="form-control" placeholder="Enter new password">
+                                <div class="password-input-wrap">
+                                    <input type="password" id="newPasswordInput" name="new_password" class="form-control" placeholder="Enter the password" minlength="8">
+                                    <button type="button" class="password-toggle-btn" data-target="newPasswordInput" aria-label="Show password">
+                                        <i class="fa-regular fa-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Confirm New Password</label>
-                                <input type="password" class="form-control" placeholder="Confirm new password">
+                                <div class="password-input-wrap">
+                                    <input type="password" id="confirmPasswordInput" name="new_password_confirmation" class="form-control" placeholder="Enter the password"
+                                        data-rule-equalTo="#newPasswordInput"
+                                        data-msg-equalTo="New password and confirm password must match.">
+                                    <button type="button" class="password-toggle-btn" data-target="confirmPasswordInput" aria-label="Show password">
+                                        <i class="fa-regular fa-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -263,8 +367,8 @@
 
                         <div class="danger-zone">
                             <h4 style="color: #333; margin-bottom: 10px;">Account Security</h4>
-                            <p style="color: #999; font-size: 13px; margin-bottom: 20px;">Once you delete your account, there is no going back. Please be certain.</p>
-                            <button type="button" class="btn-delete">Delete Account</button>
+                            <p style="color: #999; font-size: 15px; margin-bottom: 20px;">Once you delete your account, there is no going back. Please be certain.</p>
+                            <button style="font-size: 15px;" type="button" class="btn-delete">Delete Account</button>
                         </div>
                     </form>
                 </div>
@@ -275,6 +379,150 @@
 
 @push('scripts')
     <script>
+        document.querySelectorAll('.password-toggle-btn').forEach((button) => {
+            button.addEventListener('click', () => {
+                const inputId = button.getAttribute('data-target');
+                const input = document.getElementById(inputId);
+                const icon = button.querySelector('i');
+                if (!input || !icon) return;
+
+                const isPassword = input.type === 'password';
+                input.type = isPassword ? 'text' : 'password';
+                icon.classList.toggle('fa-eye', !isPassword);
+                icon.classList.toggle('fa-eye-slash', isPassword);
+                button.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+            });
+        });
+
+        const $profileForm = $('#profileUpdateForm');
+        if ($profileForm.length) {
+            const $emailInput = $profileForm.find('input[name="email"]');
+            const $emailInlineError = $('#emailInlineError');
+
+            const focusEmailField = function () {
+                const emailInput = $emailInput[0];
+                if (emailInput) {
+                    emailInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    emailInput.focus();
+                    validateGmailEmail();
+                }
+            };
+
+            const showEmailInlineError = function (message) {
+                if ($emailInlineError.length) {
+                    $emailInlineError.text(message).css('display', 'block');
+                }
+                $emailInput.addClass('error-border');
+                const pluginError = $profileForm.find('#email-error, span.error-text[for="email"]');
+                if (pluginError.length) {
+                    pluginError.hide();
+                }
+            };
+
+            const clearEmailInlineError = function () {
+                if ($emailInlineError.length) {
+                    $emailInlineError.text('').hide();
+                }
+                $emailInput.removeClass('error-border');
+            };
+
+            const validateGmailEmail = function () {
+                const emailValue = (($emailInput.val()) || '').trim();
+
+                if (!emailValue) {
+                    clearEmailInlineError();
+                    return false;
+                }
+
+                clearEmailInlineError();
+                return true;
+            };
+
+            $emailInput.on('input', function () {
+                validateGmailEmail();
+            });
+
+            $emailInput.on('blur', function () {
+                validateGmailEmail();
+            });
+
+            $emailInput.on('focus', function () {
+                validateGmailEmail();
+            });
+
+            $profileForm.on('submit', function (e) {
+                e.preventDefault();
+
+                const validator = $profileForm.data('validator') || $profileForm.validate();
+                if (!validator.form()) {
+                    const emailErrorText = (validator.errorMap && validator.errorMap.email)
+                        ? validator.errorMap.email
+                        : (($profileForm.find('#email-error').text() || '').trim());
+                    if (emailErrorText) {
+                        showEmailInlineError(emailErrorText);
+                        focusEmailField();
+                    }
+                    return;
+                }
+
+                if (!validateGmailEmail()) {
+                    focusEmailField();
+                    return;
+                }
+
+                validator.resetForm();
+                clearEmailInlineError();
+                $profileForm.find('.error-border').removeClass('error-border');
+
+                const $submitBtn = $profileForm.find('.btn-save');
+                const originalText = $submitBtn.text();
+                $submitBtn.prop('disabled', true).text('Saving...');
+
+                $.ajax({
+                    url: $profileForm.attr('action'),
+                    type: 'POST',
+                    data: $profileForm.serialize(),
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    success: function (response) {
+                        toastr.success(response.message || 'Profile updated successfully.');
+                        $('#currentPasswordInput, #newPasswordInput, #confirmPasswordInput').val('');
+                    },
+                    error: function (xhr) {
+                        if (xhr.status === 419) {
+                            Swal.fire({
+                                title: 'Session Expired',
+                                text: 'Your session has expired. Please refresh the page to continue.',
+                                icon: 'warning',
+                                confirmButtonText: 'Refresh Page',
+                                confirmButtonColor: '#A91B43'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                            return;
+                        }
+                        if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                            const errors = {};
+                            Object.keys(xhr.responseJSON.errors).forEach(function (key) {
+                                errors[key] = xhr.responseJSON.errors[key][0];
+                            });
+                            validator.showErrors(errors);
+                            if (errors.email) {
+                                showEmailInlineError(errors.email);
+                                focusEmailField();
+                            }
+                            return;
+                        }
+                        toastr.error('Unable to update profile now. Please try again.');
+                    },
+                    complete: function () {
+                        $submitBtn.prop('disabled', false).text(originalText);
+                    }
+                });
+            });
+        }
+
         function uploadProfilePhoto(input) {
             if (input.files && input.files[0]) {
                 const formData = new FormData();
@@ -291,10 +539,26 @@
                     method: 'POST',
                     body: formData,
                     headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
                     }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (response.status === 419) {
+                        Swal.fire({
+                            title: 'Session Expired',
+                            text: 'Your session has expired. Please refresh the page to continue.',
+                            icon: 'warning',
+                            confirmButtonText: 'Refresh Page',
+                            confirmButtonColor: '#A91B43'
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                        throw new Error('CSRF token mismatch');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         document.getElementById('profilePicPreview').src = data.url;
@@ -310,8 +574,10 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    toastr.error('An error occurred while uploading.');
+                    if (error.message !== 'CSRF token mismatch') {
+                        console.error('Error:', error);
+                        toastr.error('An error occurred while uploading.');
+                    }
                 })
                 .finally(() => {
                     btn.innerHTML = originalContent;

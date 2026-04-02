@@ -70,7 +70,11 @@ class CartController extends Controller
 
         if ($isVariant && !empty($attributes)) {
             foreach ($product->product_variants as $v) {
-                $combination = is_string($v->combination) ? json_decode($v->combination, true) : $v->combination;
+                $combination = $v->combination;
+                if (is_string($combination)) {
+                    $combination = json_decode($combination, true);
+                }
+                $combination = (array)$combination;
                 $match = true;
                 foreach ($attributes as $aid => $avid) {
                     if (!isset($combination[$aid]) || !in_array((int)$avid, (array)$combination[$aid])) {
@@ -93,7 +97,16 @@ class CartController extends Controller
         }
 
         // 3. Stock Check
-        $availableStock = $isVariant ? ($matchedVariant ? $matchedVariant->stock_quantity : 0) : $product->stock_quantity;
+        $availableStock = $isVariant ? ($matchedVariant ? (int)$matchedVariant->stock_quantity : 0) : (int)$product->stock_quantity;
+        
+        Log::info('ADD TO CART CHECK:', [
+            'product_id' => $product->id,
+            'is_variant' => $isVariant,
+            'variant_id' => $matchedVariant ? $matchedVariant->id : null,
+            'available_stock' => $availableStock,
+            'request_qty' => $quantity
+        ]);
+
         if ($availableStock <= 0) {
             return $this->errorResponse('This product/variation is out of stock.', $request);
         }
@@ -131,17 +144,28 @@ class CartController extends Controller
         if (isset($cart[$cartKey])) {
             $cart[$cartKey]['quantity'] += $quantity;
         } else {
-            // Get Readable Names
+            // Get Readable Names Dynamically
             $size = '';
             $color = '';
             $length = '';
+            $age = '';
+            $display_attributes = [];
+
             foreach ($attributes as $aid => $avid) {
                 $val = \App\Models\AttributeValue::with('attribute')->find($avid);
                 if ($val && $val->attribute) {
-                    $attrName = strtolower($val->attribute->name);
-                    if (str_contains($attrName, 'size')) $size = $val->name;
-                    elseif (str_contains($attrName, 'color')) $color = $val->name;
-                    elseif (str_contains($attrName, 'length')) $length = $val->name;
+                    $attrName = $val->attribute->name;
+                    $attrNameLower = strtolower($attrName);
+                    
+                    $display_attributes[] = [
+                        'name' => $attrName,
+                        'value' => $val->name
+                    ];
+
+                    if (str_contains($attrNameLower, 'size')) $size = $val->name;
+                    elseif (str_contains($attrNameLower, 'color') || str_contains($attrNameLower, 'colour')) $color = $val->name;
+                    elseif (str_contains($attrNameLower, 'length')) $length = $val->name;
+                    elseif (str_contains($attrNameLower, 'age')) $age = $val->name;
                 }
             }
 
@@ -155,9 +179,11 @@ class CartController extends Controller
                 'image_url' => $this->productImageUrl($imagePath),
                 'quantity' => $quantity,
                 'attributes' => $attributes,
+                'display_attributes' => $display_attributes,
                 'size' => $size,
                 'color' => $color,
                 'length' => $length,
+                'age' => $age,
             ];
         }
 
@@ -350,9 +376,9 @@ class CartController extends Controller
             'tax' => $totals['tax'],
             'taxPercentage' => $totals['taxPercentage'],
             'grandTotal' => $totals['grandTotal'],
-            'shippingFormatted' => $totals['shipping'] > 0 ? '₹' . number_format($totals['shipping'], 0) : 'FREE',
-            'taxFormatted' => '₹' . number_format($totals['tax'], 0),
-            'grandTotalFormatted' => '₹' . number_format($totals['grandTotal'], 0),
+            'shippingFormatted' => $totals['shipping'] > 0 ? '₹' . number_format($totals['shipping'], 2) : 'FREE',
+            'taxFormatted' => '₹' . number_format($totals['tax'], 2),
+            'grandTotalFormatted' => '₹' . number_format($totals['grandTotal'], 2),
         ]);
     }
 
@@ -368,8 +394,17 @@ class CartController extends Controller
         $request->validate([
             'customer_name' => 'required|string|max:255',
             'customer_email' => 'required|email|max:255',
-            'customer_phone' => 'required|string|max:20',
+            'customer_phone' => ['required', 'regex:/^\d{10}$/'],
             'delivery_address' => 'required|string',
+            'city' => ['required', 'string', 'max:255'],
+            'state' => ['required', 'string', 'max:255'],
+            'pincode' => ['required', 'regex:/^\d{6}$/'],
+            'country' => ['required', 'string', 'max:255'],
+            'billing_phone' => ['nullable', 'regex:/^\d{10}$/'],
+            'billing_city' => ['nullable', 'string', 'max:255'],
+            'billing_state' => ['nullable', 'string', 'max:255'],
+            'billing_pincode' => ['nullable', 'regex:/^\d{6}$/'],
+            'billing_country' => ['nullable', 'string', 'max:255'],
             'payment_method' => 'nullable|string|max:50',
             'save_address' => 'nullable|boolean',
         ]);
@@ -401,11 +436,25 @@ class CartController extends Controller
         $isDifferentBilling = !$request->has('same_as_shipping');
         $paymentMethod = $request->input('payment_method', 'cod');
 
+        if ($isDifferentBilling) {
+            $request->validate([
+                'billing_name' => 'required|string|max:255',
+                'billing_phone' => ['required', 'regex:/^\d{10}$/'],
+                'billing_address' => 'required|string',
+                'billing_city' => ['required', 'string', 'max:255'],
+                'billing_state' => ['required', 'string', 'max:255'],
+                'billing_pincode' => ['required', 'regex:/^\d{6}$/'],
+                'billing_country' => ['required', 'string', 'max:255'],
+                'billing_email' => 'required|email|max:255',
+            ]);
+        }
+
         // Build full delivery address from individual fields
         $addressParts = array_filter([
             $request->input('delivery_address'),
             $request->input('city'),
             $request->input('state'),
+            $request->input('country'),
             $request->input('pincode') ? 'PIN: ' . $request->input('pincode') : null,
         ]);
         $fullDeliveryAddress = implode(', ', $addressParts);
@@ -416,6 +465,7 @@ class CartController extends Controller
                 $request->input('billing_address'),
                 $request->input('billing_city'),
                 $request->input('billing_state'),
+                $request->input('billing_country'),
                 $request->input('billing_pincode') ? 'PIN: ' . $request->input('billing_pincode') : null,
             ]);
             $fullBillingAddress = implode(', ', $billingParts);
@@ -461,7 +511,7 @@ class CartController extends Controller
                     'label' => 'Standard Address',
                     'recipient_name' => $request->input('customer_name'),
                     'recipient_phone' => $request->input('customer_phone'),
-                    'country' => 'India',
+                    'country' => $request->input('country', 'India'),
                     'is_default' => !Auth::user()->addresses()->exists(),
                 ]);
             }
@@ -479,6 +529,7 @@ class CartController extends Controller
                     'product_image' => $item['image_path'] ?? null,
                     'size' => $item['size'] ?? null,
                     'color' => $item['color'] ?? null,
+                    'attributes' => $item['display_attributes'] ?? [],
                     'price' => $item['price'],
                     'quantity' => $item['quantity'],
                     'total' => $item['price'] * $item['quantity'],
@@ -577,64 +628,177 @@ class CartController extends Controller
             // Send to customer
             \Illuminate\Support\Facades\Mail::to($order->customer_email)->send(new \App\Mail\OrderConfirmation($order));
             
+            // Small delay to avoid "Too many emails per second" (550 error)
+            sleep(2);
+
             // Send to admin
-            $adminEmail = \App\Models\Setting::where('key', 'order_notification_email')->value('value') ?? 'orders@nandhinisilks.com';
+            $adminEmail = \App\Models\Setting::getAdminEmail();
             \Illuminate\Support\Facades\Mail::to($adminEmail)->send(new \App\Mail\OrderAdminAlert($order));
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Order Email Failure: ' . $e->getMessage());
         }
     }
 
+    /**
+     * Always read Razorpay credentials fresh from the .env file on disk.
+     * This bypasses both the config cache and the process environment
+     * (so php artisan serve does NOT need to be restarted after .env changes).
+     */
+    private function getRazorpayCredentials(): array
+    {
+        $envPath = base_path('.env');
+        $parsed  = [];
+        if (file_exists($envPath)) {
+            $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            foreach ($lines as $line) {
+                $line = trim($line);
+                // Skip empty lines or comments
+                if ($line === '' || str_starts_with($line, '#')) continue;
+                
+                if (str_contains($line, '=')) {
+                    [$k, $v] = explode('=', $line, 2);
+                    $key = trim($k);
+                    $val = trim($v);
+                    
+                    // Strip inline comments if any (simple approach)
+                    if (str_contains($val, ' #')) {
+                       $val = trim(explode(' #', $val)[0]);
+                    }
+                    
+                    // Strip quotes if any
+                    if (str_starts_with($val, '"') && str_ends_with($val, '"')) {
+                        $val = trim($val, '"');
+                    } elseif (str_starts_with($val, "'") && str_ends_with($val, "'")) {
+                        $val = trim($val, "'");
+                    }
+                    
+                    $parsed[$key] = $val;
+                }
+            }
+        }
+        // Priority 1: Direct file read (bypasses cache)
+        $fileKey = $parsed['RAZORPAY_KEY'] ?? null;
+        $fileSecret = $parsed['RAZORPAY_SECRET'] ?? null;
+        
+        // Priority 2: config (loaded from env)
+        $configKey = config('services.razorpay.key');
+        $configSecret = config('services.razorpay.secret');
+        
+        // Priority 3: direct env() (as a last resort)
+        $envKey = env('RAZORPAY_KEY');
+        $envSecret = env('RAZORPAY_SECRET');
+        
+        $key = $fileKey ?: ($configKey ?: $envKey);
+        $secret = $fileSecret ?: ($configSecret ?: $envSecret);
+        
+        Log::info('Razorpay Credentials Check:', [
+            'key_found_in' => $fileKey ? 'file' : ($configKey ? 'config' : ($envKey ? 'env_function' : 'NOT FOUND')),
+            'key_prefix' => $key ? substr($key, 0, 9) : 'NULL',
+            'secret_len' => $secret ? strlen($secret) : 0
+        ]);
+
+        return [
+            'key'    => $key,
+            'secret' => $secret,
+        ];
+    }
+
     private function processRazorpay(Order $order)
     {
-        $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+        $creds = $this->getRazorpayCredentials();
+        $api   = new Api($creds['key'], $creds['secret']);
+
+        Log::info('Razorpay processRazorpay — Key: ' . substr($creds['key'], 0, 12) . '... Secret len: ' . strlen($creds['secret']));
+
         $razorOrder = $api->order->create([
-            'receipt' => (string) $order->id,
-            'amount' => (int) ($order->grand_total * 100),
+            'receipt'  => (string) $order->id,
+            'amount'   => (int) ($order->grand_total * 100),
             'currency' => 'INR'
         ]);
 
-        $order->update(['payment_id' => $razorOrder['id']]);
+        $razorOrderId = $razorOrder['id'];
+
+        // Use DB::table for a guaranteed, direct UPDATE (bypasses model caching)
+        DB::table('orders')
+            ->where('id', $order->id)
+            ->update(['payment_id' => $razorOrderId, 'updated_at' => now()]);
+
+        // Verify it was actually saved
+        $saved = DB::table('orders')->where('id', $order->id)->value('payment_id');
+        Log::info('Razorpay processRazorpay — Saved payment_id in DB: ' . ($saved ?? 'NULL'));
+
+        if ($saved !== $razorOrderId) {
+            Log::error('Razorpay processRazorpay — payment_id DID NOT save! Expected: ' . $razorOrderId . ' Got: ' . ($saved ?? 'NULL'));
+            throw new \RuntimeException('Failed to save payment_id to order.');
+        }
+
+        // Reload order so verifyRazorpay can find it later
+        $order = Order::find($order->id);
 
         return view('frontend.razorpay-payment', compact('order', 'razorOrder'));
     }
 
     public function verifyRazorpay(Request $request)
     {
+        $creds  = $this->getRazorpayCredentials();
+        $key    = $creds['key'];
+        $secret = $creds['secret'];
+
+        Log::info('Razorpay Verify — Key: ' . substr($key, 0, 12) . '... Secret len: ' . strlen($secret));
+        Log::info('Razorpay Verify — order_id: '   . $request->razorpay_order_id);
+        Log::info('Razorpay Verify — payment_id: ' . $request->razorpay_payment_id);
+        Log::info('Razorpay Verify — signature: '  . $request->razorpay_signature);
+
+        // Confirm the order exists BEFORE even verifying signature
+        $order = Order::where('payment_id', $request->razorpay_order_id)->first();
+        Log::info('Razorpay Verify — DB lookup: ' . ($order ? 'Found order #' . $order->id : 'NOT FOUND'));
+
+        if (!$order) {
+            // Fallback: maybe payment_id wasn't saved — try to find by DB directly
+            $orderId = DB::table('orders')
+                ->where('payment_id', $request->razorpay_order_id)
+                ->value('id');
+            Log::info('Razorpay Verify — Fallback DB lookup order id: ' . ($orderId ?? 'NULL'));
+            if ($orderId) {
+                $order = Order::find($orderId);
+            }
+        }
+
         $signatureStatus = true;
-        $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+        $api = new Api($key, $secret);
 
         try {
-            $attributes = [
-                'razorpay_order_id' => $request->razorpay_order_id,
+            $api->utility->verifyPaymentSignature([
+                'razorpay_order_id'   => $request->razorpay_order_id,
                 'razorpay_payment_id' => $request->razorpay_payment_id,
-                'razorpay_signature' => $request->razorpay_signature
-            ];
-            $api->utility->verifyPaymentSignature($attributes);
+                'razorpay_signature'  => $request->razorpay_signature,
+            ]);
+            Log::info('Razorpay Verify — Signature OK ✅');
         } catch (\Exception $e) {
+            Log::error('Razorpay Verify — Signature FAILED: ' . $e->getMessage());
             $signatureStatus = false;
         }
 
-        if ($signatureStatus) {
-            $order = Order::where('payment_id', $request->razorpay_order_id)->first();
-            if ($order) {
-                $order->update(['payment_status' => 'paid', 'order_status' => 'processing']);
-                
-                // Clear cart for the authenticated user (payment verified)
-                if (Auth::check()) {
-                    \App\Models\CartItem::where('user_id', Auth::id())->delete();
-                }
-                session()->forget(['cart', 'coupon_id']);
-                
-                // Send order success emails
-                $this->sendOrderEmails($order);
-                
-                return redirect()->route('order-confirmation', $order)->with('success', 'Payment successful! Your order is confirmed. 🎉');
+        if ($signatureStatus && $order) {
+            $order->update(['payment_status' => 'paid', 'order_status' => 'processing']);
+
+            if (Auth::check()) {
+                \App\Models\CartItem::where('user_id', Auth::id())->delete();
             }
+            session()->forget(['cart', 'coupon_id']);
+
+            $this->sendOrderEmails($order);
+
+            return redirect()->route('order-confirmation', $order)->with('success', 'Payment successful! Your order is confirmed. 🎉');
+        }
+
+        if (!$order) {
+            Log::error('Razorpay Verify — Order not found for payment_id: ' . $request->razorpay_order_id);
         }
 
         return redirect()->route('checkout')->with('error', 'Payment failed or signature mismatch.');
     }
+
 
     public function orderConfirmation(Order $order = null)
     {
@@ -676,17 +840,28 @@ class CartController extends Controller
                     }
                 }
                 
-                // Get size and color names for display
+                // Get size and color names for display dynamically
                 $size = '';
                 $color = '';
                 $length = '';
+                $age = '';
+                $display_attributes = [];
+
                 foreach($attributes as $aid => $avid) {
                     $val = \App\Models\AttributeValue::with('attribute')->find($avid);
                     if($val && $val->attribute) {
-                        $attrName = strtolower($val->attribute->name);
-                        if(str_contains($attrName, 'size')) $size = $val->name;
-                        elseif(str_contains($attrName, 'color')) $color = $val->name;
-                        elseif(str_contains($attrName, 'length')) $length = $val->name;
+                        $attrName = $val->attribute->name;
+                        $attrNameLower = strtolower($attrName);
+
+                        $display_attributes[] = [
+                            'name' => $attrName,
+                            'value' => $val->name
+                        ];
+
+                        if(str_contains($attrNameLower, 'size')) $size = $val->name;
+                        elseif(str_contains($attrNameLower, 'color') || str_contains($attrNameLower, 'colour')) $color = $val->name;
+                        elseif(str_contains($attrNameLower, 'length')) $length = $val->name;
+                        elseif(str_contains($attrNameLower, 'age')) $age = $val->name;
                     }
                 }
 
@@ -700,9 +875,11 @@ class CartController extends Controller
                     'image_url' => $this->productImageUrl($imagePath),
                     'quantity' => (int) $item->quantity,
                     'attributes' => $attributes,
+                    'display_attributes' => $display_attributes,
                     'size' => $size,
                     'color' => $color,
                     'length' => $length,
+                    'age' => $age,
                 ];
             }
             return $cart;
@@ -852,25 +1029,31 @@ class CartController extends Controller
 
         $coupon = Coupon::find($couponId);
         if (!$coupon || !$coupon->status) {
+            Log::info('COUPON REJECTED: Not found or inactive.', ['coupon_id' => $couponId]);
             return $this->invalidateCoupon();
         }
 
         $now = now();
         if ($coupon->valid_from && $now->lt($coupon->valid_from)) {
+            Log::info('COUPON REJECTED: Before valid date.', ['code' => $coupon->code, 'now' => $now, 'valid_from' => $coupon->valid_from]);
             return $this->invalidateCoupon();
         }
         if ($coupon->expires_at && $now->gt($coupon->expires_at)) {
+            Log::info('COUPON REJECTED: Expired.', ['code' => $coupon->code, 'now' => $now, 'expires_at' => $coupon->expires_at]);
             return $this->invalidateCoupon();
         }
         if ($coupon->usage_limit && $coupon->times_used >= $coupon->usage_limit) {
+            Log::info('COUPON REJECTED: Usage limit reached.', ['code' => $coupon->code, 'used' => $coupon->times_used, 'limit' => $coupon->usage_limit]);
             return $this->invalidateCoupon();
         }
         if ($coupon->min_order_amount && $subTotal < $coupon->min_order_amount) {
+            Log::info('COUPON REJECTED: Min order amount not met.', ['code' => $coupon->code, 'subtotal' => $subTotal, 'min' => $coupon->min_order_amount]);
             return $this->invalidateCoupon();
         }
 
         $eligibleSubtotal = $this->eligibleSubtotal($items, $coupon);
         if ($eligibleSubtotal <= 0) {
+            Log::info('COUPON REJECTED: No eligible items in cart.', ['code' => $coupon->code, 'applicable_products' => $coupon->applicable_products]);
             return $this->invalidateCoupon();
         }
 
@@ -897,6 +1080,13 @@ class CartController extends Controller
         $productIds = $coupon->applicable_products ?? [];
         $categoryIds = $coupon->applicable_categories ?? [];
 
+        Log::info('COUPON ELIGIBILITY CHECK:', [
+            'code' => $coupon->code,
+            'applicable_products' => $productIds,
+            'applicable_categories' => $categoryIds,
+            'cart_items_count' => count($items)
+        ]);
+
         $sum = 0;
 
         if (empty($productIds) && empty($categoryIds)) {
@@ -912,8 +1102,18 @@ class CartController extends Controller
         foreach ($items as $item) {
             $productId = $item['product_id'];
             $categoryId = $productCategories[$productId] ?? null;
+            
+            $isProductEligible = in_array($productId, $productIds);
+            $isCategoryEligible = $categoryId && in_array($categoryId, $categoryIds);
 
-            if (in_array($productId, $productIds, false) || ($categoryId && in_array($categoryId, $categoryIds, false))) {
+            Log::info('Checking Cart Item Eligibility:', [
+                'p_id' => $productId,
+                'c_id' => $categoryId,
+                'p_match' => $isProductEligible,
+                'c_match' => $isCategoryEligible
+            ]);
+
+            if ($isProductEligible || $isCategoryEligible) {
                 $sum += $item['price'] * $item['quantity'];
             }
         }

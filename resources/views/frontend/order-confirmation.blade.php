@@ -362,7 +362,7 @@
                         @endif
                         <tr class="total-row">
                             <td colspan="2" style="text-align: right; border: none; color: #333;">Total Paid</td>
-                            <td style="text-align: right; border: none; color: #A91B43;">&#8377;{{ number_format($order->grand_total, 0) }}</td>
+                            <td style="text-align: right; border: none; color: #A91B43;">&#8377;{{ number_format($order->grand_total, 2) }}</td>
                         </tr>
                     @endif
                 </tbody>

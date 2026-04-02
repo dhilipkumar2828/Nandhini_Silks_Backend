@@ -15,11 +15,13 @@ class Category extends Model
         'meta_description',
         'meta_keywords',
         'status',
-        'display_order'
+        'display_order',
+        'show_in_menu'
     ];
 
     protected $casts = [
         'status' => 'boolean',
+        'show_in_menu' => 'boolean'
     ];
 
     public function products()

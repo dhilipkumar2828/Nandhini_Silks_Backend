@@ -14,13 +14,13 @@
         .user-info h3 { margin: 0; color: #a91b43; font-size: 20px; font-weight: 800; }
         .user-meta { margin-top: 10px; color: #666; font-size: 14px; }
         .button { display: inline-block; padding: 16px 45px; background-color: #a91b43; color: #ffffff; text-decoration: none; border-radius: 14px; font-weight: 800; font-size: 15px; margin-top: 25px; }
-        .foot { padding: 25px; font-size: 12px; color: #9ca3af; text-align: center; }
+        .foot { padding: 25px; font-size: 12px; color: #9ca3af; text-align: center; max-width: 500px; margin: 0 auto; }
     </style>
 </head>
 <body>
     <div class="card">
         <div class="head">
-            <img src="{{ url('images/nandhini-logo.png') }}" alt="Nandhini Silks" style="max-height: 50px; width: auto; background: white; padding: 10px; border-radius: 12px; margin-bottom: 20px;">
+            <img src="{{ asset('images/nandhini-logo.png') }}" alt="Nandhini Silks" style="max-height: 50px; width: auto; background: white; padding: 10px; border-radius: 12px; margin-bottom: 20px;">
             <h1 style="display: block;">New Customer!</h1>
             <p style="margin: 8px 0 0; opacity: 0.8; font-weight: 600;">Someone just joined our family</p>
         </div>
@@ -33,7 +33,6 @@
                 <h3>{{ $user->name }}</h3>
                 <div class="user-meta">
                     <p style="margin: 5px 0;"><strong>Email:</strong> {{ $user->email }}</p>
-                    <p style="margin: 0;"><strong>Customer ID:</strong> #{{ $user->id }}</p>
                 </div>
             </div>
 
@@ -41,8 +40,8 @@
             
             <a href="{{ url('/admin/users/'.$user->id) }}" class="button">View Customer Profile</a>
         </div>
-        <div class="foot">
-            Automated Alert System &bull; {{ date('H:i, d M Y') }}
+        <div style="padding: 20px; text-align: center; color: #9ca3af; font-size: 11px; border-top: 2px solid #f9fafb;">
+            &copy; {{ date('Y') }} Nandhini Silks. Arani - 632317, Tamil Nadu. &bull; {{ date('d M Y') }}
         </div>
     </div>
 </body>

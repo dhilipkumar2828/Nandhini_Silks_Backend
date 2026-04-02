@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Nandhini Silks')</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/nandhini-logo.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -114,7 +115,7 @@
         }
 
         .cart-item-mini-name {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
             color: #111;
             margin: 0 0 4px;
@@ -123,13 +124,13 @@
         }
 
         .cart-item-mini-meta {
-            font-size: 12px;
+            font-size: 13px;
             color: #888;
             margin-bottom: 8px;
         }
 
         .cart-item-mini-price {
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 700;
             color: #A91B43;
         }
@@ -147,7 +148,7 @@
         }
 
         .cart-drawer-summary span {
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 600;
             color: #111;
         }
@@ -217,6 +218,26 @@
         input[type="file"]::file-selector-button:hover {
             background-color: #940437;
         }
+
+        .product-name-v2, .recently-viewed-name {
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2 !important;
+            -webkit-box-orient: vertical !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            min-height: 2.8em !important;
+            margin-bottom: 4px !important;
+        }
+
+        .read-more-link {
+            font-size: 12px;
+            color: #A91B43;
+            font-weight: 600;
+            text-decoration: underline;
+            margin-bottom: 8px;
+            display: block;
+            cursor: pointer;
+        }
     </style>
 
     <!-- Flatpickr -->
@@ -259,7 +280,7 @@
 
 </head>
 
-<body>
+<body class="{{ request()->routeIs('home') ? 'home-page' : 'inner-page' }}">
     <header class="top-header">
         <div class="page-shell header-row">
             <a href="{{ route('home') }}" class="brand-link">
@@ -309,6 +330,8 @@
             </button>
             <div class="nav-links" id="navLinks">
                 <a href="{{ route('home') }}" class="nav-item">Home</a>
+
+                <a href="{{ route('shop') }}" class="nav-item">Shop</a>
                 
                     {{-- <div class="mobile-menu-header">
                         <a href="{{ route('home') }}">
@@ -384,31 +407,31 @@
                 }
             });
 
-            const dropdownToggles = document.querySelectorAll('.nav-dropdown-toggle');
-            dropdownToggles.forEach(toggle => {
-                toggle.addEventListener('click', (e) => {
-                    if (window.innerWidth <= mobileBreakpoint) {
-                        const parent = toggle.parentElement;
-                        // Only prevent default if it has a dropdown
-                        if (parent.querySelector('.dropdown-content')) {
-                            e.preventDefault();
-                            parent.classList.toggle('mobile-open');
-                        }
-                    }
-                });
-            });
+//             const dropdownToggles = document.querySelectorAll('.nav-dropdown-toggle');
+//             dropdownToggles.forEach(toggle => {
+//                 toggle.addEventListener('click', (e) => {
+//                     if (window.innerWidth <= mobileBreakpoint) {
+//                         const parent = toggle.parentElement;
+//                         // Only prevent default if it has a dropdown
+//                         if (parent.querySelector('.dropdown-content')) {
+//                             e.preventDefault();
+//                             parent.classList.toggle('mobile-open');
+//                         }
+//                     }
+//                 });
+//             });
 
-            // Mobile Child Dropdown Toggles
-            const hasChildrenLinks = document.querySelectorAll('.has-children > a');
-            hasChildrenLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    if (window.innerWidth <= mobileBreakpoint) {
-                        e.preventDefault();
-                        const parent = link.parentElement;
-                        parent.classList.toggle('mobile-open');
-                    }
-                });
-            });
+//             // Mobile Child Dropdown Toggles
+//             const hasChildrenLinks = document.querySelectorAll('.has-children > a');
+//             hasChildrenLinks.forEach(link => {
+//                 link.addEventListener('click', (e) => {
+//                     if (window.innerWidth <= mobileBreakpoint) {
+//                         e.preventDefault();
+//                         const parent = link.parentElement;
+//                         parent.classList.toggle('mobile-open');
+//                     }
+//                 });
+//             });
 
             document.addEventListener('click', (e) => {
                 if (window.innerWidth <= mobileBreakpoint &&
@@ -536,7 +559,7 @@
             </div>
             <div class="footer-contact-item">
               <span class="footer-extra-box-1" aria-hidden="true"><img src="{{ asset('images/email.svg') }}" alt=""></span>
-              <p class="footer-contact-text">nandhinisilks.arani@gmail.com</p>
+              <p class="footer-contact-text">noreply@nandhinisilks.com</p>
             </div>
           </div>
 
@@ -591,9 +614,10 @@
             document.addEventListener('click', function(e) {
                 const btn = e.target.closest('.wishlist-btn');
                 if (btn) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     @guest
-                        toastr.info('Please login to save your wishlist.');
-                        setTimeout(() => window.location.href = '{{ route("login") }}', 1000);
+                        window.location.href = '{{ route("login") }}';
                         return;
                     @endguest
                     const productId = btn.getAttribute('data-product-id');
@@ -602,7 +626,7 @@
                     
                     let isInWishlist = false;
                     if (svg) {
-                        isInWishlist = svg.getAttribute('fill') === '#A91B43';
+                        isInWishlist = btn.getAttribute('aria-pressed') === 'true';
                     } else if (icon) {
                         isInWishlist = icon.classList.contains('fa-solid');
                     }
@@ -612,12 +636,27 @@
                     fetch(url, {
                         method: 'POST',
                         headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
                         }
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        if (response.status === 419) {
+                            // CSRF Token mismatch / Session expired
+                            Swal.fire({
+                                title: 'Session Expired',
+                                text: 'Your session has expired. Please refresh the page to continue.',
+                                icon: 'warning',
+                                confirmButtonText: 'Refresh Page',
+                                confirmButtonColor: '#A91B43'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                            throw new Error('CSRF token mismatch');
+                        }
+                        return response.json();
+                    })
                     .then(data => {
                         if (data.success) {
                             // Update all buttons for this product
@@ -625,7 +664,12 @@
                             allBtns.forEach(b => {
                                 const s = b.querySelector('svg');
                                 const i = b.querySelector('i');
-                                if (s) s.setAttribute('fill', isInWishlist ? '#666' : '#A91B43');
+                                b.setAttribute('aria-pressed', isInWishlist ? 'false' : 'true');
+                                if (s) {
+                                    s.setAttribute('fill', isInWishlist ? '#FBF2D1' : '#927541');
+                                    s.setAttribute('stroke', '#927541');
+                                    s.setAttribute('stroke-width', '2.5');
+                                }
                                 if (i) {
                                     if (isInWishlist) {
                                         i.classList.replace('fa-solid', 'fa-regular');
@@ -634,6 +678,10 @@
                                     }
                                 }
                             });
+
+                            if (typeof toastr !== 'undefined') {
+                                toastr.success(data.message || (isInWishlist ? 'Removed from wishlist' : 'Added to wishlist'));
+                            }
 
                             // Update Header Count
                             const wishlistCountBadges = document.querySelectorAll('.wishlist-count-badge');
@@ -761,18 +809,19 @@
                                 <div class="cart-item-mini-info">
                                     <a href="/product/${item.slug}" class="cart-item-mini-name">${item.name}</a>
                                     <div class="cart-item-mini-meta">
-                                        ${item.size ? 'Size: ' + item.size : ''} 
-                                        ${item.color ? ' | Color: ' + item.color : ''}
+                                        ${item.display_attributes && item.display_attributes.length > 0 
+                                            ? item.display_attributes.map(attr => `${attr.name}: ${attr.value}`).join(' | ') 
+                                            : ''}
                                         <br>Qty: ${item.quantity}
                                     </div>
-                                    <div class="cart-item-mini-price">&#8377;${(item.price * item.quantity).toLocaleString('en-IN')}</div>
+                                    <div class="cart-item-mini-price">&#8377;${(item.price * item.quantity).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                                 </div>
-                                <button onclick="removeMiniCartItem('${item.key}')" style="position: absolute; top: 0; right: 0; background: none; border: none; color: #ff4d4d; cursor: pointer; font-size: 16px; padding: 5px;">&times;</button>
+                                <button onclick="removeMiniCartItem('${item.key}')" style="font-size: 17px; position: absolute; top: 0; right: 0; background: none; border: none; color: #ff4d4d; cursor: pointer; padding: 5px;">&times;</button>
                             </div>
                         `;
                     });
                     content.innerHTML = html;
-                    if(subtotal) subtotal.textContent = '\u20B9' + data.subTotal.toLocaleString('en-IN');
+                    if(subtotal) subtotal.textContent = '\u20B9' + data.subTotal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
                 }
                 
                 // Sync main cart badges
@@ -796,17 +845,32 @@
                 confirmButtonText: 'Yes, remove it!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = "{{ url('cart/remove') }}/" + key;
-                    const csrf = document.createElement('input');
-                    csrf.type = 'hidden';
-                    csrf.name = '_token';
-                    csrf.value = "{{ csrf_token() }}";
-                    form.appendChild(csrf);
-                    document.body.appendChild(form);
-                    notifyCartUpdate(); // Trigger sync before redirect
-                    form.submit();
+                    fetch("{{ url('cart/remove') }}/" + key, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            toastr.success(data.message || 'Item removed.');
+                            notifyCartUpdate(); // Trigger sync
+                            // If on cart page, refresh or remove row surgically
+                            if (window.location.pathname.includes('/cart')) {
+                                // Full reload once is fine for removal, it doesn't pollute history like a form post does
+                                window.location.reload();
+                            } else if (window.updateMiniCart) {
+                                window.updateMiniCart();
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Removal error:', err);
+                        window.location.reload();
+                    });
                 }
             });
         }
@@ -825,12 +889,26 @@
                     fetch('{{ url("cart/remove") }}/' + key, {
                         method: 'POST',
                         headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest'
                         }
                     })
-                    .then(res => res.json())
+                    .then(response => {
+                        if (response.status === 419) {
+                            Swal.fire({
+                                title: 'Session Expired',
+                                text: 'Your session has expired. Please refresh the page to continue.',
+                                icon: 'warning',
+                                confirmButtonText: 'Refresh Page',
+                                confirmButtonColor: '#A91B43'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                            throw new Error('CSRF token mismatch');
+                        }
+                        return response.json();
+                    })
                     .then(data => {
                         if(data.success) {
                             toastr.success(data.message || 'Item removed.');
@@ -846,6 +924,29 @@
         }
     </script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        // Global AJAX Setup for jQuery
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        // Global AJAX Error Handling for jQuery (Handle 419 Session Expired)
+        $(document).ajaxError(function(event, xhr, settings, thrownError) {
+            if (xhr.status === 419) {
+                Swal.fire({
+                    title: 'Session Expired',
+                    text: 'Your session has expired. Please refresh the page to continue.',
+                    icon: 'warning',
+                    confirmButtonText: 'Refresh Page',
+                    confirmButtonColor: '#A91B43'
+                }).then(() => {
+                    window.location.reload();
+                });
+            }
+        });
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.20.0/jquery.validate.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -866,9 +967,63 @@
         });
 
         $(document).ready(function() {
+            function getFieldContainer(element) {
+                return $(element).closest('.form-group, .mb-4, .mb-3, .checkout-field, .review-form-group');
+            }
+
+            function getFieldLabel(element) {
+                const container = getFieldContainer(element);
+                const label = container.find('label').first();
+                const fallback = $(element).attr('placeholder') || $(element).attr('name') || 'this field';
+
+                if (!label.length) {
+                    return fallback.replace(/_/g, ' ').trim();
+                }
+
+                return label.text()
+                    .replace(/\*/g, '')
+                    .replace(/verified/ig, '')
+                    .replace(/\s+/g, ' ')
+                    .trim() || fallback.replace(/_/g, ' ').trim();
+            }
+
+            function setDefaultValidationMessages($field) {
+                const type = ($field.attr('type') || '').toLowerCase();
+                const name = ($field.attr('name') || '').toLowerCase();
+                const label = getFieldLabel($field);
+
+                if ($field.prop('required') && !$field.attr('data-msg-required')) {
+                    $field.attr('data-msg-required', `Please enter ${label.toLowerCase()}.`);
+                }
+
+                if (type === 'email' && !$field.attr('data-msg-email')) {
+                    $field.attr('data-msg-email', 'Please enter a valid email address.');
+                }
+
+                if ((type === 'tel' || name.includes('phone')) && !$field.attr('data-msg-digits')) {
+                    $field.attr('data-msg-digits', 'Please enter a valid phone number.');
+                }
+
+                if ((name.includes('zip') || name.includes('pincode')) && !$field.attr('data-msg-digits')) {
+                    $field.attr('data-msg-digits', 'Please enter a valid pincode.');
+                }
+
+                if ($field.attr('minlength') && !$field.attr('data-msg-minlength')) {
+                    $field.attr('data-msg-minlength', `Please enter at least ${$field.attr('minlength')} characters for ${label.toLowerCase()}.`);
+                }
+
+                if ($field.attr('maxlength') && !$field.attr('data-msg-maxlength')) {
+                    $field.attr('data-msg-maxlength', `Please enter no more than ${$field.attr('maxlength')} characters for ${label.toLowerCase()}.`);
+                }
+
+                if ($field.attr('data-rule-equalTo') && !$field.attr('data-msg-equalTo')) {
+                    $field.attr('data-msg-equalTo', 'Please enter the same value again.');
+                }
+            }
+
             // Auto-add * to required labels
             $('input[required], select[required], textarea[required], input[data-rule-required="true"]').each(function() {
-                var label = $(this).closest('.form-group, .mb-4, .mb-3, .checkout-field').find('label').first();
+                var label = getFieldContainer(this).find('label').first();
                 if (label.length) {
                     if (!label.find('.text-rose-500').length && !label.find('.text-red-500').length && label.text().indexOf('*') === -1) {
                         label.append('<span style="color: #a91b43; margin-left: 4px;">*</span>');
@@ -878,17 +1033,29 @@
 
             // Initialize validation on forms with 'validate-form' class
             $('.validate-form').each(function() {
+                $(this).find('input, select, textarea').each(function() {
+                    setDefaultValidationMessages($(this));
+                });
+
                 $(this).validate({
                     errorElement: 'span',
                     errorClass: 'error-text',
+                    ignore: ':hidden:not(select):not(textarea):not([type="hidden"])',
                     highlight: function(element) {
                         $(element).addClass('error-border');
+                        getFieldContainer(element).addClass('has-error');
                     },
                     unhighlight: function(element) {
                         $(element).removeClass('error-border');
+                        getFieldContainer(element).removeClass('has-error');
                     },
                     errorPlacement: function(error, element) {
-                        error.insertAfter(element);
+                        const wrap = element.closest('.password-input-wrap');
+                        if (wrap.length) {
+                            error.insertAfter(wrap);
+                        } else {
+                            error.insertAfter(element);
+                        }
                     },
                     invalidHandler: function(event, validator) {
                         // Scroll to first error
@@ -902,7 +1069,15 @@
             });
         });
 
-        toastr.options = {"closeButton": true, "progressBar": true, "positionClass": "toast-top-right", "timeOut": "5000"};
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "15000",
+            "extendedTimeOut": "5000",
+            "preventDuplicates": true,
+            "newestOnTop": true
+        };
         @if(session('success')) toastr.success("{{ session('success') }}"); @endif
         @if(session('error')) toastr.error("{{ session('error') }}"); @endif
         @if($errors->any()) @foreach($errors->all() as $error) toastr.error("{{ $error }}"); @endforeach @endif

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Invoice #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}</title>
+    <title>Invoice #{{ str_pad($order->order_number, 6, '0', STR_PAD_LEFT) }}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: DejaVu Sans, sans-serif; font-size: 11px; color: #1e293b; background: #fff; }
@@ -107,7 +107,7 @@
         </div>
         <div class="header-right">
             <div class="invoice-title">INVOICE</div>
-            <div class="invoice-number">#{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}</div>
+            <div class="invoice-number">#{{ str_pad($order->order_number, 6, '0', STR_PAD_LEFT) }}</div>
             <div class="invoice-date">{{ $order->created_at->format('d M Y, h:i A') }}</div>
         </div>
     </div>

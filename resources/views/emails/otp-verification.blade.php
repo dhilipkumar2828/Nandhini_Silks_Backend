@@ -5,37 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Email Verification - Nandhini Silks</title>
     <style>
-        body { font-family: 'Inter', Arial, sans-serif; background-color: #f7f7f7; margin: 0; padding: 0; }
-        .wrapper { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); overflow: hidden; }
-        .header { background: linear-gradient(90deg, #a91b43 0%, #fbb624 100%); padding: 40px; text-align: center; }
-        .logo { max-height: 80px; width: auto; background: #fff; padding: 12px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .content { padding: 45px 35px; text-align: center; }
-        .otp-box { background-color: #fdf2f8; border: 2px dashed #a91b43; padding: 25px; border-radius: 15px; margin: 30px auto; width: fit-content; }
-        .otp-code { font-size: 38px; font-weight: 900; color: #a91b43; letter-spacing: 12px; margin: 0; }
-        .footer { padding: 30px; text-align: center; color: #888; font-size: 13px; border-top: 1px solid #eee; background-color: #fafafa; }
+        body { font-family: Arial, sans-serif; background-color: #ffffff; color: #333333; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; border: 1px solid #eeeeee; padding: 30px; border-radius: 8px; }
+        .header { text-align: center; border-bottom: 2px solid #a91b43; padding-bottom: 20px; margin-bottom: 20px; }
+        .content { font-size: 16px; line-height: 1.5; }
+        .otp-box { background-color: #f7f7f7; border: 1px solid #dddddd; padding: 20px; text-align: center; margin: 20px 0; border-radius: 4px; }
+        .otp-code { font-size: 32px; font-weight: bold; color: #a91b43; letter-spacing: 5px; margin: 0; }
+        .footer { font-size: 12px; color: #777777; text-align: center; margin-top: 30px; border-top: 1px solid #eeeeee; padding-top: 20px; }
     </style>
 </head>
 <body>
-    <div class="wrapper">
+    <div class="container">
         <div class="header">
-            <img src="{{ url('images/nandhini-logo.png') }}" class="logo" alt="Nandhini Silks">
-            <h1 style="color: #fff; margin: 0; font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">Verification Code</h1>
+            <h2 style="color: #a91b43; margin: 0;">Nandhini Silks</h2>
         </div>
         <div class="content">
-            <h2 style="color: #111; font-weight: 800; margin-top: 0;">Confirm Your Identity</h2>
-            <p style="color: #666; font-size: 16px; line-height: 1.6;">Welcome to Nandhini Silks! To complete your registration and secure your account, please use the following one-time password (OTP):</p>
+            <p>Hello,</p>
+            <p>Welcome to Nandhini Silks center! Please use the following one-time password (OTP) to verify your email address:</p>
             
             <div class="otp-box">
                 <p class="otp-code">{{ $otp }}</p>
             </div>
 
-            <p style="color: #999; font-size: 14px;">This code will expire in 10 minutes. <br>Please do not share this code with anyone.</p>
+            <p>This code will expire in 10 minutes. If you did not request this, please ignore this email.</p>
             
-            <p style="margin-top: 40px; font-weight: 600; color: #444;">Happy Shopping!</p>
+            <p>Regards,<br>Team Nandhini Silks</p>
         </div>
         <div class="footer">
-            &copy; {{ date('Y') }} Nandhini Silks. Arani, Tamil Nadu. <br>
-            Aapka bharosa, hamari pehchan.
+            &copy; {{ date('Y') }} Nandhini Silks. Arani, Tamil Nadu.
         </div>
     </div>
 </body>

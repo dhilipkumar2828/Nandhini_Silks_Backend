@@ -19,9 +19,17 @@
         <div class="card-glass p-5 rounded-2xl">
             <div class="flex items-center gap-4">
                 @php
-                    $avatar = $user->profile_picture
-                        ? asset('uploads/users/' . $user->profile_picture)
-                        : null;
+                    $avatar = null;
+                    if (!empty($user->profile_picture)) {
+                        $profilePicture = ltrim((string) $user->profile_picture, '/');
+                        if (str_starts_with($profilePicture, 'http://') || str_starts_with($profilePicture, 'https://')) {
+                            $avatar = $profilePicture;
+                        } elseif (str_starts_with($profilePicture, 'uploads/')) {
+                            $avatar = asset($profilePicture);
+                        } else {
+                            $avatar = asset('uploads/' . $profilePicture);
+                        }
+                    }
                 @endphp
                 @if($avatar)
                     <img src="{{ $avatar }}" alt="{{ $user->name }}" class="w-14 h-14 rounded-full object-cover border border-slate-200">
@@ -72,9 +80,10 @@
                                         <span class="text-[9px] font-bold uppercase text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">Default</span>
                                     @endif
                                 </div>
-                                <div class="text-xs text-slate-600 leading-relaxed">
+                                <div class="text-xs text-slate-600 leading-relaxed font-medium">
+                                    <div class="font-bold text-slate-800">{{ $address->recipient_name }}</div>
+                                    <div class="text-[10px] text-slate-500 mb-1 tracking-tighter">{{ $address->recipient_phone }}</div>
                                     {{ $address->address1 }}<br>
-                                    @if($address->address2){{ $address->address2 }}<br>@endif
                                     {{ $address->city }}, {{ $address->state }} {{ $address->zip }}<br>
                                     {{ $address->country }}<br>
                                     @if($address->landmark)<span class="text-slate-400">Landmark: {{ $address->landmark }}</span>@endif

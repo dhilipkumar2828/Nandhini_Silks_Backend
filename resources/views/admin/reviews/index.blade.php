@@ -35,15 +35,37 @@
         </div>
     </div>
 
-    <!-- Multi-select Filter / Actions Placeholder -->
+    <!-- Filter / Search Row -->
     <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-        <div class="relative w-full md:w-96">
-            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                <i class="fas fa-search"></i>
-            </span>
-            <input type="text" placeholder="Search reviews..." 
-                   class="w-full bg-white border border-slate-200 rounded-xl pl-12 pr-4 py-3 text-sm focus:border-[#a91b43] focus:ring-4 focus:ring-[#a91b43]/5 transition-all outline-none">
-        </div>
+        <form action="{{ route('admin.reviews.index') }}" method="GET" class="relative w-full flex flex-col md:flex-row items-center gap-3">
+            <div class="relative w-full md:w-96 flex-shrink-0">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input type="text" name="search" value="{{ Request::get('search') }}" placeholder="Search reviews..." 
+                    class="w-full bg-white border border-slate-200 rounded-xl pl-12 pr-4 py-3 text-sm focus:border-[#a91b43] focus:ring-4 focus:ring-[#a91b43]/5 transition-all outline-none">
+            </div>
+
+            <div class="w-full md:w-48">
+                <select name="status" onchange="this.form.submit()" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:border-[#a91b43] outline-none transition-all">
+                    <option value="">All Status</option>
+                    <option value="1" {{ Request::get('status') == '1' ? 'selected' : '' }}>Published</option>
+                    <option value="0" {{ Request::get('status') == '0' ? 'selected' : '' }}>Pending</option>
+                </select>
+            </div>
+            
+            <div class="flex items-center gap-2 ml-auto">
+                @if(Request::filled('search') || Request::filled('status'))
+                <a href="{{ route('admin.reviews.index') }}" class="px-4 py-3 bg-slate-100 text-slate-500 rounded-xl hover:bg-slate-200 transition-colors text-sm font-bold flex items-center justify-center whitespace-nowrap">
+                    Clear Filters
+                </a>
+                @endif
+                
+                <button type="submit" class="px-6 py-3 bg-[#a91b43] text-white rounded-xl hover:bg-[#940437] transition-colors text-sm font-bold shadow-lg shadow-pink-900/10 active:scale-[0.98]">
+                    Filter
+                </button>
+            </div>
+        </form>
     </div>
 
     <!-- Table -->
@@ -74,19 +96,19 @@
                                     <img src="{{ $review->product->primary_image ? asset('uploads/' . $review->product->primary_image) : asset('images/pro.png') }}" class="w-full h-full object-cover">
                                 </div>
                                 <div class="max-w-[200px]">
-                                    <p class="text-xs font-black text-slate-800 truncate" title="{{ $review->product->name }}">{{ $review->product->name }}</p>
-                                    <p class="text-[10px] font-bold text-slate-400">SKU: {{ $review->product->sku ?: 'N/A' }}</p>
+                                    <p class="text-xs font-black text-slate-800 truncate" title="{{ optional($review->product)->name ?? 'Deleted Product' }}">{{ optional($review->product)->name ?? 'Deleted Product' }}</p>
+                                    <p class="text-[10px] font-bold text-slate-400">SKU: {{ optional($review->product)->sku ?: 'N/A' }}</p>
                                 </div>
                             </div>
                         </td>
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-full bg-[#a91b43]/10 text-[#a91b43] flex items-center justify-center font-bold text-xs uppercase">
-                                    {{ substr($review->user->name, 0, 1) }}
+                                    {{ substr(optional($review->user)->name ?? 'D', 0, 1) }}
                                 </div>
                                 <div>
-                                    <p class="text-xs font-black text-slate-800">{{ $review->user->name }}</p>
-                                    <p class="text-[10px] font-bold text-slate-400">{{ $review->user->email }}</p>
+                                    <p class="text-xs font-black text-slate-800">{{ optional($review->user)->name ?? 'Deleted User' }}</p>
+                                    <p class="text-[10px] font-bold text-slate-400">{{ optional($review->user)->email ?? 'N/A' }}</p>
                                 </div>
                             </div>
                         </td>
