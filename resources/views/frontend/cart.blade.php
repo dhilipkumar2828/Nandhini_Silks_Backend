@@ -142,9 +142,9 @@
                 justify-content: center;
                 gap: 0;
                 /* background: #f8f9fa;
-                                                border-radius: 10px;
-                                                padding: 4px;
-                                                border: 1px solid #eee; */
+                                                        border-radius: 10px;
+                                                        padding: 4px;
+                                                        border: 1px solid #eee; */
                 width: fit-content;
             }
 
@@ -294,7 +294,7 @@
                     align-self: center !important;
                     justify-self: end !important;
                     margin: 0 !important;
-                    font-size: 24px !important;
+                    font-size: 20px !important;
                 }
 
                 /* Summary Coupon Field stacking */
