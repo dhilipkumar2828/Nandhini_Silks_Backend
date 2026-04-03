@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // For MySQL, we need to modify the enum column
+        // MODIFY COLUMN is MySQL-specific syntax
         DB::statement("ALTER TABLE coupons MODIFY COLUMN type ENUM('percentage', 'fixed', 'free_shipping') NOT NULL");
     }
 

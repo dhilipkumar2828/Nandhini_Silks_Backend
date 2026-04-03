@@ -743,6 +743,8 @@
             .featured-inner,
             .promo-section,
             .testimonial-section {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
                 padding-left: 20px !important;
                 padding-right: 20px !important;
             }
@@ -755,12 +757,12 @@
 
             /* Nav buttons sit on the left/right edge of the section padding area */
             .collection-prev {
-                left: -35px;
+                left: -45px;
                 top: 40%;
             }
 
             .collection-next {
-                right: -35px;
+                right: -45px;
                 top: 40%;
             }
 
@@ -774,6 +776,9 @@
             .featured-card {
                 align-items: center !important;
                 text-align: center !important;
+                width: 100% !important;
+                max-width: 280px !important; /* Limit card width */
+                margin: 0 auto !important;
             }
 
             .collection-name,
@@ -783,6 +788,10 @@
                 margin-top: 12px !important;
                 margin-bottom: 6px !important;
                 width: 100%;
+                text-align: center !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
             }
 
             .collection-cta,
