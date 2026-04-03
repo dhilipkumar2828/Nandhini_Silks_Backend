@@ -358,12 +358,19 @@
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">PINCODE</label>
-                                    <input type="text" name="pincode" id="field_zip" placeholder="Pincode" class="form-input-v4" required minlength="6" maxlength="6" data-rule-digits="true"
+                                    <input type="text" name="pincode" id="field_zip" placeholder="Pincode" class="form-input-v4" 
+                                        value="{{ old('pincode', session('checked_pincode')) }}" required minlength="6" maxlength="6" data-rule-digits="true"
                                         inputmode="numeric"
+                                        oninput="checkPincodeAvailability(this.value)"
                                         data-msg-required="Please enter pincode."
                                         data-msg-digits="Please enter a valid 6-digit pincode."
                                         data-msg-minlength="Please enter a valid 6-digit pincode."
                                         data-msg-maxlength="Please enter a valid 6-digit pincode.">
+                                    <div id="pincodeAvailabilityMsg" style="font-size: 11px; margin-top: 5px; min-height: 15px;">
+                                        @if(session('checked_pincode') && session('checked_pincode_edd'))
+                                            <span style="color: #27ae60; font-weight: 600;"><i class="fas fa-check-circle"></i> Estimated delivery by {{ session('checked_pincode_edd') }}</span>
+                                        @endif
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; display: block;">COUNTRY</label>
@@ -634,6 +641,11 @@
         
         document.getElementById('field_zip').value = element.getAttribute('data-zip');
         
+        // Check availability for the selected saved address
+        if (element.getAttribute('data-zip')) {
+            checkPincodeAvailability(element.getAttribute('data-zip'));
+        }
+        
         // Trigger shipping update
         updateShipping();
     }
@@ -716,5 +728,43 @@
             document.getElementById('field_address').value = `${addr}, ${city}, ${state} - ${zip}`;
         }
     });
+
+    let pinTimeout = null;
+    function checkPincodeAvailability(val) {
+        const msgEl = document.getElementById('pincodeAvailabilityMsg');
+        if (val.length === 6 && !isNaN(val)) {
+            if (pinTimeout) clearTimeout(pinTimeout);
+            
+            pinTimeout = setTimeout(() => {
+                msgEl.innerHTML = '<span style="color: #666;"><i class="fas fa-spinner fa-spin"></i> Checking availability...</span>';
+                
+                fetch("{{ route('check-serviceability') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ pincode: val })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        msgEl.innerHTML = `<span style="color: #27ae60; font-weight: 600;"><i class="fas fa-check-circle"></i> Estimated delivery by ${data.edd}</span>`;
+                        // Automatically update shipping costs if pincode is valid
+                        updateShipping();
+                    } else {
+                        msgEl.innerHTML = `<span style="color: #e74c3c; font-weight: 600;"><i class="fas fa-times-circle"></i> ${data.message}</span>`;
+                    }
+                })
+                .catch(err => {
+                    msgEl.innerHTML = '';
+                    console.error('Pincode check error:', err);
+                });
+            }, 500); 
+        } else {
+            msgEl.innerHTML = '';
+        }
+    }
 </script>
 @endpush

@@ -28,9 +28,18 @@ class Order extends Model
         'order_status',
         'delivery_address',
         'billing_address',
+        'shipping_city',
+        'shipping_state',
+        'shipping_pincode',
+        'shipping_country',
         'admin_notes',
         'tracking_number',
         'courier_name',
+        'shiprocket_order_id',
+        'shiprocket_shipment_id',
+        'shiprocket_awb',
+        'shiprocket_status',
+        'edd',
     ];
 
     protected $casts = [
@@ -75,11 +84,12 @@ class Order extends Model
     public function getOrderStatusBadgeAttribute()
     {
         return match($this->order_status) {
+            'order placed' => ['label' => 'Order Placed', 'class' => 'bg-slate-50 text-slate-600'],
             'processing'  => ['label' => 'Processing',  'class' => 'bg-blue-50 text-blue-600'],
             'dispatched'  => ['label' => 'Dispatched',  'class' => 'bg-orange-50 text-orange-600'],
             'delivered'   => ['label' => 'Delivered',   'class' => 'bg-emerald-50 text-emerald-600'],
             'cancelled'   => ['label' => 'Cancelled',   'class' => 'bg-rose-50 text-rose-600'],
-            default       => ['label' => 'Pending',     'class' => 'bg-slate-50 text-slate-600'],
+            default       => ['label' => 'Order Placed',     'class' => 'bg-slate-50 text-slate-600'],
         };
     }
 }

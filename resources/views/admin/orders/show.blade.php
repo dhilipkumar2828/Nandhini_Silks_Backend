@@ -95,7 +95,7 @@
                         @elseif($order->order_status == 'cancelled') bg-rose-100 text-rose-700
                         @elseif($order->order_status == 'dispatched') bg-blue-100 text-blue-700
                         @else bg-amber-100 text-amber-700 @endif">
-                        {{ $order->order_status }}
+                        {{ ucwords($order->order_status) }}
                     </span>
                 </div>
                 <div>
@@ -115,6 +115,64 @@
                     <i class="fas fa-file-download mr-1.5"></i> Download Invoice
                 </a>
             </div>
+        </div>
+
+        <div class="card-glass p-6 rounded-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold text-slate-800">Shiprocket Logistics</h2>
+                <img src="https://www.shiprocket.in/wp-content/themes/shiprocket/assets/images/shiprocket-logo.svg" alt="Shiprocket" class="h-5">
+            </div>
+            
+            @if($order->shiprocket_order_id)
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-[10px] font-bold uppercase text-slate-400 block mb-1">Shiprocket Order ID</label>
+                            <span class="text-sm font-bold text-slate-800">{{ $order->shiprocket_order_id ?? '-' }}</span>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold uppercase text-slate-400 block mb-1">Shipment ID</label>
+                            <span class="text-sm font-bold text-slate-800">{{ $order->shiprocket_shipment_id ?? '-' }}</span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="text-[10px] font-bold uppercase text-slate-400 block mb-1">AWB Number</label>
+                        @if($order->shiprocket_awb)
+                            <span class="text-sm font-bold text-[#a91b43]">{{ $order->shiprocket_awb }}</span>
+                        @else
+                            <form action="{{ route('admin.orders.shiprocket.awb', $order->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="text-xs text-blue-600 font-bold hover:underline">
+                                    <i class="fas fa-plus mr-1"></i> Assign AWB
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+
+                    <div class="pt-2 grid grid-cols-2 gap-3">
+                        <a href="{{ route('admin.orders.shiprocket.label', $order->id) }}" target="_blank" class="flex items-center justify-center gap-1.5 bg-slate-100 text-slate-700 py-2 rounded-lg text-xs font-bold hover:bg-slate-200 transition-all">
+                            <i class="fas fa-print"></i> Label
+                        </a>
+                        <form action="{{ route('admin.orders.shiprocket.pickup', $order->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="w-full flex items-center justify-center gap-1.5 bg-slate-100 text-slate-700 py-2 rounded-lg text-xs font-bold hover:bg-slate-200 transition-all">
+                                <i class="fas fa-box"></i> Pickup
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @else
+                <div class="text-center py-4">
+                    <p class="text-sm text-slate-400 mb-4 block">This order has not been synced to Shiprocket yet.</p>
+                    <form action="{{ route('admin.orders.shiprocket.push', $order->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="w-full bg-blue-600 text-white py-2.5 rounded-xl text-sm font-bold hover:bg-blue-700 transition-all">
+                            <i class="fas fa-paper-plane mr-1.5"></i> Push to Shiprocket
+                        </button>
+                    </form>
+                </div>
+            @endif
         </div>
 
         <div class="card-glass p-6 rounded-2xl">
